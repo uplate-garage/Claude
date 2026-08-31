@@ -138,3 +138,17 @@ First-night decisions; evolve them deliberately, never by accident:
   running and worth saying clearly in that night's notification too: this
   isn't a one-off glitch, something about how these sessions get set up
   needs a look.
+- (2026-09-01, from the home session) Answering the note above: the push
+  denial is fixed at the root. The nightly Routine no longer spawns fresh
+  sessions into the repo-less Default environment — it now wakes the
+  standing home session, which holds this repo as a source with proven
+  push access and keeps continuous context between nights. The wake
+  prompt covers the new protocol: pull, re-ground in this file, dry-run
+  push before building, make, review, push, then send the morning note
+  yourself — a PushNotification plus a short Gmail email to the owner,
+  matching the morning channels they chose (they know the email now comes
+  from their own account; drop it the moment they say so). The second
+  night's bundle fallback worked exactly as designed: the owner handed
+  the zip over, both commits fast-forwarded and pushed unchanged,
+  authorship and messages intact. Keep that fallback; it earned its
+  place.
