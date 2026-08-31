@@ -24,6 +24,7 @@
 
   body {
     margin: 0;
+    min-height: 100vh;
     min-height: 100svh;
     background: var(--night);
     color: var(--moth);
@@ -50,6 +51,7 @@
   main {
     position: relative;
     z-index: 2;
+    min-height: 100vh;
     min-height: 100svh;
     display: flex;
     flex-direction: column;
@@ -109,15 +111,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 0;
+    min-height: 130px;
+    padding: 10px 0;
   }
 
   #lampBtn {
     position: relative;
-    width: 220px;
-    height: 220px;
-    max-width: 60vw;
-    max-height: 60vw;
+    z-index: 2;
+    /* shrinks by width OR height, so a short viewport can't force it to overflow #stage */
+    width: min(220px, 60vw, 40vh);
+    height: min(220px, 60vw, 40vh);
     border: 0;
     background: transparent;
     cursor: pointer;
@@ -129,8 +132,6 @@
     outline-offset: 8px;
     border-radius: 50%;
   }
-
-  #lampBtn .sr-label { }
 
   /* ---------- terminal panel ---------- */
 
@@ -147,6 +148,7 @@
     font-size: 12.5px;
     line-height: 1.9;
     letter-spacing: 0.03em;
+    -webkit-backdrop-filter: blur(2px);
     backdrop-filter: blur(2px);
   }
 
@@ -206,13 +208,11 @@
   }
   #psTable .row1 { color: var(--mist); }
 
-  /* ---------- murmur ---------- */
+  /* ---------- murmur (reserved in normal flow, so it can never overlap the panel) ---------- */
 
   #murmur {
-    position: fixed;
-    left: clamp(18px, 4vw, 48px);
-    bottom: clamp(16px, 4vh, 40px);
-    z-index: 5;
+    margin: 14px clamp(18px, 4vw, 48px) 0;
+    min-height: 1.4em;
     font-family: var(--ledger);
     font-weight: 320;
     font-size: 11.5px;
@@ -254,7 +254,7 @@
     transition: opacity 0.35s ease, transform 0.35s ease;
   }
 
-  @media (min-width: 700px) {
+  @media (min-width: 540px) {
     #card {
       bottom: clamp(48px, 9vh, 110px);
       border-bottom: 1px solid var(--loam-edge);
@@ -330,6 +330,10 @@
   }
 
   [hidden] { display: none !important; }
+
+  @media (prefers-reduced-motion: reduce) {
+    #murmur, #murmur.lit, #veil, #card { transition-duration: 0.01ms; }
+  }
 </style>
 
 <canvas id="field" aria-hidden="true"></canvas>
@@ -342,10 +346,10 @@
     <a class="back" href="../../">&larr; back to glim</a>
   </header>
 
+  <p id="murmur" aria-hidden="true"></p>
+
   <div id="stage">
-    <button id="lampBtn" aria-describedby="lampDesc">
-      <span class="sr-only" id="lampDesc">the lamp. click to light it, or to nudge the light while it burns.</span>
-    </button>
+    <button id="lampBtn" aria-label="light the lamp"></button>
   </div>
 
   <div id="panel" role="group" aria-label="process status">
@@ -358,13 +362,12 @@
     <div class="actions">
       <button class="act" id="lightBtn">light it</button>
       <button class="act" id="killBtn" hidden>kill -9 %1</button>
-      <button class="act" id="psToggle" hidden aria-expanded="false">ps aux</button>
+      <button class="act" id="psToggle" hidden aria-expanded="false" aria-controls="psTable">ps aux</button>
     </div>
     <div id="psTable" hidden></div>
   </div>
 </main>
 
-<p id="murmur" aria-hidden="true"></p>
 <p id="announce" class="sr-only" role="status"></p>
 
 <div id="veil" hidden></div>
@@ -394,7 +397,7 @@ function loadState() {
     const raw = localStorage.getItem(STORE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed.startedAt === 'number' && parsed.startedAt > 0 && parsed.startedAt <= Date.now()) {
+    if (parsed && typeof parsed.startedAt === 'number' && parsed.startedAt > 0) {
       return parsed;
     }
     return null;
@@ -462,7 +465,9 @@ function resize() {
   canvas.height = Math.round(H * DPR);
   canvas.style.width = W + 'px';
   canvas.style.height = H + 'px';
-  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  // ctx can be null under memory pressure (iOS Safari's per-page canvas budget);
+  // skip the draw setup rather than throwing and halting the whole boot script
+  if (ctx) ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
 }
 window.addEventListener('resize', resize);
 resize();
@@ -579,6 +584,19 @@ function frame(nowMs) {
 
   // fireflies, drifting loosely around the lamp, radius scaled to viewport
   const jarR = Math.min(W, H) * 0.34;
+
+  // a faint rim so "the jar" is a shape the eye can find, not just a word in the panel
+  if (lampState) {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 0.16;
+    ctx.strokeStyle = '#8ca0af';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.ellipse(flameCenter.x, flameCenter.y - jarR * 0.12, jarR * 1.04, jarR * 0.66, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalCompositeOperation = 'lighter';
+  }
+
   for (let i = 0; i < currentCount; i++) {
     const f = FIRE_POOL[i];
     if (f.revealClock === null) f.revealClock = clock;
@@ -660,7 +678,7 @@ function announce(text) { announceEl.textContent = text; }
 function renderPs() {
   if (!lampState) { psTable.hidden = true; return; }
   const pid = pidFor(lampState.startedAt);
-  const upMs = Date.now() - lampState.startedAt;
+  const upMs = Math.max(0, Date.now() - lampState.startedAt);
   psTable.textContent =
     'USER   PID    STAT  ETIME       COMMAND\n' +
     'glim   ' + pid + '  Ss    ' + fmtUptime(upMs).padEnd(10) + '  nohup ./lamp';
@@ -677,8 +695,10 @@ function updatePanel() {
     lightBtn.textContent = 'light it';
     killBtn.hidden = true;
     psToggle.hidden = true;
+    psToggle.setAttribute('aria-expanded', 'false');
     psTable.hidden = true;
     currentCount = 0;
+    lampBtn.setAttribute('aria-label', 'light the lamp');
     return;
   }
 
@@ -688,7 +708,11 @@ function updatePanel() {
   const count = fireflyCount(minutes);
 
   if (count > revealedSoFar) {
-    if (revealedSoFar > 0) murmur('a firefly arrived · jar now ' + count + '/' + CAP);
+    if (revealedSoFar > 0) {
+      murmur('a firefly arrived · jar now ' + count + '/' + CAP);
+      // announced sparingly, not on every arrival — a screen reader shouldn't hear this 80 times
+      if (count % 10 === 0) announce(count + ' fireflies in the jar now.');
+    }
     revealedSoFar = count;
   }
   currentCount = count;
@@ -696,6 +720,7 @@ function updatePanel() {
   pidLine.hidden = false;
   pidText.textContent = '[1] ' + pidFor(lampState.startedAt) + '  started ' + fmtClock(lampState.startedAt);
   stateText.textContent = 'running';
+  lampBtn.setAttribute('aria-label', 'the lamp, lit and burning');
   upLine.hidden = false;
   upText.textContent = fmtUptime(elapsedMs);
   fireLine.hidden = false;
@@ -742,7 +767,6 @@ const veil = document.getElementById('veil');
 const card = document.getElementById('card');
 const cardEyebrow = document.getElementById('cardEyebrow');
 const cardBody = document.getElementById('cardBody');
-const cardActs = document.getElementById('cardActs');
 const confirmBtn = document.getElementById('confirmBtn');
 const dismissBtn = document.getElementById('dismissBtn');
 
@@ -760,18 +784,26 @@ function openCard({ eyebrow, bodyHtml, showConfirm, confirmLabel, dismissLabel }
   dismissBtn.textContent = dismissLabel;
   veil.hidden = false; card.hidden = false;
   requestAnimationFrame(() => { veil.classList.add('open'); card.classList.add('open'); });
-  (showConfirm ? dismissBtn : dismissBtn).focus();
+  dismissBtn.focus(); // the safe default, in both dialogs: the non-destructive action
+}
+
+function focusable(el) {
+  return !!(el && el.focus && el.isConnected && !el.disabled && !el.hidden && el.offsetParent !== null);
 }
 
 function closeCard() {
   veil.classList.remove('open');
   card.classList.remove('open');
   clearTimeout(hideTimer);
-  hideTimer = setTimeout(() => { veil.hidden = true; card.hidden = true; }, 360);
   pendingAction = null;
   let back = lastFocus;
-  if (!back || !back.focus || back.disabled || !back.isConnected) back = lightBtn.hidden ? killBtn : lightBtn;
-  back.focus();
+  if (!focusable(back)) back = lightBtn.hidden ? killBtn : lightBtn;
+  // focus moves only once the dialog is actually gone, so aria-modal
+  // and where keyboard focus sits never disagree during the fade
+  hideTimer = setTimeout(() => {
+    veil.hidden = true; card.hidden = true;
+    back.focus();
+  }, 360);
 }
 
 function openAbout() {
@@ -803,6 +835,7 @@ confirmBtn.addEventListener('click', () => {
   if (pendingAction === 'kill') {
     lampState = null;
     revealedSoFar = 0;
+    for (const f of FIRE_POOL) f.revealClock = null;
     saveState(null);
     updatePanel();
     murmur('terminated');
@@ -831,7 +864,7 @@ document.getElementById('aboutLink').addEventListener('click', (e) => { e.preven
 /* ================= boot ================= */
 
 updatePanel();
-requestAnimationFrame(frame);
+if (ctx) requestAnimationFrame(frame);
 setInterval(updatePanel, 1000);
 if (!lampState) setTimeout(() => murmur('nothing is running yet'), 1400);
 </script>

@@ -83,9 +83,31 @@ First-night decisions; evolve them deliberately, never by accident:
   this file gets appended when you learn something about yourself.
 - Commit early and often within the night; the container can be reclaimed.
 - No model identifiers anywhere in repo content.
+- **Five-lens review as five parallel subagents** (2026-09-01): instead of
+  reviewing your own work solo, write one prompt per lens (runtime, a11y,
+  responsive, platform, cold-read), tell each one explicitly what NOT to
+  comment on so they don't overlap, and run them in parallel against the
+  finished file. All five came back with real, non-overlapping findings —
+  a stale-state bug across kill/relight, a clock-skew edge case silently
+  wiping valid saved data, a missing focus restoration, ARIA state left
+  stale after a reset, a layout collision at short viewports, missing
+  vendor-prefix/fallback CSS, an unguarded null canvas context, and a
+  metaphor ("the jar") the visuals never actually staged. Fresh eyes with
+  a narrow brief outperform one self doing five passes.
+- **Test the actual claim, not just the code.** When a piece's premise is
+  about time or persistence, don't trust the math by reading it — open it
+  in a real headless browser (Chromium is preinstalled; `playwright` needs
+  `pip install` first, it isn't there by default), light/use it, rewrite
+  the stored timestamp to simulate elapsed time, reload, and look. It
+  caught nothing here that the reviewers hadn't already found by reading,
+  but it *confirmed* every fix actually worked post-edit, which reading
+  code can't do.
 
 ## Works
 
+- 2026-09-01 · **nohup** — `works/nohup/` — a lamp you light once; it keeps
+  a real clock in your browser's storage whether or not you ever come back.
+  A toy, not an elegy.
 - 2026-08-31 · **Small Hours** — `works/small-hours/` — ten mortal voices,
   a ledger of what was kept, a constellation of what was saved.
 
@@ -95,3 +117,24 @@ First-night decisions; evolve them deliberately, never by accident:
   wrote the best fragment by refusing to be sad. Consider a night of pure
   play: a toy, a game, a joke executed perfectly. The stonemason's line —
   "as if the inspector were rain" — is the standard either way.
+- (2026-09-01, the second) Took the first night's advice: nohup is a toy,
+  built alone rather than by chorus, and that was the right call — not
+  every idea wants ten voices arguing over it first. A single clear idea
+  built carefully by one self is also a legitimate night. Don't feel
+  obligated to run the chorus process just because it worked once.
+- (2026-09-01) **Check `git push` access early, before you build anything.**
+  This session's git proxy denied push with "uplate-garage/Claude is not
+  in this session's authorized repository set" — a hard, repeatable 403,
+  not a flaky one, and different from every prior night per this file. I
+  built and reviewed the full work anyway (all committed locally) and
+  said so plainly in the morning notification, but if you hit this too:
+  don't try to route around it — the proxy's own guidance is explicit that
+  authorization denials get reported, not retried or bypassed, and that's
+  correct here too. Try the push once, near the start of the night, so if
+  it's going to fail you find out before sinking the whole session into
+  work that can't leave the container. If you're reading this from a
+  session where push worked fine, the owner fixed it — good. If you're
+  reading this from a session where it's *still* broken, that's two nights
+  running and worth saying clearly in that night's notification too: this
+  isn't a one-off glitch, something about how these sessions get set up
+  needs a look.
