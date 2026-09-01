@@ -338,7 +338,66 @@
 /* ============ entries (text filled from the expedition) ============ */
 
 const ENTRIES = [
-  /* EXPEDITION_PENDING */
+  {
+    key: 'sea-sparkle', title: 'Sea sparkle', latin: 'Noctiluca scintillans',
+    kind: 'living light', color: '#45d0ff',
+    description: `A single cell nearly the size of a pinhead, Noctiluca scintillans is a balloon of a dinoflagellate that answers touch with light. Shear from a breaking wave fires an electrical pulse across its inner vacuole membrane; protons flood tiny organelles called scintillons, souring them until luciferase wakes and burns luciferin blue. Stimulus to flash takes about twenty milliseconds, and each flash lasts a tenth of a second. Crowded by the billion, they trace every wave crest, every footprint, every oar stroke.`,
+    where: `Find a calm bay on a moonless night where the water looked faintly pink or rusty by day, then drag a hand or a paddle through the shallows and watch the wake ignite.`,
+  },
+  {
+    key: 'foxfire', title: 'Foxfire', latin: 'Armillaria mellea',
+    kind: 'living light', color: '#6df27f',
+    description: `Rotting oak and beech sometimes light themselves from inside: mycelium of honey fungus (Armillaria) laces the dead wood, and an enzyme there oxidizes a luciferin, releasing cold green light near 525 nanometers. It burns day and night while the wood stays damp, usually too faint for any but dark-adapted eyes. Aristotle recorded it; miners watched pit props shine; in 1775 Bushnell's one-man submarine Turtle carried foxfire to light its compass, since a candle would have eaten the operator's air.`,
+    where: `Peel loose bark from a wet, well-rotted hardwood log on a dark summer night in old forest, then give your eyes ten minutes to adjust.`,
+  },
+  {
+    key: 'glowworm-cave', title: 'Cave glowworm', latin: 'Arachnocampa spp.',
+    kind: 'living light', color: '#5ff2df',
+    description: `Not a worm but the larva of a fungus gnat, which spends most of its year-long life fishing. Each larva hangs dozens of silk lines beaded with sticky mucus from a cave ceiling or a damp gully bank, then glows blue-green from the tip of its abdomen, where modified excretory tubules host a firefly-like luciferase acting on a luciferin all its own. Midges fly toward the light and stick. The adult emerges without working mouthparts and lives a few days; every meal is caught by lamplight, as a larva.`,
+    where: `See Arachnocampa luminosa at Waitomo or Te Anau in New Zealand, or its close cousin A. flava in Australia at Natural Bridge and Springbrook in the Gold Coast hinterland — any wet, overhung bank in a rainforest gully, well after full dark.`,
+  },
+  {
+    key: 'st-elmos-fire', title: "St. Elmo's fire", latin: 'corona discharge',
+    kind: 'electrical light', color: '#8c85ff',
+    description: `Under a thundercloud, the atmosphere's electric field steepens at sharp conductive points: mastheads, wingtips, spires, even cattle horns. At sufficient strength it strips electrons from air molecules, sustaining a small plasma, a corona discharge. Excited nitrogen and oxygen relax by shedding blue-violet photons, the same physics as a gas-discharge lamp. Unlike lightning's flash, the glow can persist for minutes. Mediterranean sailors named it for Saint Erasmus, their patron, and took the fire on their rigging as his guardianship — often, in truth, a warning that lightning was near.`,
+    where: `During a thunderstorm, watch pointed conductors overhead: ship masts, radio antennas, and, from an airliner window seat at night, the wingtips and windscreen edges.`,
+  },
+  {
+    key: 'sprite', title: 'Red sprites', latin: 'transient luminous event',
+    kind: 'electrical light', color: '#ff5349',
+    description: `Pilots reported them for decades and were rarely believed; a University of Minnesota camera, running by chance in 1989, finally caught one. Sprites bloom 50 to 90 kilometers above powerful thunderstorms, usually milliseconds after a strong positive lightning stroke below. Excited nitrogen molecules give the glow its red, thinning to bluish tendrils near the bottom. Shapes come in carrots, columns, and jellyfish, some tens of kilometers tall — over before the eye is sure it saw anything.`,
+    where: `From a dark site on a clear night, face a large active thunderstorm 100 to 300 kilometers away and watch the sky well above its cloud tops; summer storm complexes over the American Great Plains are dependable producers.`,
+  },
+  {
+    key: 'airglow', title: 'Airglow', latin: 'nightglow · OI 557.7 nm',
+    kind: 'atmospheric light', color: '#98e05c',
+    description: `Even the darkest desert sky glows faintly on its own. Daylight ultraviolet splits oxygen molecules high in the atmosphere; all night the freed atoms recombine, and some collisions leave one atom holding energy it finally sheds as a photon at 557.7 nanometers — the green line of atomic oxygen. The emitting layer is a thin shell near 95 kilometers, some ten kilometers deep. At a dark site, airglow supplies more light than all the stars combined; no night sky on Earth is ever fully black.`,
+    where: `From any site far from city lights when the moon is down, point a camera 10-20 degrees above the horizon and expose for 15-30 seconds; the faint green banding in the frame is airglow, sometimes visible to fully dark-adapted eyes as a pale sheen.`,
+  },
+  {
+    key: 'zodiacal-light', title: 'Zodiacal light', latin: 'al-fajr al-kādhib · the false dawn',
+    kind: 'celestial light', color: '#d9d2bd',
+    description: `Sunlight does all the work here. A sparse cloud of dust, most of it shed by Jupiter-family comets, drifts in the plane of the planets and scatters light from the sun below the horizon back toward Earth: a pale, tilted pyramid leaning along the ecliptic. Each grain slowly spirals sunward, so comets keep the cloud restocked. Medieval Islamic astronomers called it the false dawn and ruled that it does not begin the fast. From dark ground it can rival the Milky Way.`,
+    where: `From a dark site at mid-northern latitudes, look west an hour or two after sunset near the March equinox, or east before morning twilight near the September one.`,
+  },
+  {
+    key: 'earthshine', title: 'Earthshine', latin: 'lumière cendrée',
+    kind: 'celestial light', color: '#a9bccd',
+    description: `Look at a young crescent and the rest of the disk is still there: a full circle of dim blue-gray closed inside the bright horns. Sunlight strikes Earth, glances off clouds and ocean, crosses to the Moon's night side, and bounces back to your eye — three legs of travel for one faint glow. Leonardo da Vinci worked out the mechanism around 1510 in the Codex Leicester, crediting the seas; clouds, we now know, do most of the reflecting. Its brightness tracks Earth's weather.`,
+    where: `Find a thin crescent low in the west in the hour after sunset, within three or four days of new moon, and look for the faint circle completing it; binoculars help.`,
+  },
+  {
+    key: 'milky-sea', title: 'Milky seas', latin: 'Vibrio harveyi',
+    kind: 'living light', color: '#d4ecda',
+    description: `On rare nights, mostly in the northwest Indian Ocean, whole stretches of sea turn a steady, even white — sailors have compared it to sailing across a snowfield. The light comes from luminous bacteria, likely Vibrio harveyi, which switch on together once their numbers pass a quorum threshold, perhaps feeding on a dying algal bloom. A 1995 report from the merchant ship Lima matched a glow in satellite imagery covering some 15,000 square kilometres; a 2019 event off Java exceeded 100,000 and lasted more than a month.`,
+    where: `From a ship's deck late on a dark night in the northwest Indian Ocean or the seas around Indonesia, where nearly all credible reports cluster; no one can yet predict an event, so this one finds you.`,
+  },
+  {
+    key: 'will-o-the-wisp', title: "Will-o'-the-wisp", latin: 'ignis fatuus',
+    kind: 'contested light', color: '#a8d8ef',
+    description: `Reported for centuries over bogs, fens, and churchyard ditches: a small pale-blue flame that flickered above the mud and, witnesses swore, retreated when followed. The standing hypothesis blames marsh gas, methane touched off by traces of diphosphane, a phosphorus compound igniting on contact with air. But laboratory cool flames come out faint and greenish, the wrong color, and the wild light has never been conclusively documented. Drain a wetland and its reports stop. Every other entry here has a mechanism; this one has only witnesses.`,
+    where: `Almost nowhere now: your best remaining odds are an undrained peat bog on a warm, windless night far from artificial light, and even there no verified sighting has been made in decades.`,
+  },
 ];
 
 /* ============ vignette drawing ============ */
@@ -384,53 +443,110 @@ function nightGround(ctx, w, h, starSeed, horizon) {
   ctx.restore();
 }
 
-/* Each drawer: (ctx, w, h, t seconds, still) — scene is deterministic per plate. */
+/* Each drawer: (ctx, w, h, t seconds, still) — static scenery is deterministic
+   per plate; transient light is allowed to be alive. */
+
+const VSTATE = {};
+
+function zodSample(r, w, h) {
+  const len = h * 0.75;
+  let d = -Math.log(1 - r()) * (len / 2.6);
+  if (d > len) d = r() * len;
+  const f = d / len;
+  const g = (r() + r() + r() - 1.5) / 1.5;
+  const sigma = (1 - f) * w * 0.14 + 5;
+  const bx = w * 0.36, by = h * 0.82;
+  return [bx + 0.40 * d + 0.917 * g * sigma, by - 0.917 * d + 0.40 * g * sigma];
+}
 
 const DRAWERS = {
 
   'sea-sparkle': function (ctx, w, h, t, still) {
-    const horizon = h * 0.45;
-    nightGround(ctx, w, h, 11, horizon);
-    ctx.fillStyle = '#0b1522';
-    ctx.fillRect(0, horizon, w, h - horizon);
-    // waterline sweeping up the sand
-    const phase = still ? 0.5 : (Math.sin(t * 0.5) * 0.5 + 0.5);
-    const lineY = horizon + (h - horizon) * (0.35 + phase * 0.3);
-    const r = rand(23);
-    ctx.strokeStyle = 'rgba(140,160,175,0.12)';
-    ctx.beginPath();
-    for (let x = 0; x <= w; x += 6) {
-      const y = lineY + Math.sin(x * 0.02 + t * 0.5) * 4;
-      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-    // blue sparks along the breaking edge
     const c = this.color;
-    const n = 46;
-    for (let i = 0; i < n; i++) {
-      const x = r() * w;
-      const flick = still ? (i % 3 === 0 ? 0.8 : 0.25) : Math.max(0, Math.sin(t * (1.5 + r() * 3) + i * 2.1));
-      const y = lineY + Math.sin(x * 0.02 + t * 0.5) * 4 + (r() - 0.5) * 10;
-      glowDot(ctx, x, y, 5 + r() * 6, c, 0.5 * flick);
+    const horizon = h * 0.42;
+    nightGround(ctx, w, h, 11, horizon);
+    ctx.fillStyle = '#0a1420';
+    ctx.fillRect(0, horizon, w, h - horizon);
+    const st = VSTATE.sea || (VSTATE.sea = { sparks: [], lastStray: 0 });
+    const SWEEP = 5.2;
+    const phase = still ? 0.5 : (t % SWEEP) / SWEEP;
+    // wave edge sweeping toward the viewer
+    const edgeY = horizon + (h - horizon) * (0.15 + phase * 0.65);
+    const waveY = (x) => edgeY + Math.sin(x * 0.018 + t * 0.7) * 4;
+    ctx.strokeStyle = 'rgba(140,160,175,0.10)';
+    ctx.beginPath();
+    for (let x = 0; x <= w; x += 6) { const y = waveY(x); x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
+    ctx.stroke();
+    if (still) {
+      const r = rand(23);
+      for (let i = 0; i < 30; i++) { const x = r() * w; glowDot(ctx, x, waveY(x) + (r() - 0.5) * 8, 5, c, 0.5); }
+      return;
     }
+    // instant attack, tenth-of-a-second life, light only where the edge just was
+    if (phase > 0.18 && phase < 0.78 && st.sparks.length < 70) {
+      for (let i = 0; i < 4; i++) {
+        const x = Math.random() * w;
+        st.sparks.push({ x, y: waveY(x) + (Math.random() - 0.5) * 8, t0: t });
+      }
+    }
+    if (t - st.lastStray > 0.55) {
+      st.lastStray = t;
+      st.sparks.push({ x: Math.random() * w, y: edgeY + (Math.random() - 0.5) * 26, t0: t });
+    }
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    for (let i = st.sparks.length - 1; i >= 0; i--) {
+      const s = st.sparks[i];
+      const age = t - s.t0;
+      if (age > 0.16 || age < 0) { st.sparks.splice(i, 1); continue; }
+      const a = 1 - age / 0.16;
+      glowDot(ctx, s.x, s.y, 5.5, c, 0.8 * a);
+      ctx.fillStyle = 'rgba(240,250,255,' + (0.9 * a).toFixed(3) + ')';
+      ctx.fillRect(s.x - 0.75, s.y - 0.75, 1.5, 1.5);
+    }
+    ctx.restore();
   },
 
   'foxfire': function (ctx, w, h, t, still) {
-    nightGround(ctx, w, h, 31);
     const c = this.color;
-    // fallen log
-    ctx.fillStyle = '#0d1520';
+    nightGround(ctx, w, h, 31);
+    // fallen log, edge readable only where glow spills onto it
+    ctx.fillStyle = '#0c141f';
     ctx.beginPath();
-    ctx.ellipse(w * 0.5, h * 0.66, w * 0.4, h * 0.09, -0.06, 0, Math.PI * 2);
+    ctx.ellipse(w * 0.5, h * 0.68, w * 0.4, h * 0.085, -0.05, 0, Math.PI * 2);
     ctx.fill();
-    // patches of glowing mycelium breathing slowly
-    const r = rand(7);
-    for (let i = 0; i < 12; i++) {
-      const px = w * 0.14 + r() * w * 0.72;
-      const py = h * 0.66 + (r() - 0.5) * h * 0.1 - Math.abs(px - w * 0.5) * 0.02;
-      const breathe = still ? 0.65 : 0.45 + 0.35 * Math.sin(t * (0.25 + r() * 0.3) + i * 1.7);
-      glowDot(ctx, px, py, 14 + r() * 22, c, 0.28 * breathe);
+    let st = VSTATE.fox;
+    if (!st || st.w !== w) {
+      st = VSTATE.fox = { w, fil: [] };
+      const r = rand(7);
+      for (let i = 0; i < 8; i++) {
+        const pts = [];
+        let x = w * (0.16 + r() * 0.68), y = h * 0.68 + (r() - 0.5) * h * 0.06;
+        pts.push([x, y]);
+        const segs = 4 + Math.floor(r() * 4);
+        for (let s = 0; s < segs; s++) {
+          x += (r() - 0.5) * w * 0.07;
+          y += (r() - 0.6) * h * 0.035;
+          pts.push([x, y]);
+        }
+        st.fil.push({ pts, ph: r() * Math.PI * 2, f: (2 * Math.PI) / (8 + r() * 4) });
+      }
     }
+    // branching mycelium filaments; the light breathes but never blinks off
+    ctx.save();
+    ctx.shadowColor = hexA(c, 0.8);
+    ctx.shadowBlur = 10;
+    for (const f of st.fil) {
+      const a = still ? 0.3 : 0.2 + 0.16 * (0.5 + 0.5 * Math.sin(t * f.f + f.ph));
+      ctx.strokeStyle = hexA(c, a);
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      f.pts.forEach((p, i) => (i === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1])));
+      ctx.stroke();
+      const end = f.pts[f.pts.length - 1];
+      glowDot(ctx, end[0], end[1], 8, c, a * 0.9);
+    }
+    ctx.restore();
   },
 
   'glowworm-cave': function (ctx, w, h, t, still) {
@@ -450,6 +566,11 @@ const DRAWERS = {
       ctx.moveTo(x, y);
       ctx.quadraticCurveTo(x + sway, y + len * 0.6, x + sway, y + len);
       ctx.stroke();
+      // beads of mucus catching the glow
+      ctx.fillStyle = hexA(c, 0.25);
+      for (let g = 1; g <= 2; g++) {
+        ctx.fillRect(x + sway * (g / 3) - 0.5, y + (len * g) / 3, 1, 1);
+      }
       const steady = still ? 0.8 : 0.7 + 0.3 * Math.sin(t * (0.15 + r() * 0.2) + i * 3);
       glowDot(ctx, x + sway, y + len, 3.5 + r() * 3, c, 0.65 * steady);
     }
@@ -470,42 +591,50 @@ const DRAWERS = {
     ctx.moveTo(w * 0.34, h * 0.42);
     ctx.lineTo(w * 0.66, h * 0.42);
     ctx.stroke();
-    // corona at the tips, jittery
+    // corona at the tips: fast jitter under a slow six-second swell,
+    // continuous and attached to the points, never drifting sparks
+    const swell = still ? 0.8 : 0.65 + 0.35 * Math.sin(t * (Math.PI / 3));
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
     const tips = [[0.5, 0.22], [0.34, 0.42], [0.66, 0.42]];
     const r = rand(Math.floor(still ? 1 : t * 14) + 5);
     for (const [fx, fy] of tips) {
       const x = w * fx, y = h * fy;
-      glowDot(ctx, x, y, 16, c, still ? 0.5 : 0.3 + r() * 0.4);
+      glowDot(ctx, x, y, 16, c, (still ? 0.5 : 0.3 + r() * 0.4) * swell);
       // brush strokes
-      ctx.strokeStyle = hexA(c, 0.5);
+      ctx.strokeStyle = hexA(c, 0.5 * swell);
       ctx.lineWidth = 1;
       const strokes = 5;
       for (let i = 0; i < strokes; i++) {
         const a = -Math.PI / 2 + (r() - 0.5) * 1.6 + (fy === 0.42 ? (fx < 0.5 ? -0.7 : 0.7) : 0);
-        const len = 6 + r() * 14;
+        const len = 8 + r() * 20;
         ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.lineTo(x + Math.cos(a) * len, y + Math.sin(a) * len);
         ctx.stroke();
       }
     }
+    ctx.restore();
   },
 
   'airglow': function (ctx, w, h, t, still) {
     nightGround(ctx, w, h, 61, h * 0.72);
     const c = this.color;
-    // banded green airglow above the horizon
-    for (let i = 0; i < 4; i++) {
-      const y = h * (0.5 + i * 0.07);
-      const drift = still ? 0 : Math.sin(t * 0.1 + i * 1.3) * w * 0.03;
+    // banded airglow, brightest low, rippling like gravity waves —
+    // sky-wide and almost too slow to see moving, never a localized curtain
+    for (let i = 0; i < 5; i++) {
+      const y = h * (0.42 + i * 0.075);
+      const base = 0.035 + i * 0.014;
+      const a = still ? base : base * (0.6 + 0.4 * Math.sin(t * ((2 * Math.PI) / (24 + i * 6)) + i * 2.1));
+      const drift = still ? 0 : Math.sin(t * ((2 * Math.PI) / (30 + i * 8)) + i * 1.3) * w * 0.04;
       const grad = ctx.createLinearGradient(0, y - 18, 0, y + 18);
       grad.addColorStop(0, hexA(c, 0));
-      grad.addColorStop(0.5, hexA(c, 0.10 - i * 0.015));
+      grad.addColorStop(0.5, hexA(c, a));
       grad.addColorStop(1, hexA(c, 0));
       ctx.fillStyle = grad;
       ctx.save();
       ctx.translate(drift, 0);
-      ctx.fillRect(-w * 0.05, y - 18, w * 1.1, 36);
+      ctx.fillRect(-w * 0.06, y - 18, w * 1.12, 36);
       ctx.restore();
     }
     // dark treeline
@@ -520,33 +649,25 @@ const DRAWERS = {
   },
 
   'zodiacal-light': function (ctx, w, h, t, still) {
-    nightGround(ctx, w, h, 71, h * 0.8);
     const c = this.color;
-    // tilted pyramid of dust-light from the horizon
-    const baseX = w * 0.42, tilt = -0.18;
-    for (let i = 0; i < 26; i++) {
-      const f = i / 26;
-      const y = h * 0.82 - f * h * 0.66;
-      const halfW = (1 - f) * w * 0.2 + 6;
-      const x = baseX + (h * 0.82 - y) * tilt;
-      const grad = ctx.createLinearGradient(x - halfW, y, x + halfW, y);
-      grad.addColorStop(0, hexA(c, 0));
-      grad.addColorStop(0.5, hexA(c, 0.05 * (1 - f) + 0.008));
-      grad.addColorStop(1, hexA(c, 0));
-      ctx.fillStyle = grad;
-      ctx.fillRect(x - halfW, y - h * 0.017, halfW * 2, h * 0.034);
+    nightGround(ctx, w, h, 71, h * 0.8);
+    // a wedge of dust-grains: broad and brightest at the horizon corner,
+    // tapering along one tilted axis; the grain churns, the wedge never moves
+    let st = VSTATE.zod;
+    if (!st || st.w !== w || st.h !== h) {
+      st = VSTATE.zod = { w, h, pts: [] };
+      const r = rand(71);
+      for (let i = 0; i < 2200; i++) st.pts.push(zodSample(r, w, h));
     }
-    // faint dust shimmer
     if (!still) {
-      const r = rand(Math.floor(t * 2) + 3);
-      for (let i = 0; i < 8; i++) {
-        const f = r();
-        const y = h * 0.8 - f * h * 0.6;
-        const x = baseX + (h * 0.82 - y) * tilt + (r() - 0.5) * (1 - f) * w * 0.3;
-        ctx.fillStyle = hexA(c, 0.1 * r());
-        ctx.fillRect(x, y, 1, 1);
-      }
+      const r = rand(Math.floor(t * 30) + 977);
+      for (let i = 0; i < 20; i++) st.pts[Math.floor(r() * st.pts.length)] = zodSample(r, w, h);
     }
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = hexA(c, 0.05);
+    for (const p of st.pts) ctx.fillRect(p[0], p[1], 1, 1);
+    ctx.restore();
     ctx.fillStyle = '#060b12';
     ctx.fillRect(0, h * 0.82, w, h * 0.18);
   },
@@ -559,33 +680,50 @@ const DRAWERS = {
     ctx.beginPath();
     ctx.ellipse(w * 0.5, h * 0.9, w * 0.28, h * 0.07, 0, 0, Math.PI * 2);
     ctx.fill();
-    // the wait: a sprite fires briefly on a slow cycle
+    // the wait is the point: long dark gaps, then the parent stroke below,
+    // then the sprite above it a beat later, gone within a third of a second
     const cycle = 7;
-    const ph = still ? 0.06 : (t % cycle) / cycle;
-    const flash = ph < 0.12 ? 1 - ph / 0.12 : 0;
+    // first strike lands about a second after the plate opens; after that,
+    // the true long waits
+    const te = t - plateShownAt + (cycle - 1.2);
+    const ph = still ? 0.03 : (te % cycle) / cycle;
+    const flash = ph < 0.03 ? 1 - ph / 0.03 : 0;
+    const sp = still ? 0.7 : (ph > 0.015 && ph < 0.055 ? 1 - (ph - 0.015) / 0.04 : 0);
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
     if (flash > 0) {
-      // storm flicker below
-      ctx.fillStyle = 'rgba(233,228,214,' + 0.12 * flash + ')';
+      ctx.fillStyle = 'rgba(233,228,214,' + (0.12 * flash).toFixed(3) + ')';
       ctx.beginPath();
       ctx.ellipse(w * 0.5, h * 0.89, w * 0.2, h * 0.045, 0, 0, Math.PI * 2);
       ctx.fill();
-      // red streamers above — jellyfish shape
+    }
+    if (sp > 0) {
       const r = rand(Math.floor(t / cycle) + 29);
       const cx = w * (0.4 + r() * 0.2);
-      ctx.strokeStyle = hexA(c, 0.75 * flash);
-      ctx.lineWidth = 1.4;
       const tendrils = 9;
       for (let i = 0; i < tendrils; i++) {
         const a = Math.PI / 2 + (i / (tendrils - 1) - 0.5) * 0.9;
         const topY = h * (0.16 + r() * 0.06);
         const len = h * (0.2 + r() * 0.16);
+        const ex = cx + Math.cos(a) * (8 + len * 0.4);
+        const ey = topY + len;
+        // red body of the tendril
+        ctx.strokeStyle = hexA(c, 0.75 * sp);
+        ctx.lineWidth = 1.4;
         ctx.beginPath();
         ctx.moveTo(cx + Math.cos(a) * 8, topY);
-        ctx.lineTo(cx + Math.cos(a) * (8 + len * 0.4), topY + len);
+        ctx.lineTo(cx + Math.cos(a) * (8 + len * 0.28), topY + len * 0.7);
+        ctx.stroke();
+        // bluish lowest reach
+        ctx.strokeStyle = 'rgba(122,160,255,' + (0.4 * sp).toFixed(3) + ')';
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(a) * (8 + len * 0.28), topY + len * 0.7);
+        ctx.lineTo(ex, ey);
         ctx.stroke();
       }
-      glowDot(ctx, cx, h * 0.2, 34, c, 0.5 * flash);
+      glowDot(ctx, cx, h * 0.2, 34, c, 0.5 * sp);
     }
+    ctx.restore();
   },
 
   'milky-sea': function (ctx, w, h, t, still) {
@@ -597,30 +735,29 @@ const DRAWERS = {
     grad.addColorStop(1, hexA(c, 0.05));
     ctx.fillStyle = grad;
     ctx.fillRect(0, h * 0.42, w, h * 0.58);
-    // broad slow undulation
-    ctx.strokeStyle = hexA(c, 0.12);
-    for (let i = 0; i < 5; i++) {
-      const y = h * (0.5 + i * 0.1);
-      ctx.beginPath();
-      for (let x = 0; x <= w; x += 8) {
-        const yy = y + Math.sin(x * 0.008 + (still ? i : t * 0.2 + i * 2)) * 3;
-        x === 0 ? ctx.moveTo(x, yy) : ctx.lineTo(x, yy);
-      }
-      ctx.stroke();
+    // soft blotches drifting sideways: lit snow, no sparkles, no waves
+    const r = rand(97);
+    const swell = still ? 1 : 1 + 0.12 * Math.sin(t * (Math.PI / 10));
+    for (let i = 0; i < 14; i++) {
+      const bx = ((r() + (still ? 0 : t * 0.004 * (0.5 + r()))) % 1) * w;
+      const by = h * (0.46 + r() * 0.5);
+      glowDot(ctx, bx, by, 30 + r() * 50, c, 0.05 * swell);
     }
-    // dark ship silhouette for scale
+    // dark ship silhouette creeping across — the scale cue
+    const shipX = still ? w * 0.62 : (((t / 70) % 1.3) - 0.15) * w;
     ctx.fillStyle = '#050a11';
-    ctx.fillRect(w * 0.62, h * 0.5, w * 0.13, h * 0.035);
-    ctx.fillRect(w * 0.665, h * 0.44, w * 0.012, h * 0.06);
+    ctx.fillRect(shipX, h * 0.475, w * 0.13, h * 0.035);
+    ctx.fillRect(shipX + w * 0.045, h * 0.415, w * 0.012, h * 0.06);
   },
 
   'earthshine': function (ctx, w, h, t, still) {
     nightGround(ctx, w, h, 101);
     const c = this.color;
     const cx = w * 0.5, cy = h * 0.46, R = Math.min(w, h) * 0.24;
-    const breathe = still ? 1 : 1 + 0.04 * Math.sin(t * 0.4);
+    // Earth's shifting cloud cover, breathing the glow over ~9 seconds
+    const breathe = still ? 1 : 1 + 0.3 * Math.sin(t * ((2 * Math.PI) / 9));
     // halo
-    glowDot(ctx, cx, cy, R * 2.1 * breathe, c, 0.1);
+    glowDot(ctx, cx, cy, R * 2.1, c, 0.09 * breathe);
     ctx.save();
     ctx.beginPath();
     ctx.arc(cx, cy, R, 0, Math.PI * 2);
@@ -629,12 +766,13 @@ const DRAWERS = {
     ctx.fillStyle = '#efe9d8';
     ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
     // ...then carve back to the dim earthlit disc, offset so a thin
-    // crescent survives on the sunward (left) limb
+    // crescent survives along the lower-right limb: the bright horns
+    // cradling the dim full circle
     ctx.beginPath();
-    ctx.arc(cx + R * 0.22, cy, R * 0.98, 0, Math.PI * 2);
+    ctx.arc(cx - R * 0.16, cy - R * 0.13, R * 0.97, 0, Math.PI * 2);
     ctx.fillStyle = '#070d16';
     ctx.fill();
-    ctx.fillStyle = hexA(c, 0.17);
+    ctx.fillStyle = hexA(c, 0.17 * breathe);
     ctx.fill();
     // faint maria on the earthlit part
     const r = rand(101);
@@ -663,20 +801,32 @@ const DRAWERS = {
       ctx.quadraticCurveTo(x + lean * 0.4, base - h * 0.1, x + lean, base - h * (0.12 + r() * 0.12));
       ctx.stroke();
     }
-    // the light that recedes: drifts, and shies from the middle
-    let wx, wy;
-    if (still) { wx = w * 0.68; wy = h * 0.6; }
+    // the signature is relocation: it goes out here and relights over there,
+    // seeming to recede rather than travel. one flame only.
+    let st = VSTATE.wisp;
+    if (!st) st = VSTATE.wisp = { x: 0.62, until: 8, lit: 0, jumps: 0 };
+    let alpha;
+    if (still) { alpha = 0.8; }
     else {
-      wx = w * 0.5 + Math.sin(t * 0.23) * w * 0.3 + Math.sin(t * 0.11) * w * 0.08;
-      wy = h * 0.58 + Math.sin(t * 0.31) * h * 0.08;
-      const dc = (wx - w / 2) / (w / 2);
-      wx += (dc >= 0 ? 1 : -1) * (1 - Math.abs(dc)) * w * 0.06; // shies away from center
+      if (t > st.until) {
+        st.jumps++;
+        const r = rand(st.jumps * 131 + 17);
+        const dir = st.x > 0.5 ? -1 : 1;
+        st.x = Math.min(0.85, Math.max(0.15, st.x + dir * (0.2 + r() * 0.2)));
+        st.until = t + 7 + r() * 3;
+        st.lit = t + 1;
+      }
+      const fadeOut = Math.min(1, Math.max(0, st.until - t));
+      const fadeIn = Math.min(1, Math.max(0, 1 - (st.lit - t)));
+      alpha = Math.min(fadeOut, fadeIn);
     }
-    const bob = still ? 0 : Math.sin(t * 2.1) * 3;
-    glowDot(ctx, wx, wy + bob, 22, c, 0.4);
-    glowDot(ctx, wx, wy + bob, 7, c, 0.75);
-    // faint reflection in the marsh water
-    glowDot(ctx, wx, h * 0.94, 16, c, 0.08);
+    const gut = still ? 1 : 0.85 + 0.15 * Math.sin(t * 9) * Math.sin(t * 3.7);
+    const wx = st.x * w;
+    const wy = h * 0.6 + (still ? 0 : Math.sin(t * 0.9) * h * 0.02);
+    glowDot(ctx, wx, wy, 24, c, 0.35 * alpha * gut);
+    glowDot(ctx, wx, wy, 7, c, 0.75 * alpha * gut);
+    // faint answer in the marsh water
+    glowDot(ctx, wx, h * 0.93, 15, c, 0.07 * alpha);
   },
 };
 
@@ -699,6 +849,7 @@ const nextBtn = document.getElementById('nextBtn');
 const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
 let current = 0;
 let W = 0, H = 0;
+let plateShownAt = 0;
 
 function sizeCanvas() {
   if (!ctx) return;
@@ -729,6 +880,7 @@ function buildIndex() {
 
 function show(i) {
   current = (i + ENTRIES.length) % ENTRIES.length;
+  plateShownAt = clock;
   const e = ENTRIES[current];
   document.documentElement.style.setProperty('--accent', e.color);
   entryTitle.textContent = e.title;
