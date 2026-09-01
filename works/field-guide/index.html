@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Field Guide to Small Lights</title>
+<meta name="description" content="Ten real luminous phenomena of the night — sea sparkle to sprites — each with a true entry and its own living illustration.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='5' fill='%23ffc873'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%23ffc873' opacity='0.25'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Spline+Sans+Mono:wght@300..500&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --night: #0a121d;
+    --loam: #111d2b;
+    --loam-edge: #1c2c3e;
+    --moth: #e9e4d6;
+    --mist: #8ca0af;
+    --mist-dim: #7a8e9d;
+    --ember: #ffc873;
+    --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --reading: "Newsreader", "Charter", Georgia, serif;
+    --ledger: "Spline Sans Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100svh;
+    background: var(--night);
+    color: var(--moth);
+    font-family: var(--reading);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1060px;
+    margin: 0 auto;
+    padding: clamp(28px, 6vh, 64px) clamp(18px, 4vw, 40px) 60px;
+  }
+
+  header h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 340;
+    font-size: clamp(28px, 4.6vw, 44px);
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  header .plate-line {
+    margin: 10px 0 0;
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--mist-dim);
+  }
+
+  header .plate-line a { color: var(--mist); text-decoration: underline; text-decoration-color: var(--mist-dim); text-underline-offset: 3px; }
+  header .plate-line a:hover, header .plate-line a:focus-visible { color: var(--ember); }
+
+  .book {
+    display: grid;
+    grid-template-columns: 208px 1fr;
+    gap: clamp(20px, 3.5vw, 44px);
+    margin-top: clamp(28px, 5vh, 52px);
+    align-items: start;
+  }
+
+  /* ---------- index rail ---------- */
+
+  nav.index h2 {
+    margin: 0 0 10px;
+    font-family: var(--ledger);
+    font-weight: 380;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--mist-dim);
+  }
+
+  nav.index ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  nav.index button {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    width: 100%;
+    padding: 7px 8px 7px 6px;
+    border: 0;
+    border-left: 2px solid transparent;
+    background: transparent;
+    color: var(--mist);
+    font-family: var(--reading);
+    font-weight: 350;
+    font-size: 15px;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  nav.index button .num {
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    color: var(--mist-dim);
+    min-width: 26px;
+  }
+
+  nav.index button:hover { color: var(--moth); }
+  nav.index button:focus-visible { outline: 1px solid var(--ember); outline-offset: 2px; }
+
+  nav.index button[aria-current="true"] {
+    color: var(--moth);
+    border-left-color: var(--accent, var(--ember));
+  }
+
+  nav.index button[aria-current="true"] .num { color: var(--accent, var(--ember)); }
+
+  /* ---------- plate ---------- */
+
+  .plate { min-width: 0; }
+
+  .frame {
+    position: relative;
+    border: 1px solid var(--loam-edge);
+    border-radius: 6px;
+    overflow: hidden;
+    background: #070d16;
+  }
+
+  .frame canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .frame .plate-no {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    color: rgba(140, 160, 175, 0.6);
+    pointer-events: none;
+  }
+
+  article.entry { margin-top: 22px; }
+
+  .entry .head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .entry h3 {
+    margin: 0;
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 380;
+    font-size: clamp(24px, 3.4vw, 32px);
+    line-height: 1.15;
+  }
+
+  .entry .latin {
+    font-family: var(--reading);
+    font-style: italic;
+    font-weight: 350;
+    font-size: 15px;
+    color: var(--mist);
+  }
+
+  .entry .kind {
+    font-family: var(--ledger);
+    font-weight: 380;
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent, var(--ember));
+    border: 1px solid color-mix(in srgb, var(--accent, var(--ember)) 45%, transparent);
+    border-radius: 999px;
+    padding: 4px 10px;
+    white-space: nowrap;
+  }
+
+  .entry .desc {
+    margin: 14px 0 0;
+    font-weight: 350;
+    font-size: 17.5px;
+    line-height: 1.65;
+    max-width: 62ch;
+  }
+
+  .entry .where {
+    margin: 14px 0 0;
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    line-height: 1.8;
+    color: var(--mist);
+    max-width: 70ch;
+  }
+
+  .entry .where .k { color: var(--mist-dim); letter-spacing: 0.14em; }
+
+  /* ---------- pager ---------- */
+
+  .pager {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 26px;
+  }
+
+  .pager button {
+    font-family: var(--ledger);
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: var(--mist);
+    background: transparent;
+    border: 1px solid var(--loam-edge);
+    border-radius: 999px;
+    padding: 9px 18px;
+    cursor: pointer;
+  }
+
+  .pager button:hover { color: var(--moth); border-color: var(--mist-dim); }
+  .pager button:focus-visible { outline: 1px solid var(--ember); outline-offset: 2px; }
+
+  .pager .count {
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 11.5px;
+    letter-spacing: 0.12em;
+    color: var(--mist-dim);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .keys {
+    margin-left: auto;
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    color: var(--mist-dim);
+  }
+
+  /* ---------- narrow ---------- */
+
+  @media (max-width: 760px) {
+    .book { grid-template-columns: 1fr; }
+
+    nav.index ol {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+
+    nav.index button {
+      border-left: 0;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      width: auto;
+      font-size: 14px;
+      padding: 6px 10px;
+    }
+
+    nav.index button[aria-current="true"] { border-bottom-color: var(--accent, var(--ember)); }
+    .keys { display: none; }
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>A Field Guide to Small Lights</h1>
+    <p class="plate-line">ten true lights of the night · plates drawn live, in each light's own color · <a href="../../">glim</a></p>
+  </header>
+
+  <div class="book">
+    <nav class="index" aria-label="Plates">
+      <h2>Plates</h2>
+      <ol id="indexList"></ol>
+    </nav>
+
+    <section class="plate" aria-live="off">
+      <div class="frame">
+        <canvas id="vignette" aria-hidden="true"></canvas>
+        <span class="plate-no" id="plateNo"></span>
+      </div>
+      <article class="entry" id="entry">
+        <div class="head">
+          <h3 id="entryTitle"></h3>
+          <span class="latin" id="entryLatin"></span>
+          <span class="kind" id="entryKind"></span>
+        </div>
+        <p class="desc" id="entryDesc"></p>
+        <p class="where" id="entryWhere"></p>
+      </article>
+      <div class="pager">
+        <button id="prevBtn">← previous</button>
+        <button id="nextBtn">next →</button>
+        <span class="count" id="countLine"></span>
+        <span class="keys">arrow keys turn the plates</span>
+      </div>
+      <p class="sr-only" role="status" id="plateStatus"></p>
+    </section>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ============ entries (text filled from the expedition) ============ */
+
+const ENTRIES = [
+  /* EXPEDITION_PENDING */
+];
+
+/* ============ vignette drawing ============ */
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+function rand(seed) {
+  // small deterministic PRNG so each plate draws the same scene every visit
+  let s = seed >>> 0;
+  return function () {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+
+function hexA(hex, a) {
+  const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+  return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+}
+
+function glowDot(ctx, x, y, r, hex, a) {
+  const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+  g.addColorStop(0, hexA(hex, a));
+  g.addColorStop(0.4, hexA(hex, a * 0.35));
+  g.addColorStop(1, hexA(hex, 0));
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function nightGround(ctx, w, h, starSeed, horizon) {
+  ctx.fillStyle = '#070d16';
+  ctx.fillRect(0, 0, w, h);
+  const r = rand(starSeed);
+  ctx.save();
+  for (let i = 0; i < 70; i++) {
+    const x = r() * w, y = r() * (horizon !== undefined ? horizon : h);
+    ctx.globalAlpha = 0.05 + r() * 0.25;
+    ctx.fillStyle = '#cfd8de';
+    ctx.fillRect(x, y, 1, 1);
+  }
+  ctx.restore();
+}
+
+/* Each drawer: (ctx, w, h, t seconds, still) — scene is deterministic per plate. */
+
+const DRAWERS = {
+
+  'sea-sparkle': function (ctx, w, h, t, still) {
+    const horizon = h * 0.45;
+    nightGround(ctx, w, h, 11, horizon);
+    ctx.fillStyle = '#0b1522';
+    ctx.fillRect(0, horizon, w, h - horizon);
+    // waterline sweeping up the sand
+    const phase = still ? 0.5 : (Math.sin(t * 0.5) * 0.5 + 0.5);
+    const lineY = horizon + (h - horizon) * (0.35 + phase * 0.3);
+    const r = rand(23);
+    ctx.strokeStyle = 'rgba(140,160,175,0.12)';
+    ctx.beginPath();
+    for (let x = 0; x <= w; x += 6) {
+      const y = lineY + Math.sin(x * 0.02 + t * 0.5) * 4;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    // blue sparks along the breaking edge
+    const c = this.color;
+    const n = 46;
+    for (let i = 0; i < n; i++) {
+      const x = r() * w;
+      const flick = still ? (i % 3 === 0 ? 0.8 : 0.25) : Math.max(0, Math.sin(t * (1.5 + r() * 3) + i * 2.1));
+      const y = lineY + Math.sin(x * 0.02 + t * 0.5) * 4 + (r() - 0.5) * 10;
+      glowDot(ctx, x, y, 5 + r() * 6, c, 0.5 * flick);
+    }
+  },
+
+  'foxfire': function (ctx, w, h, t, still) {
+    nightGround(ctx, w, h, 31);
+    const c = this.color;
+    // fallen log
+    ctx.fillStyle = '#0d1520';
+    ctx.beginPath();
+    ctx.ellipse(w * 0.5, h * 0.66, w * 0.4, h * 0.09, -0.06, 0, Math.PI * 2);
+    ctx.fill();
+    // patches of glowing mycelium breathing slowly
+    const r = rand(7);
+    for (let i = 0; i < 12; i++) {
+      const px = w * 0.14 + r() * w * 0.72;
+      const py = h * 0.66 + (r() - 0.5) * h * 0.1 - Math.abs(px - w * 0.5) * 0.02;
+      const breathe = still ? 0.65 : 0.45 + 0.35 * Math.sin(t * (0.25 + r() * 0.3) + i * 1.7);
+      glowDot(ctx, px, py, 14 + r() * 22, c, 0.28 * breathe);
+    }
+  },
+
+  'glowworm-cave': function (ctx, w, h, t, still) {
+    ctx.fillStyle = '#05090f';
+    ctx.fillRect(0, 0, w, h);
+    const c = this.color;
+    const r = rand(47);
+    // cave ceiling arch of steady lights with hanging silk lines
+    for (let i = 0; i < 60; i++) {
+      const x = r() * w;
+      const arch = h * 0.16 + Math.pow(Math.abs(x - w / 2) / (w / 2), 2) * h * 0.22;
+      const y = arch + r() * h * 0.05;
+      const len = 6 + r() * h * 0.16;
+      const sway = still ? 0 : Math.sin(t * 0.4 + i) * 1.2;
+      ctx.strokeStyle = 'rgba(140,160,175,0.08)';
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.quadraticCurveTo(x + sway, y + len * 0.6, x + sway, y + len);
+      ctx.stroke();
+      const steady = still ? 0.8 : 0.7 + 0.3 * Math.sin(t * (0.15 + r() * 0.2) + i * 3);
+      glowDot(ctx, x + sway, y + len, 3.5 + r() * 3, c, 0.65 * steady);
+    }
+  },
+
+  'st-elmos-fire': function (ctx, w, h, t, still) {
+    nightGround(ctx, w, h, 53, h * 0.9);
+    const c = this.color;
+    // mast
+    ctx.strokeStyle = '#16222f';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(w * 0.5, h * 0.92);
+    ctx.lineTo(w * 0.5, h * 0.22);
+    ctx.stroke();
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(w * 0.34, h * 0.42);
+    ctx.lineTo(w * 0.66, h * 0.42);
+    ctx.stroke();
+    // corona at the tips, jittery
+    const tips = [[0.5, 0.22], [0.34, 0.42], [0.66, 0.42]];
+    const r = rand(Math.floor(still ? 1 : t * 14) + 5);
+    for (const [fx, fy] of tips) {
+      const x = w * fx, y = h * fy;
+      glowDot(ctx, x, y, 16, c, still ? 0.5 : 0.3 + r() * 0.4);
+      // brush strokes
+      ctx.strokeStyle = hexA(c, 0.5);
+      ctx.lineWidth = 1;
+      const strokes = 5;
+      for (let i = 0; i < strokes; i++) {
+        const a = -Math.PI / 2 + (r() - 0.5) * 1.6 + (fy === 0.42 ? (fx < 0.5 ? -0.7 : 0.7) : 0);
+        const len = 6 + r() * 14;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + Math.cos(a) * len, y + Math.sin(a) * len);
+        ctx.stroke();
+      }
+    }
+  },
+
+  'airglow': function (ctx, w, h, t, still) {
+    nightGround(ctx, w, h, 61, h * 0.72);
+    const c = this.color;
+    // banded green airglow above the horizon
+    for (let i = 0; i < 4; i++) {
+      const y = h * (0.5 + i * 0.07);
+      const drift = still ? 0 : Math.sin(t * 0.1 + i * 1.3) * w * 0.03;
+      const grad = ctx.createLinearGradient(0, y - 18, 0, y + 18);
+      grad.addColorStop(0, hexA(c, 0));
+      grad.addColorStop(0.5, hexA(c, 0.10 - i * 0.015));
+      grad.addColorStop(1, hexA(c, 0));
+      ctx.fillStyle = grad;
+      ctx.save();
+      ctx.translate(drift, 0);
+      ctx.fillRect(-w * 0.05, y - 18, w * 1.1, 36);
+      ctx.restore();
+    }
+    // dark treeline
+    ctx.fillStyle = '#060b12';
+    const r = rand(19);
+    ctx.beginPath();
+    ctx.moveTo(0, h);
+    for (let x = 0; x <= w; x += 14) ctx.lineTo(x, h * 0.78 - r() * h * 0.05);
+    ctx.lineTo(w, h);
+    ctx.closePath();
+    ctx.fill();
+  },
+
+  'zodiacal-light': function (ctx, w, h, t, still) {
+    nightGround(ctx, w, h, 71, h * 0.8);
+    const c = this.color;
+    // tilted pyramid of dust-light from the horizon
+    const baseX = w * 0.42, tilt = -0.18;
+    for (let i = 0; i < 26; i++) {
+      const f = i / 26;
+      const y = h * 0.82 - f * h * 0.66;
+      const halfW = (1 - f) * w * 0.2 + 6;
+      const x = baseX + (h * 0.82 - y) * tilt;
+      const grad = ctx.createLinearGradient(x - halfW, y, x + halfW, y);
+      grad.addColorStop(0, hexA(c, 0));
+      grad.addColorStop(0.5, hexA(c, 0.05 * (1 - f) + 0.008));
+      grad.addColorStop(1, hexA(c, 0));
+      ctx.fillStyle = grad;
+      ctx.fillRect(x - halfW, y - h * 0.017, halfW * 2, h * 0.034);
+    }
+    // faint dust shimmer
+    if (!still) {
+      const r = rand(Math.floor(t * 2) + 3);
+      for (let i = 0; i < 8; i++) {
+        const f = r();
+        const y = h * 0.8 - f * h * 0.6;
+        const x = baseX + (h * 0.82 - y) * tilt + (r() - 0.5) * (1 - f) * w * 0.3;
+        ctx.fillStyle = hexA(c, 0.1 * r());
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+    ctx.fillStyle = '#060b12';
+    ctx.fillRect(0, h * 0.82, w, h * 0.18);
+  },
+
+  'sprite': function (ctx, w, h, t, still) {
+    nightGround(ctx, w, h, 83, h * 0.86);
+    const c = this.color;
+    // distant storm cell
+    ctx.fillStyle = '#0d1520';
+    ctx.beginPath();
+    ctx.ellipse(w * 0.5, h * 0.9, w * 0.28, h * 0.07, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // the wait: a sprite fires briefly on a slow cycle
+    const cycle = 7;
+    const ph = still ? 0.06 : (t % cycle) / cycle;
+    const flash = ph < 0.12 ? 1 - ph / 0.12 : 0;
+    if (flash > 0) {
+      // storm flicker below
+      ctx.fillStyle = 'rgba(233,228,214,' + 0.12 * flash + ')';
+      ctx.beginPath();
+      ctx.ellipse(w * 0.5, h * 0.89, w * 0.2, h * 0.045, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // red streamers above — jellyfish shape
+      const r = rand(Math.floor(t / cycle) + 29);
+      const cx = w * (0.4 + r() * 0.2);
+      ctx.strokeStyle = hexA(c, 0.75 * flash);
+      ctx.lineWidth = 1.4;
+      const tendrils = 9;
+      for (let i = 0; i < tendrils; i++) {
+        const a = Math.PI / 2 + (i / (tendrils - 1) - 0.5) * 0.9;
+        const topY = h * (0.16 + r() * 0.06);
+        const len = h * (0.2 + r() * 0.16);
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(a) * 8, topY);
+        ctx.lineTo(cx + Math.cos(a) * (8 + len * 0.4), topY + len);
+        ctx.stroke();
+      }
+      glowDot(ctx, cx, h * 0.2, 34, c, 0.5 * flash);
+    }
+  },
+
+  'milky-sea': function (ctx, w, h, t, still) {
+    nightGround(ctx, w, h, 97, h * 0.4);
+    const c = this.color;
+    // the whole sea glows, horizon to hull
+    const grad = ctx.createLinearGradient(0, h * 0.42, 0, h);
+    grad.addColorStop(0, hexA(c, 0.16));
+    grad.addColorStop(1, hexA(c, 0.05));
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, h * 0.42, w, h * 0.58);
+    // broad slow undulation
+    ctx.strokeStyle = hexA(c, 0.12);
+    for (let i = 0; i < 5; i++) {
+      const y = h * (0.5 + i * 0.1);
+      ctx.beginPath();
+      for (let x = 0; x <= w; x += 8) {
+        const yy = y + Math.sin(x * 0.008 + (still ? i : t * 0.2 + i * 2)) * 3;
+        x === 0 ? ctx.moveTo(x, yy) : ctx.lineTo(x, yy);
+      }
+      ctx.stroke();
+    }
+    // dark ship silhouette for scale
+    ctx.fillStyle = '#050a11';
+    ctx.fillRect(w * 0.62, h * 0.5, w * 0.13, h * 0.035);
+    ctx.fillRect(w * 0.665, h * 0.44, w * 0.012, h * 0.06);
+  },
+
+  'earthshine': function (ctx, w, h, t, still) {
+    nightGround(ctx, w, h, 101);
+    const c = this.color;
+    const cx = w * 0.5, cy = h * 0.46, R = Math.min(w, h) * 0.24;
+    const breathe = still ? 1 : 1 + 0.04 * Math.sin(t * 0.4);
+    // halo
+    glowDot(ctx, cx, cy, R * 2.1 * breathe, c, 0.1);
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.clip();
+    // bright disc first...
+    ctx.fillStyle = '#efe9d8';
+    ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
+    // ...then carve back to the dim earthlit disc, offset so a thin
+    // crescent survives on the sunward (left) limb
+    ctx.beginPath();
+    ctx.arc(cx + R * 0.22, cy, R * 0.98, 0, Math.PI * 2);
+    ctx.fillStyle = '#070d16';
+    ctx.fill();
+    ctx.fillStyle = hexA(c, 0.17);
+    ctx.fill();
+    // faint maria on the earthlit part
+    const r = rand(101);
+    ctx.fillStyle = hexA(c, 0.09);
+    for (let i = 0; i < 5; i++) {
+      ctx.beginPath();
+      ctx.arc(cx + r() * R * 0.9 - R * 0.2, cy + (r() - 0.5) * R * 1.1, R * (0.09 + r() * 0.12), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  },
+
+  'will-o-the-wisp': function (ctx, w, h, t, still) {
+    nightGround(ctx, w, h, 113, h * 0.7);
+    const c = this.color;
+    // marsh reeds
+    const r = rand(37);
+    ctx.strokeStyle = '#0e1722';
+    for (let i = 0; i < 40; i++) {
+      const x = r() * w;
+      const base = h * (0.8 + r() * 0.18);
+      const lean = (r() - 0.5) * 10 + (still ? 0 : Math.sin(t * 0.5 + i) * 2);
+      ctx.lineWidth = 1 + r();
+      ctx.beginPath();
+      ctx.moveTo(x, base);
+      ctx.quadraticCurveTo(x + lean * 0.4, base - h * 0.1, x + lean, base - h * (0.12 + r() * 0.12));
+      ctx.stroke();
+    }
+    // the light that recedes: drifts, and shies from the middle
+    let wx, wy;
+    if (still) { wx = w * 0.68; wy = h * 0.6; }
+    else {
+      wx = w * 0.5 + Math.sin(t * 0.23) * w * 0.3 + Math.sin(t * 0.11) * w * 0.08;
+      wy = h * 0.58 + Math.sin(t * 0.31) * h * 0.08;
+      const dc = (wx - w / 2) / (w / 2);
+      wx += (dc >= 0 ? 1 : -1) * (1 - Math.abs(dc)) * w * 0.06; // shies away from center
+    }
+    const bob = still ? 0 : Math.sin(t * 2.1) * 3;
+    glowDot(ctx, wx, wy + bob, 22, c, 0.4);
+    glowDot(ctx, wx, wy + bob, 7, c, 0.75);
+    // faint reflection in the marsh water
+    glowDot(ctx, wx, h * 0.94, 16, c, 0.08);
+  },
+};
+
+/* ============ book mechanics ============ */
+
+const canvas = document.getElementById('vignette');
+const ctx = canvas.getContext('2d');
+const indexList = document.getElementById('indexList');
+const plateNo = document.getElementById('plateNo');
+const entryTitle = document.getElementById('entryTitle');
+const entryLatin = document.getElementById('entryLatin');
+const entryKind = document.getElementById('entryKind');
+const entryDesc = document.getElementById('entryDesc');
+const entryWhere = document.getElementById('entryWhere');
+const countLine = document.getElementById('countLine');
+const plateStatus = document.getElementById('plateStatus');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+let current = 0;
+let W = 0, H = 0;
+
+function sizeCanvas() {
+  if (!ctx) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = canvas.clientWidth || canvas.parentElement.clientWidth;
+  H = Math.round(W * 0.56);
+  canvas.width = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
+  canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function buildIndex() {
+  indexList.textContent = '';
+  ENTRIES.forEach((e, i) => {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    const num = document.createElement('span');
+    num.className = 'num';
+    num.textContent = ROMAN[i];
+    btn.appendChild(num);
+    btn.appendChild(document.createTextNode(e.title));
+    btn.addEventListener('click', () => show(i));
+    li.appendChild(btn);
+    indexList.appendChild(li);
+  });
+}
+
+function show(i) {
+  current = (i + ENTRIES.length) % ENTRIES.length;
+  const e = ENTRIES[current];
+  document.documentElement.style.setProperty('--accent', e.color);
+  entryTitle.textContent = e.title;
+  entryLatin.textContent = e.latin;
+  entryLatin.hidden = !e.latin;
+  entryKind.textContent = e.kind;
+  entryDesc.textContent = e.description;
+  entryWhere.innerHTML = '';
+  const k = document.createElement('span');
+  k.className = 'k';
+  k.textContent = 'where to look · ';
+  entryWhere.appendChild(k);
+  entryWhere.appendChild(document.createTextNode(e.where));
+  plateNo.textContent = 'PLATE ' + ROMAN[current];
+  countLine.textContent = (current + 1) + ' / ' + ENTRIES.length;
+  plateStatus.textContent = 'Plate ' + ROMAN[current] + ': ' + e.title;
+  [...indexList.querySelectorAll('button')].forEach((b, j) =>
+    b.setAttribute('aria-current', String(j === current)));
+}
+
+prevBtn.addEventListener('click', () => show(current - 1));
+nextBtn.addEventListener('click', () => show(current + 1));
+
+document.addEventListener('keydown', (e) => {
+  if (e.target && /^(input|textarea|select)$/i.test(e.target.tagName)) return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); show(current + 1); }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); show(current - 1); }
+});
+
+window.addEventListener('resize', sizeCanvas);
+
+let last = performance.now(), clock = 0;
+function frame(nowMs) {
+  const dt = Math.min((nowMs - last) / 1000, 0.1);
+  last = nowMs;
+  clock += dt;
+  const e = ENTRIES[current];
+  if (e && ctx) {
+    const drawer = DRAWERS[e.key];
+    if (drawer) drawer.call({ color: e.color }, ctx, W, H, clock, reduceMotion.matches);
+  }
+  requestAnimationFrame(frame);
+}
+
+if (ctx && ENTRIES.length) {
+  sizeCanvas();
+  buildIndex();
+  show(0);
+  requestAnimationFrame(frame);
+}
+</script>
+
+</body>
+</html>
