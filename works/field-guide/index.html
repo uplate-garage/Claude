@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>A Field Guide to Small Lights</title>
-<meta name="description" content="Ten real luminous phenomena of the night — sea sparkle to sprites — each with a true entry and its own living illustration.">
+<meta name="description" content="Nine real luminous phenomena of the night and one honest mystery — sea sparkle to red sprites to the will-o'-the-wisp — each with a true entry and its own living plate.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='5' fill='%23ffc873'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%23ffc873' opacity='0.25'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Spline+Sans+Mono:wght@300..500&display=swap">
 <style>
@@ -23,6 +23,10 @@
   }
 
   * { box-sizing: border-box; }
+
+  html { scrollbar-gutter: stable; }
+
+  nav.index { min-width: 0; }
 
   body {
     margin: 0;
@@ -150,7 +154,7 @@
     font-weight: 320;
     font-size: 10.5px;
     letter-spacing: 0.18em;
-    color: rgba(140, 160, 175, 0.6);
+    color: rgba(140, 160, 175, 0.85);
     pointer-events: none;
   }
 
@@ -187,6 +191,7 @@
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--accent, var(--ember));
+    border: 1px solid var(--accent, var(--ember));
     border: 1px solid color-mix(in srgb, var(--accent, var(--ember)) 45%, transparent);
     border-radius: 999px;
     padding: 4px 10px;
@@ -266,7 +271,8 @@
       display: flex;
       gap: 4px;
       overflow-x: auto;
-      padding-bottom: 6px;
+      padding: 4px 4px 6px;
+      margin: 0 -4px;
     }
 
     nav.index button {
@@ -298,7 +304,7 @@
 <div class="wrap">
   <header>
     <h1>A Field Guide to Small Lights</h1>
-    <p class="plate-line">ten true lights of the night · plates drawn live, in each light's own color · <a href="../../">glim</a></p>
+    <p class="plate-line">nine true lights of the night, and one contested · plates drawn live, in each light's own color · part of <a href="../../index.html">glim</a></p>
   </header>
 
   <div class="book">
@@ -309,7 +315,7 @@
 
     <section class="plate" aria-live="off">
       <div class="frame">
-        <canvas id="vignette" aria-hidden="true"></canvas>
+        <canvas id="vignette" role="img"></canvas>
         <span class="plate-no" id="plateNo"></span>
       </div>
       <article class="entry" id="entry">
@@ -325,7 +331,7 @@
         <button id="prevBtn">← previous</button>
         <button id="nextBtn">next →</button>
         <span class="count" id="countLine"></span>
-        <span class="keys">arrow keys turn the plates</span>
+        <span class="keys">← and → turn the plates</span>
       </div>
       <p class="sr-only" role="status" id="plateStatus"></p>
     </section>
@@ -343,60 +349,70 @@ const ENTRIES = [
     kind: 'living light', color: '#45d0ff',
     description: `A single cell nearly the size of a pinhead, Noctiluca scintillans is a balloon of a dinoflagellate that answers touch with light. Shear from a breaking wave fires an electrical pulse across its inner vacuole membrane; protons flood tiny organelles called scintillons, souring them until luciferase wakes and burns luciferin blue. Stimulus to flash takes about twenty milliseconds, and each flash lasts a tenth of a second. Crowded by the billion, they trace every wave crest, every footprint, every oar stroke.`,
     where: `Find a calm bay on a moonless night where the water looked faintly pink or rusty by day, then drag a hand or a paddle through the shallows and watch the wake ignite.`,
+    scene: `A dark bay; a wave edge sweeps shoreward and ignites as blue sparks that vanish in a blink.`,
   },
   {
     key: 'foxfire', title: 'Foxfire', latin: 'Armillaria mellea',
     kind: 'living light', color: '#6df27f',
     description: `Rotting oak and beech sometimes light themselves from inside: mycelium of honey fungus (Armillaria) laces the dead wood, and an enzyme there oxidizes a luciferin, releasing cold green light near 525 nanometers. It burns day and night while the wood stays damp, usually too faint for any but dark-adapted eyes. Aristotle recorded it; miners watched pit props shine; in 1775 Bushnell's one-man submarine Turtle carried foxfire to light its compass, since a candle would have eaten the operator's air.`,
     where: `Peel loose bark from a wet, well-rotted hardwood log on a dark summer night in old forest, then give your eyes ten minutes to adjust.`,
+    scene: `A fallen log in darkness, veined with slowly breathing green filaments of light.`,
   },
   {
     key: 'glowworm-cave', title: 'Cave glowworm', latin: 'Arachnocampa spp.',
     kind: 'living light', color: '#5ff2df',
     description: `Not a worm but the larva of a fungus gnat, which spends most of its year-long life fishing. Each larva hangs dozens of silk lines beaded with sticky mucus from a cave ceiling or a damp gully bank, then glows blue-green from the tip of its abdomen, where modified excretory tubules host a firefly-like luciferase acting on a luciferin all its own. Midges fly toward the light and stick. The adult emerges without working mouthparts and lives a few days; every meal is caught by lamplight, as a larva.`,
     where: `See Arachnocampa luminosa at Waitomo or Te Anau in New Zealand, or its close cousin A. flava in Australia at Natural Bridge and Springbrook in the Gold Coast hinterland — any wet, overhung bank in a rainforest gully, well after full dark.`,
+    scene: `A cave ceiling strung with steady blue-green points of light, each trailing a beaded silk line.`,
   },
   {
     key: 'st-elmos-fire', title: "St. Elmo's fire", latin: 'corona discharge',
     kind: 'electrical light', color: '#8c85ff',
     description: `Under a thundercloud, the atmosphere's electric field steepens at sharp conductive points: mastheads, wingtips, spires, even cattle horns. At sufficient strength it strips electrons from air molecules, sustaining a small plasma, a corona discharge. Excited nitrogen and oxygen relax by shedding blue-violet photons, the same physics as a gas-discharge lamp. Unlike lightning's flash, the glow can persist for minutes. Mediterranean sailors named it for Saint Erasmus, their patron, and took the fire on their rigging as his guardianship — often, in truth, a warning that lightning was near.`,
-    where: `During a thunderstorm, watch pointed conductors overhead: ship masts, radio antennas, and, from an airliner window seat at night, the wingtips and windscreen edges.`,
+    where: `During a thunderstorm, watch pointed conductors overhead: ship masts, radio antennas, and, from an airliner window seat at night, the wingtips; pilots get the windscreen view.`,
+    scene: `A ship's mast at night; violet brushes of light flicker continuously from the tip and yard-arm ends.`,
   },
   {
     key: 'sprite', title: 'Red sprites', latin: 'transient luminous event',
     kind: 'electrical light', color: '#ff5349',
     description: `Pilots reported them for decades and were rarely believed; a University of Minnesota camera, running by chance in 1989, finally caught one. Sprites bloom 50 to 90 kilometers above powerful thunderstorms, usually milliseconds after a strong positive lightning stroke below. Excited nitrogen molecules give the glow its red, thinning to bluish tendrils near the bottom. Shapes come in carrots, columns, and jellyfish, some tens of kilometers tall — over before the eye is sure it saw anything.`,
     where: `From a dark site on a clear night, face a large active thunderstorm 100 to 300 kilometers away and watch the sky well above its cloud tops; summer storm complexes over the American Great Plains are dependable producers.`,
+    scene: `Darkness above a distant storm; every several seconds a red jellyfish of streamers blooms high in the sky and is gone within a heartbeat.`,
   },
   {
     key: 'airglow', title: 'Airglow', latin: 'nightglow · OI 557.7 nm',
     kind: 'atmospheric light', color: '#98e05c',
     description: `Even the darkest desert sky glows faintly on its own. Daylight ultraviolet splits oxygen molecules high in the atmosphere; all night the freed atoms recombine, and some collisions leave one atom holding energy it finally sheds as a photon at 557.7 nanometers — the green line of atomic oxygen. The emitting layer is a thin shell near 95 kilometers, some ten kilometers deep. At a dark site, airglow supplies more light than all the stars combined; no night sky on Earth is ever fully black.`,
-    where: `From any site far from city lights when the moon is down, point a camera 10-20 degrees above the horizon and expose for 15-30 seconds; the faint green banding in the frame is airglow, sometimes visible to fully dark-adapted eyes as a pale sheen.`,
+    where: `From any site far from city lights when the moon is down, point a camera 10 to 20 degrees above the horizon and expose for 15 to 30 seconds; the faint green banding in the frame is airglow, sometimes visible to fully dark-adapted eyes as a pale sheen.`,
+    scene: `A dark treeline under a night sky banded with faint green light, rippling almost too slowly to notice.`,
   },
   {
     key: 'zodiacal-light', title: 'Zodiacal light', latin: 'al-fajr al-kādhib · the false dawn',
     kind: 'celestial light', color: '#d9d2bd',
     description: `Sunlight does all the work here. A sparse cloud of dust, most of it shed by Jupiter-family comets, drifts in the plane of the planets and scatters light from the sun below the horizon back toward Earth: a pale, tilted pyramid leaning along the ecliptic. Each grain slowly spirals sunward, so comets keep the cloud restocked. Medieval Islamic astronomers called it the false dawn and ruled that it does not begin the fast. From dark ground it can rival the Milky Way.`,
     where: `From a dark site at mid-northern latitudes, look west an hour or two after sunset near the March equinox, or east before morning twilight near the September one.`,
+    scene: `A tilted pyramid of pale grainy light leans up from the horizon corner among sparse stars.`,
   },
   {
-    key: 'earthshine', title: 'Earthshine', latin: 'lumière cendrée',
+    key: 'earthshine', title: 'Earthshine', latin: 'lumière cendrée · the ashen light',
     kind: 'celestial light', color: '#a9bccd',
     description: `Look at a young crescent and the rest of the disk is still there: a full circle of dim blue-gray closed inside the bright horns. Sunlight strikes Earth, glances off clouds and ocean, crosses to the Moon's night side, and bounces back to your eye — three legs of travel for one faint glow. Leonardo da Vinci worked out the mechanism around 1510 in the Codex Leicester, crediting the seas; clouds, we now know, do most of the reflecting. Its brightness tracks Earth's weather.`,
     where: `Find a thin crescent low in the west in the hour after sunset, within three or four days of new moon, and look for the faint circle completing it; binoculars help.`,
+    scene: `A crescent moon whose dark remainder shows as a dim blue-gray disc, its glow slowly breathing.`,
   },
   {
-    key: 'milky-sea', title: 'Milky seas', latin: 'Vibrio harveyi',
+    key: 'milky-sea', title: 'Milky seas', latin: 'cf. Vibrio harveyi',
     kind: 'living light', color: '#d4ecda',
-    description: `On rare nights, mostly in the northwest Indian Ocean, whole stretches of sea turn a steady, even white — sailors have compared it to sailing across a snowfield. The light comes from luminous bacteria, likely Vibrio harveyi, which switch on together once their numbers pass a quorum threshold, perhaps feeding on a dying algal bloom. A 1995 report from the merchant ship Lima matched a glow in satellite imagery covering some 15,000 square kilometres; a 2019 event off Java exceeded 100,000 and lasted more than a month.`,
+    description: `On rare nights, mostly in the northwest Indian Ocean, whole stretches of sea turn a steady, even white — sailors have compared it to sailing across a snowfield. The light comes from luminous bacteria, likely Vibrio harveyi, which switch on together once their numbers pass a quorum threshold, perhaps feeding on a dying algal bloom. A 1995 report from the merchant ship Lima matched a glow in satellite imagery covering some 15,000 square kilometers; a 2019 event off Java exceeded 100,000 and lasted more than a month.`,
     where: `From a ship's deck late on a dark night in the northwest Indian Ocean or the seas around Indonesia, where nearly all credible reports cluster; no one can yet predict an event, so this one finds you.`,
+    scene: `An evenly glowing pale sea under a black sky; a small dark ship creeps across for scale.`,
   },
   {
-    key: 'will-o-the-wisp', title: "Will-o'-the-wisp", latin: 'ignis fatuus',
+    key: 'will-o-the-wisp', title: "Will-o'-the-wisp", latin: 'ignis fatuus · the foolish fire',
     kind: 'contested light', color: '#a8d8ef',
     description: `Reported for centuries over bogs, fens, and churchyard ditches: a small pale-blue flame that flickered above the mud and, witnesses swore, retreated when followed. The standing hypothesis blames marsh gas, methane touched off by traces of diphosphane, a phosphorus compound igniting on contact with air. But laboratory cool flames come out faint and greenish, the wrong color, and the wild light has never been conclusively documented. Drain a wetland and its reports stop. Every other entry here has a mechanism; this one has only witnesses.`,
     where: `Almost nowhere now: your best remaining odds are an undrained peat bog on a warm, windless night far from artificial light, and even there no verified sighting has been made in decades.`,
+    scene: `Marsh reeds in darkness; one pale flame gutters above the mud, goes out, and relights farther away.`,
   },
 ];
 
@@ -469,10 +485,11 @@ const DRAWERS = {
     ctx.fillRect(0, horizon, w, h - horizon);
     const st = VSTATE.sea || (VSTATE.sea = { sparks: [], lastStray: 0 });
     const SWEEP = 5.2;
+    const tw = still ? 0 : t;
     const phase = still ? 0.5 : (t % SWEEP) / SWEEP;
     // wave edge sweeping toward the viewer
     const edgeY = horizon + (h - horizon) * (0.15 + phase * 0.65);
-    const waveY = (x) => edgeY + Math.sin(x * 0.018 + t * 0.7) * 4;
+    const waveY = (x) => edgeY + Math.sin(x * 0.018 + tw * 0.7) * 4;
     ctx.strokeStyle = 'rgba(140,160,175,0.10)';
     ctx.beginPath();
     for (let x = 0; x <= w; x += 6) { const y = waveY(x); x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
@@ -698,7 +715,7 @@ const DRAWERS = {
       ctx.fill();
     }
     if (sp > 0) {
-      const r = rand(Math.floor(t / cycle) + 29);
+      const r = rand(still ? 29 : Math.floor(te / cycle) + 29);
       const cx = w * (0.4 + r() * 0.2);
       const tendrils = 9;
       for (let i = 0; i < tendrils; i++) {
@@ -894,6 +911,7 @@ function show(i) {
   k.textContent = 'where to look · ';
   entryWhere.appendChild(k);
   entryWhere.appendChild(document.createTextNode(e.where));
+  canvas.setAttribute('aria-label', e.scene || e.title);
   plateNo.textContent = 'PLATE ' + ROMAN[current];
   countLine.textContent = (current + 1) + ' / ' + ENTRIES.length;
   plateStatus.textContent = 'Plate ' + ROMAN[current] + ': ' + e.title;
@@ -905,9 +923,10 @@ prevBtn.addEventListener('click', () => show(current - 1));
 nextBtn.addEventListener('click', () => show(current + 1));
 
 document.addEventListener('keydown', (e) => {
+  if (e.altKey || e.ctrlKey || e.metaKey) return;
   if (e.target && /^(input|textarea|select)$/i.test(e.target.tagName)) return;
-  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); show(current + 1); }
-  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); show(current - 1); }
+  if (e.key === 'ArrowRight') { e.preventDefault(); show(current + 1); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); show(current - 1); }
 });
 
 window.addEventListener('resize', sizeCanvas);
@@ -925,10 +944,12 @@ function frame(nowMs) {
   requestAnimationFrame(frame);
 }
 
-if (ctx && ENTRIES.length) {
-  sizeCanvas();
+if (ENTRIES.length) {
   buildIndex();
   show(0);
+}
+if (ctx && ENTRIES.length) {
+  sizeCanvas();
   requestAnimationFrame(frame);
 }
 </script>
