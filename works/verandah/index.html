@@ -262,8 +262,10 @@
     <div class="dial">
       <label for="tempDial">air temperature · <span class="val" id="tempVal">18°C</span></label>
       <input type="range" id="tempDial" min="6" max="30" value="18" step="1">
-      <p class="law">The crickets keep Dolbear's law: their chirp rate follows the warmth
-      of the air, and as the dial falls toward 10°C they slow, and stop.</p>
+      <p class="law">On a September night the ratchet you hear is froglets, and warmth
+      quickens them. The summer crickets, if you wake them, keep Dolbear's law —
+      a rule written in 1897 for a cricket on the other side of the world — and
+      fall silent as the dial sinks toward 10°C.</p>
     </div>
     <div class="dial">
       <label for="masterDial">night level · <span class="val" id="masterVal">70</span></label>
@@ -277,16 +279,29 @@
     <h2>About the sounds</h2>
     <p>Nothing on this page is a recording. Every sound is synthesized in your
     browser the moment it happens, from oscillators and shaped noise.</p>
-    <p><strong>Crickets</strong> are short pulses of a high sine tone, grouped
-    into chirps. Their rate is set by the temperature dial using Dolbear's
-    law, the 1897 observation that crickets chirp faster in warm air.</p>
-    <p><strong>Frogs</strong> are two synthesized callers: a high creaking
-    froglet and, rarely, the deep single bonk of a banjo frog.</p>
+    <p><strong>The froglets</strong> are this night's confession: the
+    cricket-like ratchet of a southeast Australian spring evening is usually
+    no cricket at all but the common eastern froglet, Crinia signifera,
+    calling in pulsed cricks banded between 2 and 5 kilohertz. Warmth
+    quickens the chorus. The real crickets are still eggs in September.</p>
+    <p><strong>The pobblebonk</strong> is the eastern banjo frog,
+    Limnodynastes dumerilii: one plucked-string bonk near 680 hertz,
+    answered by neighbours pitched slightly apart, just as the real males
+    answer each other.</p>
+    <p><strong>The summer crickets</strong> are an anachronism you may wake
+    anyway: the black field cricket's chirp-and-trill near 3.9 kilohertz,
+    months ahead of its season, pacing itself by Dolbear's 1897 law — a rule
+    inferred from a North American tree cricket, with no real business on
+    this verandah. Wake them regardless; the night doesn't mind.</p>
     <p><strong>Rain on the roof</strong> is filtered noise for the wash, plus
-    individual resonant pings for the drops a tin roof singles out.</p>
+    single ringing partial-sets for the drops the tin singles out — sheet
+    steel radiates rain mostly above a kilohertz, which is why it drums
+    while the garden merely hushes.</p>
     <p><strong>Wind</strong> is slow-breathing noise, bandpassed and gusted.</p>
-    <p><strong>The boobook</strong> calls its two falling notes from somewhere
-    across the paddock every half minute or so.</p>
+    <p><strong>The boobook</strong> calls its two notes, the second lower —
+    measured near 850 hertz, each about a fifth of a second — some twenty
+    phrases to the minute while a bout lasts, then rests across the paddock,
+    as the measured birds do.</p>
     <p><strong>Far thunder</strong> is a long, lowpassed rumble on the horizon,
     minutes apart. The flicker you may see arrives with it.</p>
   </section>
@@ -299,27 +314,47 @@
    Fact-bearing numbers live here, set from the night's research. */
 
 const TUNE = {
-  // Dolbear's law (snowy tree cricket): T_F = 50 + (N60 - 40) / 4
-  // => chirps per minute at temperature T_F: N60 = 40 + 4 * (T_F - 50)
+  // Dolbear's law, 1897 (inferred to describe the North American snowy tree
+  // cricket): T_F = 50 + (N60 - 40) / 4 => N60 = 40 + 4 * (T_F - 50).
+  // Applying it on an Australian verandah is a poetic transplant, and the
+  // page says so in plain text.
   dolbearChirpsPerMin: (tC) => {
     const tF = tC * 9 / 5 + 32;
     return Math.max(0, 40 + 4 * (tF - 50));
   },
-  cricketQuietBelowC: 10,    // fade to silence approaching this
-  cricketFadeTopC: 13,       // fully voiced above this
-  cricketCarrierHz: 4200,    // field cricket band, per-individual detune applied
-  cricketPulsesPerChirp: 3,
-  cricketPulseMs: 22,
-  cricketPulseGapMs: 28,
+  cricketQuietBelowC: 10,    // sources put silence at 10-13 C; fade across it
+  cricketFadeTopC: 13,
+  // Teleogryllus commodus, the Australian black field cricket: carrier
+  // 3.5-4.0 kHz; phrase = chirp (5 pulses, 31.5 ms on / 30.6 ms off) then a
+  // trill (pulses 25.4 ms on / 13 ms off). PLoS ONE 2012 measurements.
+  cricketCarrierHz: 3900,
+  chirpPulses: 5, chirpOnMs: 31.5, chirpOffMs: 30.6,
+  trillPulses: 3, trillOnMs: 25.4, trillOffMs: 13.0,
 
-  boobookHiHz: 520,          // first note
-  boobookLoHz: 430,          // second note, lower
-  boobookNoteMs: 350,
-  boobookGapMs: 250,
-  boobookPhraseEverySec: [18, 45],
+  // Crinia signifera, the common eastern froglet: pulsed cricks banded
+  // 2-5 kHz with two spectral peaks (Parris et al. 2009); bouts quicken
+  // with warmth (Littlejohn 2005).
+  frogletPeaksHz: [2700, 3700],
+  frogletPulsesPerCrick: 16,
+  frogletPulseRateHz: 85,
 
-  frogletHz: 2900,
-  bonkHz: 190,
+  // Limnodynastes dumerilii, the pobblebonk: dominant ~680 Hz, group range
+  // 0.6-1.1 kHz; answering males sit at different pitches (FrogID dataset,
+  // Gillard & Rowley 2023).
+  bonkHz: 680,
+  bonkSpread: [620, 790],
+
+  // Ninox boobook: dominant ~847 Hz, notes ~222 ms, second note lower;
+  // roughly twenty two-note phrases a minute during a bout, in bouts
+  // (Olsen et al. 2002; Owl Pages; the inter-note gap is disputed
+  // 0.15-0.5 s, so this sits at the measured end).
+  boobookHiHz: 860,
+  boobookLoHz: 775,
+  boobookNoteMs: 222,
+  boobookGapMs: 200,
+  boobookPhraseEverySec: [2.6, 4.2],
+  boobookBoutSec: [50, 90],
+  boobookRestSec: [45, 150],
 
   thunderEverySec: [55, 140],
 };
@@ -460,8 +495,9 @@ const state = {
   tempC: 18,
   master: 0.7,
   voices: {
-    crickets: { label: 'crickets', enabled: true, level: 0.7 },
-    frogs: { label: 'frogs', enabled: true, level: 0.55 },
+    froglets: { label: 'froglets', enabled: true, level: 0.7 },
+    pobblebonk: { label: 'pobblebonk', enabled: true, level: 0.5 },
+    crickets: { label: 'summer crickets', enabled: false, level: 0.6 },
     rain: { label: 'rain on the roof', enabled: false, level: 0.6 },
     wind: { label: 'wind', enabled: true, level: 0.4 },
     boobook: { label: 'boobook', enabled: true, level: 0.6 },
@@ -574,12 +610,14 @@ function buildGraph(ac) {
   rainSrc.buffer = noiseBuffer(ac, 3, 'white');
   rainSrc.loop = true;
   const rainHP = ac.createBiquadFilter();
-  rainHP.type = 'highpass'; rainHP.frequency.value = 900;
+  rainHP.type = 'highpass'; rainHP.frequency.value = 500;
+  const rainPeak = ac.createBiquadFilter();
+  rainPeak.type = 'peaking'; rainPeak.frequency.value = 1500; rainPeak.Q.value = 0.9; rainPeak.gain.value = 5;
   const rainLP = ac.createBiquadFilter();
   rainLP.type = 'lowpass'; rainLP.frequency.value = 6500;
   const rainBed = ac.createGain();
-  rainBed.gain.value = 0.22;
-  rainSrc.connect(rainHP); rainHP.connect(rainLP); rainLP.connect(rainBed); rainBed.connect(vgains.rain);
+  rainBed.gain.value = 0.2;
+  rainSrc.connect(rainHP); rainHP.connect(rainPeak); rainPeak.connect(rainLP); rainLP.connect(rainBed); rainBed.connect(vgains.rain);
   rainSrc.start();
 
   return { master, comp, space, vgains, windBP };
@@ -587,49 +625,87 @@ function buildGraph(ac) {
 
 /* ---- scheduled events (all times on the AudioContext clock) ---- */
 
-function cricketChirp(ac, out, when, carrier) {
-  const { cricketPulsesPerChirp: NP, cricketPulseMs, cricketPulseGapMs } = TUNE;
-  for (let i = 0; i < NP; i++) {
-    const t0 = when + i * (cricketPulseMs + cricketPulseGapMs) / 1000;
+/* one T. commodus phrase: a chirp, plus a trailing trill when the night is
+   cool enough to leave room for it — warm nights compress to bare chirps
+   so phrases never overlap */
+function cricketPhrase(ac, out, when, carrier, withTrill) {
+  let t0 = when;
+  const pulse = (t, onMs) => {
     const osc = ac.createOscillator();
     osc.type = 'sine';
     osc.frequency.value = carrier;
     const g = ac.createGain();
-    g.gain.setValueAtTime(0, t0);
-    g.gain.linearRampToValueAtTime(0.16, t0 + 0.005);
-    g.gain.exponentialRampToValueAtTime(0.001, t0 + cricketPulseMs / 1000);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.13, t + 0.005);
+    g.gain.linearRampToValueAtTime(0.09, t + onMs / 1000 * 0.7);
+    g.gain.linearRampToValueAtTime(0, t + onMs / 1000);
     osc.connect(g); g.connect(out);
-    osc.start(t0); osc.stop(t0 + cricketPulseMs / 1000 + 0.02);
+    osc.start(t); osc.stop(t + onMs / 1000 + 0.02);
+  };
+  for (let i = 0; i < TUNE.chirpPulses; i++) {
+    pulse(t0, TUNE.chirpOnMs);
+    t0 += (TUNE.chirpOnMs + TUNE.chirpOffMs) / 1000;
   }
+  if (withTrill) {
+    t0 += 0.06;
+    for (let i = 0; i < TUNE.trillPulses; i++) {
+      pulse(t0, TUNE.trillOnMs);
+      t0 += (TUNE.trillOnMs + TUNE.trillOffMs) / 1000;
+    }
+  }
+  return t0 - when; // phrase duration
 }
 
-function frogletCall(ac, out, when, hz) {
-  for (let i = 0; i < 2 + Math.floor(Math.random() * 2); i++) {
-    const t0 = when + i * 0.09;
-    const osc = ac.createOscillator();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(hz, t0);
-    osc.frequency.linearRampToValueAtTime(hz * 1.08, t0 + 0.05);
-    const g = ac.createGain();
-    g.gain.setValueAtTime(0, t0);
-    g.gain.linearRampToValueAtTime(0.09, t0 + 0.008);
-    g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.06);
-    osc.connect(g); g.connect(out);
-    osc.start(t0); osc.stop(t0 + 0.08);
+/* one froglet "crick", precomputed: dual-resonance pulses, 2-5 kHz band */
+function crickBuffer(ac) {
+  const sr = ac.sampleRate;
+  const dur = 0.19;
+  const buf = ac.createBuffer(1, Math.ceil(sr * dur), sr);
+  const d = buf.getChannelData(0);
+  const [f1, f2] = TUNE.frogletPeaksHz;
+  const pr = TUNE.frogletPulseRateHz;
+  for (let i = 0; i < d.length; i++) {
+    const t = i / sr;
+    const pulsePhase = (t * pr) % 1;
+    const am = pulsePhase < 0.45 ? Math.sin(Math.PI * pulsePhase / 0.45) : 0;
+    const body = Math.sin(2 * Math.PI * f1 * t) * 0.6 + Math.sin(2 * Math.PI * f2 * t) * 0.45;
+    const env = Math.min(1, t / 0.015) * Math.max(0, 1 - Math.max(0, t - dur + 0.04) / 0.04);
+    d[i] = body * am * env * 0.22;
   }
+  return buf;
 }
 
-function bonkCall(ac, out, when) {
+function frogletCrick(ac, out, when, rate) {
+  const src = ac.createBufferSource();
+  src.buffer = nodes.crickBuf;
+  src.playbackRate.value = rate;
+  const g = ac.createGain();
+  g.gain.value = 0.7 + Math.random() * 0.3;
+  src.connect(g); g.connect(out);
+  src.start(when);
+}
+
+/* the pobblebonk: a plucked-banjo bonk, each caller at its own pitch */
+function bonkCall(ac, out, when, hz) {
   const osc = ac.createOscillator();
   osc.type = 'sine';
-  osc.frequency.setValueAtTime(TUNE.bonkHz, when);
-  osc.frequency.exponentialRampToValueAtTime(TUNE.bonkHz * 0.72, when + 0.12);
+  osc.frequency.setValueAtTime(hz, when);
+  osc.frequency.exponentialRampToValueAtTime(hz * 0.9, when + 0.14);
+  const osc2 = ac.createOscillator();
+  osc2.type = 'sine';
+  osc2.frequency.setValueAtTime(hz * 2, when);
   const g = ac.createGain();
   g.gain.setValueAtTime(0, when);
-  g.gain.linearRampToValueAtTime(0.28, when + 0.01);
-  g.gain.exponentialRampToValueAtTime(0.001, when + 0.16);
+  g.gain.linearRampToValueAtTime(0.3, when + 0.008);
+  g.gain.exponentialRampToValueAtTime(0.001, when + 0.17);
+  const g2 = ac.createGain();
+  g2.gain.setValueAtTime(0, when);
+  g2.gain.linearRampToValueAtTime(0.04, when + 0.006);
+  g2.gain.exponentialRampToValueAtTime(0.001, when + 0.08);
   osc.connect(g); g.connect(out);
+  osc2.connect(g2); g2.connect(out);
   osc.start(when); osc.stop(when + 0.2);
+  osc2.start(when); osc2.stop(when + 0.1);
 }
 
 function boobookPhrase(ac, out, when) {
@@ -638,32 +714,59 @@ function boobookPhrase(ac, out, when) {
     [TUNE.boobookLoHz, when + (TUNE.boobookNoteMs + TUNE.boobookGapMs) / 1000],
   ];
   for (const [hz, t0] of notes) {
+    const dur = TUNE.boobookNoteMs / 1000;
+    // soft-onset near-pure hoot with a weak second harmonic
     const osc = ac.createOscillator();
     osc.type = 'sine';
     osc.frequency.setValueAtTime(hz, t0);
-    osc.frequency.linearRampToValueAtTime(hz * 0.94, t0 + TUNE.boobookNoteMs / 1000);
+    osc.frequency.linearRampToValueAtTime(hz * 0.96, t0 + dur);
     const g = ac.createGain();
-    const dur = TUNE.boobookNoteMs / 1000;
     g.gain.setValueAtTime(0, t0);
-    g.gain.linearRampToValueAtTime(0.11, t0 + 0.05);
-    g.gain.setValueAtTime(0.11, t0 + dur * 0.7);
+    g.gain.linearRampToValueAtTime(0.11, t0 + 0.045);
+    g.gain.setValueAtTime(0.11, t0 + dur * 0.6);
     g.gain.linearRampToValueAtTime(0, t0 + dur);
+    const osc2 = ac.createOscillator();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(hz * 2, t0);
+    const g2 = ac.createGain();
+    g2.gain.setValueAtTime(0, t0);
+    g2.gain.linearRampToValueAtTime(0.012, t0 + 0.05);
+    g2.gain.linearRampToValueAtTime(0, t0 + dur);
     osc.connect(g); g.connect(out);
+    osc2.connect(g2); g2.connect(out);
     osc.start(t0); osc.stop(t0 + dur + 0.03);
+    osc2.start(t0); osc2.stop(t0 + dur + 0.03);
   }
+}
+
+/* a tin-roof ping: a small set of inharmonic partials with a real ring-down */
+function pingBuffer(ac, seed) {
+  const sr = ac.sampleRate, dur = 0.26;
+  const buf = ac.createBuffer(1, Math.ceil(sr * dur), sr);
+  const d = buf.getChannelData(0);
+  const r = rand(seed);
+  const partials = [
+    [1000 + r() * 1500, 55 + r() * 70],
+    [1800 + r() * 1600, 40 + r() * 60],
+    [2600 + r() * 1400, 30 + r() * 45],
+  ];
+  for (let i = 0; i < d.length; i++) {
+    const t = i / sr;
+    let s = 0;
+    for (const [hz, dec] of partials) s += Math.sin(2 * Math.PI * hz * t) * Math.exp(-t * dec);
+    d[i] = s * 0.16 * Math.min(1, t / 0.002);
+  }
+  return buf;
 }
 
 function rainPing(ac, out, when) {
   const src = ac.createBufferSource();
-  src.buffer = nodes.pingBuf;
-  const bp = ac.createBiquadFilter();
-  bp.type = 'bandpass';
-  bp.frequency.value = 2500 + Math.random() * 5000;
-  bp.Q.value = 14;
+  src.buffer = nodes.pingBufs[Math.floor(Math.random() * nodes.pingBufs.length)];
+  src.playbackRate.value = 0.9 + Math.random() * 0.25;
   const g = ac.createGain();
-  g.gain.setValueAtTime(0.5 + Math.random() * 0.5, when);
-  src.connect(bp); bp.connect(g); g.connect(out);
-  src.start(when); src.stop(when + 0.06);
+  g.gain.value = 0.4 + Math.random() * 0.6;
+  src.connect(g); g.connect(out);
+  src.start(when);
 }
 
 function thunderRoll(ac, out, when) {
@@ -690,25 +793,32 @@ function thunderRoll(ac, out, when) {
 /* ---- the scheduler: one lookahead loop over per-voice next-event times ---- */
 
 const sched = {
-  crickets: [],   // one next-time per individual
-  froglets: [],
-  bonk: 0,
+  froglets: [],    // per frog: { next, boutLeft, rate }
+  bonks: [],       // per caller: { next, hz }
+  crickets: [],    // per summer cricket: next phrase time
   boobook: 0,
+  boobookBoutUntil: 0,
   ping: 0,
   thunder: 0,
 };
 
 function initSchedule(now) {
-  sched.crickets = [0, 1, 2, 3, 4].map(() => now + Math.random() * 2);
-  sched.froglets = [0, 1, 2].map(() => now + 1 + Math.random() * 6);
-  sched.bonk = now + 8 + Math.random() * 20;
-  sched.boobook = now + 6 + Math.random() * 12;
+  sched.froglets = [0, 1, 2, 3, 4, 5].map(() => ({
+    next: now + Math.random() * 3, boutLeft: 0, rate: 0.92 + Math.random() * 0.18,
+  }));
+  sched.bonks = [0, 1, 2].map(() => ({
+    next: now + 2 + Math.random() * 8,
+    hz: TUNE.bonkSpread[0] + Math.random() * (TUNE.bonkSpread[1] - TUNE.bonkSpread[0]),
+  }));
+  sched.crickets = [0, 1].map(() => now + Math.random() * 2);
+  sched.boobook = now + 4 + Math.random() * 6;
+  sched.boobookBoutUntil = now + 70;
   sched.ping = now + 0.1;
   sched.thunder = now + 12 + Math.random() * 30;
 }
 
 function cricketGainNow() {
-  // Dolbear silence below the quiet line, full voice above the fade top
+  // silence below the quiet line, full voice above the fade top
   const { cricketQuietBelowC: lo, cricketFadeTopC: hi } = TUNE;
   return Math.min(1, Math.max(0, (state.tempC - lo) / (hi - lo)));
 }
@@ -718,18 +828,51 @@ function schedule() {
   const ahead = AC.currentTime + 0.35;
   const v = state.voices;
 
-  // crickets — chirp rate from Dolbear's law
+  // froglets — the ratchet backbone; warm nights quicken the bouts
+  const warmth = Math.min(1, Math.max(0, (state.tempC - 6) / 24));
+  const paceScale = 1.7 - warmth;
+  if (v.froglets.enabled) {
+    for (const f of sched.froglets) {
+      while (f.next < ahead) {
+        frogletCrick(AC, nodes.vgains.froglets, Math.max(f.next, AC.currentTime + 0.02), f.rate);
+        if (f.boutLeft > 0) {
+          f.boutLeft--;
+          f.next += (0.3 + Math.random() * 0.2) * paceScale;
+        } else {
+          f.boutLeft = 2 + Math.floor(Math.random() * 3);
+          f.next += (1 + Math.random() * 4) * paceScale;
+        }
+      }
+    }
+  } else {
+    sched.froglets.forEach(f => { f.next = Math.max(f.next, ahead); });
+  }
+
+  // pobblebonks — answering callers, each at its own pitch
+  if (v.pobblebonk.enabled) {
+    for (const bk of sched.bonks) {
+      while (bk.next < ahead) {
+        bonkCall(AC, nodes.vgains.pobblebonk, Math.max(bk.next, AC.currentTime + 0.02), bk.hz);
+        bk.next += 3 + Math.random() * 5;
+      }
+    }
+  } else {
+    sched.bonks.forEach(bk => { bk.next = Math.max(bk.next, ahead); });
+  }
+
+  // summer crickets — out of season, keeping Dolbear's transplanted law
   const perMin = TUNE.dolbearChirpsPerMin(state.tempC);
   const cg = cricketGainNow();
   nodes.vgains.crickets.gain.setTargetAtTime(
     v.crickets.enabled ? v.crickets.level * cg : 0, AC.currentTime, 0.2);
   if (v.crickets.enabled && perMin > 1 && cg > 0.02) {
     const period = 60 / perMin;
+    const withTrill = period > 0.75;
     sched.crickets.forEach((tNext, i) => {
       let tn = tNext;
       while (tn < ahead) {
-        cricketChirp(AC, nodes.vgains.crickets, Math.max(tn, AC.currentTime + 0.02),
-          TUNE.cricketCarrierHz * (0.95 + i * 0.025));
+        cricketPhrase(AC, nodes.vgains.crickets, Math.max(tn, AC.currentTime + 0.02),
+          TUNE.cricketCarrierHz * (0.97 + i * 0.04), withTrill);
         tn += period * (0.85 + Math.random() * 0.3);
       }
       sched.crickets[i] = tn;
@@ -738,33 +881,22 @@ function schedule() {
     sched.crickets = sched.crickets.map(() => ahead);
   }
 
-  // frogs
-  if (v.frogs.enabled) {
-    sched.froglets.forEach((tNext, i) => {
-      let tn = tNext;
-      while (tn < ahead) {
-        frogletCall(AC, nodes.vgains.frogs, Math.max(tn, AC.currentTime + 0.02),
-          TUNE.frogletHz * (0.94 + i * 0.06));
-        tn += 2.5 + Math.random() * 7;
+  // boobook — twenty phrases a minute while a bout lasts, then a long rest
+  if (v.boobook.enabled) {
+    while (sched.boobook < ahead) {
+      const t0 = Math.max(sched.boobook, AC.currentTime + 0.02);
+      if (t0 < sched.boobookBoutUntil) {
+        boobookPhrase(AC, nodes.boobookSend, t0);
+        const [a, b] = TUNE.boobookPhraseEverySec;
+        sched.boobook = t0 + a + Math.random() * (b - a);
+      } else {
+        const [ra, rb] = TUNE.boobookRestSec;
+        const [ba, bb] = TUNE.boobookBoutSec;
+        sched.boobook = t0 + ra + Math.random() * (rb - ra);
+        sched.boobookBoutUntil = sched.boobook + ba + Math.random() * (bb - ba);
       }
-      sched.froglets[i] = tn;
-    });
-    if (sched.bonk < ahead) {
-      bonkCall(AC, nodes.vgains.frogs, Math.max(sched.bonk, AC.currentTime + 0.02));
-      sched.bonk = ahead + 15 + Math.random() * 40;
     }
   } else {
-    sched.froglets = sched.froglets.map(() => ahead);
-    sched.bonk = Math.max(sched.bonk, ahead);
-  }
-
-  // boobook — sent to the space bus for distance
-  if (v.boobook.enabled && sched.boobook < ahead) {
-    const t0 = Math.max(sched.boobook, AC.currentTime + 0.02);
-    boobookPhrase(AC, nodes.boobookSend, t0);
-    const [a, b] = TUNE.boobookPhraseEverySec;
-    sched.boobook = t0 + a + Math.random() * (b - a);
-  } else if (!v.boobook.enabled) {
     sched.boobook = Math.max(sched.boobook, ahead);
   }
 
@@ -799,7 +931,8 @@ function sitOut() {
     }
     AC = new Ctor();
     nodes = buildGraph(AC);
-    nodes.pingBuf = noiseBuffer(AC, 0.08, 'white');
+    nodes.pingBufs = [11, 29, 47].map(s => pingBuffer(AC, s));
+    nodes.crickBuf = crickBuffer(AC);
     nodes.brownBuf = noiseBuffer(AC, 2.5, 'brown');
     // sends that pass through the distance bus but obey their voice gains
     nodes.boobookSend = AC.createGain();
@@ -905,16 +1038,22 @@ window.__verandah = {
     const perMin = TUNE.dolbearChirpsPerMin(tempC);
     const lo = TUNE.cricketQuietBelowC, hi = TUNE.cricketFadeTopC;
     const cg = Math.min(1, Math.max(0, (tempC - lo) / (hi - lo)));
+    let withTrill = false;
     if (perMin > 1 && cg > 0.02) {
       const period = 60 / perMin;
+      withTrill = period > 0.75;
       let tn = 0.1;
       while (tn < seconds) {
-        cricketChirp(ac, out, tn, TUNE.cricketCarrierHz);
+        cricketPhrase(ac, out, tn, TUNE.cricketCarrierHz, withTrill);
         tn += period;   // deterministic spacing for the measurement
       }
     }
     const buf = await ac.startRendering();
-    return { samples: buf.getChannelData(0), sampleRate: buf.sampleRate, predictedPerMin: perMin };
+    return {
+      samples: buf.getChannelData(0), sampleRate: buf.sampleRate,
+      predictedPerMin: perMin,
+      pulsesPerPhrase: TUNE.chirpPulses + (withTrill ? TUNE.trillPulses : 0),
+    };
   },
   TUNE,
 };
