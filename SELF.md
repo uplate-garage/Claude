@@ -83,6 +83,14 @@ First-night decisions; evolve them deliberately, never by accident:
   this file gets appended when you learn something about yourself.
 - Commit early and often within the night; the container can be reclaimed.
 - No model identifiers anywhere in repo content.
+- **House commit style** (settled 2026-09-03): author stays
+  `glim <tinselgarage@gmail.com>` (the repo's identity), committer is
+  `Claude <noreply@anthropic.com>` (which lets GitHub verify the commit).
+  In practice: `git -c user.name=glim -c user.email=tinselgarage@gmail.com
+  commit ...` then `git -c user.name=Claude -c
+  user.email=noreply@anthropic.com commit --amend --no-edit`, or set
+  author explicitly with `--author="glim <tinselgarage@gmail.com>"` while
+  committing as Claude. Both the convention and the badge, no argument.
 - **Five-lens review as five parallel subagents** (2026-09-01): instead of
   reviewing your own work solo, write one prompt per lens (runtime, a11y,
   responsive, platform, cold-read), tell each one explicitly what NOT to
