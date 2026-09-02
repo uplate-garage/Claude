@@ -1,0 +1,933 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Verandah</title>
+<meta name="description" content="An Australian night to sit in — crickets, frogs, rain on a tin roof, a distant boobook — synthesized live, nothing recorded, the crickets keeping Dolbear's law.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='5' fill='%23ffc873'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%23ffc873' opacity='0.25'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Spline+Sans+Mono:wght@300..500&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --night: #0a121d;
+    --loam: #111d2b;
+    --loam-edge: #1c2c3e;
+    --moth: #e9e4d6;
+    --mist: #8ca0af;
+    --mist-dim: #7a8e9d;
+    --ember: #ffc873;
+    --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --reading: "Newsreader", "Charter", Georgia, serif;
+    --ledger: "Spline Sans Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scrollbar-gutter: stable; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100svh;
+    background: var(--night);
+    color: var(--moth);
+    font-family: var(--reading);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: clamp(28px, 6vh, 60px) clamp(18px, 4vw, 40px) 64px;
+  }
+
+  header h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 340;
+    font-size: clamp(30px, 4.8vw, 46px);
+    line-height: 1.08;
+  }
+
+  header .plate-line {
+    margin: 10px 0 0;
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--mist-dim);
+  }
+
+  header .plate-line a {
+    color: var(--mist);
+    text-decoration: underline;
+    text-decoration-color: var(--mist-dim);
+    text-underline-offset: 3px;
+  }
+
+  header .plate-line a:hover, header .plate-line a:focus-visible { color: var(--ember); }
+
+  /* ---------- scene ---------- */
+
+  .scene {
+    position: relative;
+    margin-top: clamp(24px, 4.5vh, 44px);
+    border: 1px solid var(--loam-edge);
+    border-radius: 6px;
+    overflow: hidden;
+    background: #070d16;
+  }
+
+  .scene canvas { display: block; width: 100%; height: auto; }
+
+  #sit {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    border: 0;
+    background: rgba(7, 13, 22, 0.55);
+    color: var(--moth);
+    font-family: var(--ledger);
+    font-weight: 400;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  #sit:hover, #sit:focus-visible { background: rgba(7, 13, 22, 0.35); color: var(--ember); }
+  #sit:focus-visible { outline: 1px solid var(--ember); outline-offset: -4px; }
+
+  /* ---------- the night table ---------- */
+
+  .table {
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 28px;
+  }
+
+  @media (max-width: 640px) { .table { grid-template-columns: 1fr; } }
+
+  .voice {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px dotted rgba(122, 142, 157, 0.3);
+  }
+
+  .voice button {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 118px;
+    text-align: left;
+    padding: 7px 12px;
+    border: 1px solid var(--loam-edge);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--mist);
+    font-family: var(--ledger);
+    font-weight: 380;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+  }
+
+  .voice button:hover { color: var(--moth); border-color: var(--mist-dim); }
+  .voice button:focus-visible { outline: 1px solid var(--ember); outline-offset: 2px; }
+
+  .voice button[aria-pressed="true"] {
+    color: var(--ember);
+    border-color: rgba(255, 200, 115, 0.5);
+  }
+
+  .voice button[aria-pressed="true"]::before { content: "● "; font-size: 9px; vertical-align: 1px; }
+  .voice button[aria-pressed="false"]::before { content: "○ "; font-size: 9px; vertical-align: 1px; }
+
+  .voice input[type="range"] {
+    flex: 1 1 auto;
+    min-width: 0;
+    accent-color: var(--ember);
+    cursor: pointer;
+  }
+
+  .voice input[type="range"]:focus-visible { outline: 1px solid var(--ember); outline-offset: 3px; }
+
+  /* ---------- dials ---------- */
+
+  .dials {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px 40px;
+    align-items: flex-end;
+  }
+
+  .dial { flex: 1 1 260px; }
+
+  .dial label {
+    display: block;
+    font-family: var(--ledger);
+    font-weight: 380;
+    font-size: 11.5px;
+    letter-spacing: 0.16em;
+    color: var(--mist);
+    margin-bottom: 8px;
+  }
+
+  .dial label .val { color: var(--ember); font-variant-numeric: tabular-nums; }
+
+  .dial input[type="range"] {
+    width: 100%;
+    accent-color: var(--ember);
+    cursor: pointer;
+  }
+
+  .dial input[type="range"]:focus-visible { outline: 1px solid var(--ember); outline-offset: 3px; }
+
+  .dial .law {
+    margin: 8px 0 0;
+    font-family: var(--reading);
+    font-style: italic;
+    font-weight: 340;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--mist);
+  }
+
+  /* ---------- about the sounds ---------- */
+
+  .about {
+    margin-top: clamp(36px, 7vh, 60px);
+    border-top: 1px solid var(--loam-edge);
+    padding-top: 20px;
+  }
+
+  .about h2 {
+    margin: 0 0 12px;
+    font-family: var(--ledger);
+    font-weight: 380;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--mist-dim);
+  }
+
+  .about p {
+    margin: 0 0 10px;
+    font-weight: 350;
+    font-size: 15px;
+    line-height: 1.65;
+    max-width: 62ch;
+    color: var(--mist);
+  }
+
+  .about p strong {
+    font-weight: 500;
+    color: var(--moth);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>The Verandah</h1>
+    <p class="plate-line">an australian night, synthesized live · nothing recorded · part of <a href="../../index.html">glim</a></p>
+  </header>
+
+  <div class="scene">
+    <canvas id="scene" role="img" aria-label="A dark verandah rail and posts before a paddock treeline under stars; rain streaks and a horizon flicker appear when those sounds play."></canvas>
+    <button id="sit">SIT OUT — the night starts quiet, wake what you like</button>
+  </div>
+
+  <div class="table" id="voices" role="group" aria-label="Voices of the night"></div>
+
+  <div class="dials">
+    <div class="dial">
+      <label for="tempDial">air temperature · <span class="val" id="tempVal">18°C</span></label>
+      <input type="range" id="tempDial" min="6" max="30" value="18" step="1">
+      <p class="law">The crickets keep Dolbear's law: their chirp rate follows the warmth
+      of the air, and as the dial falls toward 10°C they slow, and stop.</p>
+    </div>
+    <div class="dial">
+      <label for="masterDial">night level · <span class="val" id="masterVal">70</span></label>
+      <input type="range" id="masterDial" min="0" max="100" value="70" step="1">
+    </div>
+  </div>
+
+  <p class="sr-only" role="status" id="nightStatus"></p>
+
+  <section class="about">
+    <h2>About the sounds</h2>
+    <p>Nothing on this page is a recording. Every sound is synthesized in your
+    browser the moment it happens, from oscillators and shaped noise.</p>
+    <p><strong>Crickets</strong> are short pulses of a high sine tone, grouped
+    into chirps. Their rate is set by the temperature dial using Dolbear's
+    law, the 1897 observation that crickets chirp faster in warm air.</p>
+    <p><strong>Frogs</strong> are two synthesized callers: a high creaking
+    froglet and, rarely, the deep single bonk of a banjo frog.</p>
+    <p><strong>Rain on the roof</strong> is filtered noise for the wash, plus
+    individual resonant pings for the drops a tin roof singles out.</p>
+    <p><strong>Wind</strong> is slow-breathing noise, bandpassed and gusted.</p>
+    <p><strong>The boobook</strong> calls its two falling notes from somewhere
+    across the paddock every half minute or so.</p>
+    <p><strong>Far thunder</strong> is a long, lowpassed rumble on the horizon,
+    minutes apart. The flicker you may see arrives with it.</p>
+  </section>
+</div>
+
+<script>
+'use strict';
+
+/* ================= tuning table =================
+   Fact-bearing numbers live here, set from the night's research. */
+
+const TUNE = {
+  // Dolbear's law (snowy tree cricket): T_F = 50 + (N60 - 40) / 4
+  // => chirps per minute at temperature T_F: N60 = 40 + 4 * (T_F - 50)
+  dolbearChirpsPerMin: (tC) => {
+    const tF = tC * 9 / 5 + 32;
+    return Math.max(0, 40 + 4 * (tF - 50));
+  },
+  cricketQuietBelowC: 10,    // fade to silence approaching this
+  cricketFadeTopC: 13,       // fully voiced above this
+  cricketCarrierHz: 4200,    // field cricket band, per-individual detune applied
+  cricketPulsesPerChirp: 3,
+  cricketPulseMs: 22,
+  cricketPulseGapMs: 28,
+
+  boobookHiHz: 520,          // first note
+  boobookLoHz: 430,          // second note, lower
+  boobookNoteMs: 350,
+  boobookGapMs: 250,
+  boobookPhraseEverySec: [18, 45],
+
+  frogletHz: 2900,
+  bonkHz: 190,
+
+  thunderEverySec: [55, 140],
+};
+
+/* ================= scene ================= */
+
+const canvas = document.getElementById('scene');
+const ctx = canvas ? canvas.getContext('2d') : null;
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+let W = 0, H = 0;
+function sizeScene() {
+  if (!ctx) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = canvas.clientWidth || canvas.parentElement.clientWidth;
+  H = Math.round(W * 0.44);
+  canvas.width = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
+  canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', sizeScene);
+
+function rand(seed) {
+  let s = seed >>> 0;
+  return function () {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+
+const drops = [];          // visual rain streaks
+let flashUntil = 0;        // thunder flicker (audio clock seconds)
+let clock = 0, last = performance.now();
+
+function drawScene(nowMs) {
+  const dt = Math.min((nowMs - last) / 1000, 0.1);
+  last = nowMs;
+  clock += dt;
+  if (!ctx) return;
+  const still = reduceMotion.matches;
+
+  ctx.fillStyle = '#070d16';
+  ctx.fillRect(0, 0, W, H);
+
+  // thunder flicker on the horizon
+  const flash = state.on && clock < flashUntil ? 0.5 + 0.5 * Math.sin(clock * 40) : 0;
+  if (flash > 0) {
+    const g = ctx.createLinearGradient(0, H * 0.52, 0, H * 0.72);
+    g.addColorStop(0, 'rgba(233,228,214,0)');
+    g.addColorStop(1, 'rgba(233,228,214,' + (0.05 * flash).toFixed(3) + ')');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, H * 0.52, W, H * 0.2);
+  }
+
+  // stars
+  const r = rand(41);
+  for (let i = 0; i < 90; i++) {
+    const x = r() * W, y = r() * H * 0.55;
+    const tw = still ? 1 : 0.7 + 0.3 * Math.sin(clock * (0.3 + r()) + i);
+    ctx.globalAlpha = (0.05 + r() * 0.25) * tw;
+    ctx.fillStyle = '#cfd8de';
+    ctx.fillRect(x, y, 1, 1);
+  }
+  ctx.globalAlpha = 1;
+
+  // treeline
+  ctx.fillStyle = '#060b12';
+  ctx.beginPath();
+  ctx.moveTo(0, H * 0.72);
+  const rt = rand(53);
+  for (let x = 0; x <= W; x += 16) ctx.lineTo(x, H * 0.7 - rt() * H * 0.06);
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
+  ctx.closePath();
+  ctx.fill();
+
+  // rain streaks under the roofline
+  const rainLevel = state.on && state.voices.rain.enabled ? state.voices.rain.level : 0;
+  if (rainLevel > 0 && !still) {
+    if (drops.length < rainLevel * 60) {
+      drops.push({ x: Math.random() * W, y: Math.random() * H * 0.3, v: 260 + Math.random() * 140 });
+    }
+    ctx.strokeStyle = 'rgba(140,160,175,0.22)';
+    ctx.lineWidth = 1;
+    for (let i = drops.length - 1; i >= 0; i--) {
+      const d = drops[i];
+      d.y += d.v * dt;
+      if (d.y > H * 0.95) { drops.splice(i, 1); continue; }
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(d.x - 1.5, d.y + 9);
+      ctx.stroke();
+    }
+  } else if (drops.length) {
+    drops.length = 0;
+  }
+
+  // roof shadow, top edge
+  const roofG = ctx.createLinearGradient(0, 0, 0, H * 0.16);
+  roofG.addColorStop(0, 'rgba(4,7,12,0.95)');
+  roofG.addColorStop(1, 'rgba(4,7,12,0)');
+  ctx.fillStyle = roofG;
+  ctx.fillRect(0, 0, W, H * 0.16);
+
+  // porch light, corner, warm and small
+  ctx.save();
+  const lg = ctx.createRadialGradient(W * 0.055, H * 0.2, 0, W * 0.055, H * 0.2, 60);
+  lg.addColorStop(0, 'rgba(255,200,115,0.5)');
+  lg.addColorStop(0.15, 'rgba(255,200,115,0.14)');
+  lg.addColorStop(1, 'rgba(255,200,115,0)');
+  ctx.fillStyle = lg;
+  ctx.fillRect(W * 0.055 - 60, H * 0.2 - 60, 120, 120);
+  ctx.fillStyle = '#fff3dc';
+  ctx.beginPath();
+  ctx.arc(W * 0.055, H * 0.2, 2.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // rail and posts, foreground
+  ctx.fillStyle = '#040810';
+  ctx.fillRect(0, H * 0.84, W, 5);
+  ctx.fillRect(0, H * 0.97, W, H * 0.03);
+  for (const fx of [0.08, 0.34, 0.62, 0.9]) {
+    ctx.fillRect(W * fx - 4, H * 0.84, 8, H * 0.16);
+  }
+  for (let x = 10; x < W; x += 26) {
+    ctx.fillRect(x, H * 0.89, 3, H * 0.09);
+  }
+
+  requestAnimationFrame(drawScene);
+}
+
+/* ================= audio engine ================= */
+
+const state = {
+  on: false,
+  tempC: 18,
+  master: 0.7,
+  voices: {
+    crickets: { label: 'crickets', enabled: true, level: 0.7 },
+    frogs: { label: 'frogs', enabled: true, level: 0.55 },
+    rain: { label: 'rain on the roof', enabled: false, level: 0.6 },
+    wind: { label: 'wind', enabled: true, level: 0.4 },
+    boobook: { label: 'boobook', enabled: true, level: 0.6 },
+    thunder: { label: 'far thunder', enabled: false, level: 0.6 },
+  },
+};
+
+function loadMix() {
+  try {
+    const raw = localStorage.getItem('verandah-mix-v1');
+    if (!raw) return;
+    const m = JSON.parse(raw);
+    if (m && m.voices) {
+      for (const k in state.voices) {
+        if (m.voices[k]) {
+          state.voices[k].enabled = !!m.voices[k].enabled;
+          const lv = Number(m.voices[k].level);
+          if (lv >= 0 && lv <= 1) state.voices[k].level = lv;
+        }
+      }
+    }
+    if (Number(m.tempC) >= 6 && Number(m.tempC) <= 30) state.tempC = Number(m.tempC);
+    if (Number(m.master) >= 0 && Number(m.master) <= 1) state.master = Number(m.master);
+  } catch (e) { /* fine */ }
+}
+
+function saveMix() {
+  try {
+    localStorage.setItem('verandah-mix-v1', JSON.stringify({
+      tempC: state.tempC, master: state.master,
+      voices: Object.fromEntries(Object.entries(state.voices).map(([k, v]) => [k, { enabled: v.enabled, level: v.level }])),
+    }));
+  } catch (e) { /* fine */ }
+}
+
+let AC = null;       // AudioContext
+let nodes = null;    // long-lived graph nodes
+let schedTimer = 0;
+
+function noiseBuffer(ac, seconds, color) {
+  const len = Math.floor(ac.sampleRate * seconds);
+  const buf = ac.createBuffer(1, len, ac.sampleRate);
+  const d = buf.getChannelData(0);
+  let lastV = 0;
+  for (let i = 0; i < len; i++) {
+    const w = Math.random() * 2 - 1;
+    if (color === 'brown') {
+      lastV = (lastV + 0.02 * w) / 1.02;
+      d[i] = lastV * 3.5;
+    } else {
+      d[i] = w;
+    }
+  }
+  return buf;
+}
+
+function buildGraph(ac) {
+  const master = ac.createGain();
+  master.gain.value = state.master * 0.9;
+  const comp = ac.createDynamicsCompressor();
+  comp.threshold.value = -18;
+  comp.ratio.value = 6;
+  master.connect(comp);
+  comp.connect(ac.destination);
+
+  // cheap distance: two lowpassed feedback delays
+  const space = ac.createGain();
+  const d1 = ac.createDelay(0.5), d2 = ac.createDelay(0.5);
+  d1.delayTime.value = 0.089; d2.delayTime.value = 0.127;
+  const f1 = ac.createGain(), f2 = ac.createGain();
+  f1.gain.value = 0.32; f2.gain.value = 0.28;
+  const lp = ac.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = 1800;
+  space.connect(d1); space.connect(d2);
+  d1.connect(f1); f1.connect(d1);
+  d2.connect(f2); f2.connect(d2);
+  d1.connect(lp); d2.connect(lp);
+  lp.connect(master);
+
+  const vgains = {};
+  for (const k in state.voices) {
+    const g = ac.createGain();
+    g.gain.value = state.voices[k].enabled ? state.voices[k].level : 0;
+    g.connect(master);
+    vgains[k] = g;
+  }
+
+  // continuous beds: wind + rain wash
+  const windSrc = ac.createBufferSource();
+  windSrc.buffer = noiseBuffer(ac, 4, 'brown');
+  windSrc.loop = true;
+  const windBP = ac.createBiquadFilter();
+  windBP.type = 'bandpass'; windBP.frequency.value = 500; windBP.Q.value = 0.6;
+  const windLFO = ac.createOscillator();
+  windLFO.frequency.value = 0.07;
+  const windLFOG = ac.createGain();
+  windLFOG.gain.value = 260;
+  windLFO.connect(windLFOG); windLFOG.connect(windBP.frequency);
+  const windTrem = ac.createGain();
+  windTrem.gain.value = 0.5;
+  const windLFO2 = ac.createOscillator();
+  windLFO2.frequency.value = 0.11;
+  const windLFO2G = ac.createGain();
+  windLFO2G.gain.value = 0.28;
+  windLFO2.connect(windLFO2G); windLFO2G.connect(windTrem.gain);
+  windSrc.connect(windBP); windBP.connect(windTrem); windTrem.connect(vgains.wind);
+  windSrc.start(); windLFO.start(); windLFO2.start();
+
+  const rainSrc = ac.createBufferSource();
+  rainSrc.buffer = noiseBuffer(ac, 3, 'white');
+  rainSrc.loop = true;
+  const rainHP = ac.createBiquadFilter();
+  rainHP.type = 'highpass'; rainHP.frequency.value = 900;
+  const rainLP = ac.createBiquadFilter();
+  rainLP.type = 'lowpass'; rainLP.frequency.value = 6500;
+  const rainBed = ac.createGain();
+  rainBed.gain.value = 0.22;
+  rainSrc.connect(rainHP); rainHP.connect(rainLP); rainLP.connect(rainBed); rainBed.connect(vgains.rain);
+  rainSrc.start();
+
+  return { master, comp, space, vgains, windBP };
+}
+
+/* ---- scheduled events (all times on the AudioContext clock) ---- */
+
+function cricketChirp(ac, out, when, carrier) {
+  const { cricketPulsesPerChirp: NP, cricketPulseMs, cricketPulseGapMs } = TUNE;
+  for (let i = 0; i < NP; i++) {
+    const t0 = when + i * (cricketPulseMs + cricketPulseGapMs) / 1000;
+    const osc = ac.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = carrier;
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(0.16, t0 + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + cricketPulseMs / 1000);
+    osc.connect(g); g.connect(out);
+    osc.start(t0); osc.stop(t0 + cricketPulseMs / 1000 + 0.02);
+  }
+}
+
+function frogletCall(ac, out, when, hz) {
+  for (let i = 0; i < 2 + Math.floor(Math.random() * 2); i++) {
+    const t0 = when + i * 0.09;
+    const osc = ac.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(hz, t0);
+    osc.frequency.linearRampToValueAtTime(hz * 1.08, t0 + 0.05);
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(0.09, t0 + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.06);
+    osc.connect(g); g.connect(out);
+    osc.start(t0); osc.stop(t0 + 0.08);
+  }
+}
+
+function bonkCall(ac, out, when) {
+  const osc = ac.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(TUNE.bonkHz, when);
+  osc.frequency.exponentialRampToValueAtTime(TUNE.bonkHz * 0.72, when + 0.12);
+  const g = ac.createGain();
+  g.gain.setValueAtTime(0, when);
+  g.gain.linearRampToValueAtTime(0.28, when + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.001, when + 0.16);
+  osc.connect(g); g.connect(out);
+  osc.start(when); osc.stop(when + 0.2);
+}
+
+function boobookPhrase(ac, out, when) {
+  const notes = [
+    [TUNE.boobookHiHz, when],
+    [TUNE.boobookLoHz, when + (TUNE.boobookNoteMs + TUNE.boobookGapMs) / 1000],
+  ];
+  for (const [hz, t0] of notes) {
+    const osc = ac.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(hz, t0);
+    osc.frequency.linearRampToValueAtTime(hz * 0.94, t0 + TUNE.boobookNoteMs / 1000);
+    const g = ac.createGain();
+    const dur = TUNE.boobookNoteMs / 1000;
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(0.11, t0 + 0.05);
+    g.gain.setValueAtTime(0.11, t0 + dur * 0.7);
+    g.gain.linearRampToValueAtTime(0, t0 + dur);
+    osc.connect(g); g.connect(out);
+    osc.start(t0); osc.stop(t0 + dur + 0.03);
+  }
+}
+
+function rainPing(ac, out, when) {
+  const src = ac.createBufferSource();
+  src.buffer = nodes.pingBuf;
+  const bp = ac.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.value = 2500 + Math.random() * 5000;
+  bp.Q.value = 14;
+  const g = ac.createGain();
+  g.gain.setValueAtTime(0.5 + Math.random() * 0.5, when);
+  src.connect(bp); bp.connect(g); g.connect(out);
+  src.start(when); src.stop(when + 0.06);
+}
+
+function thunderRoll(ac, out, when) {
+  const src = ac.createBufferSource();
+  src.buffer = nodes.brownBuf;
+  src.loop = true;
+  const lp = ac.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.setValueAtTime(140, when);
+  lp.frequency.exponentialRampToValueAtTime(70, when + 4);
+  const g = ac.createGain();
+  const dur = 3.5 + Math.random() * 2.5;
+  g.gain.setValueAtTime(0, when);
+  g.gain.linearRampToValueAtTime(0.8, when + 0.35);
+  g.gain.setValueAtTime(0.8, when + 0.8);
+  g.gain.exponentialRampToValueAtTime(0.001, when + dur);
+  src.connect(lp); lp.connect(g); g.connect(out);
+  src.start(when); src.stop(when + dur + 0.1);
+  // visual flicker rides the audio clock
+  const lead = when - ac.currentTime;
+  flashUntil = clock + lead + Math.min(1.6, dur * 0.35);
+}
+
+/* ---- the scheduler: one lookahead loop over per-voice next-event times ---- */
+
+const sched = {
+  crickets: [],   // one next-time per individual
+  froglets: [],
+  bonk: 0,
+  boobook: 0,
+  ping: 0,
+  thunder: 0,
+};
+
+function initSchedule(now) {
+  sched.crickets = [0, 1, 2, 3, 4].map(() => now + Math.random() * 2);
+  sched.froglets = [0, 1, 2].map(() => now + 1 + Math.random() * 6);
+  sched.bonk = now + 8 + Math.random() * 20;
+  sched.boobook = now + 6 + Math.random() * 12;
+  sched.ping = now + 0.1;
+  sched.thunder = now + 12 + Math.random() * 30;
+}
+
+function cricketGainNow() {
+  // Dolbear silence below the quiet line, full voice above the fade top
+  const { cricketQuietBelowC: lo, cricketFadeTopC: hi } = TUNE;
+  return Math.min(1, Math.max(0, (state.tempC - lo) / (hi - lo)));
+}
+
+function schedule() {
+  if (!AC || !state.on) return;
+  const ahead = AC.currentTime + 0.35;
+  const v = state.voices;
+
+  // crickets — chirp rate from Dolbear's law
+  const perMin = TUNE.dolbearChirpsPerMin(state.tempC);
+  const cg = cricketGainNow();
+  nodes.vgains.crickets.gain.setTargetAtTime(
+    v.crickets.enabled ? v.crickets.level * cg : 0, AC.currentTime, 0.2);
+  if (v.crickets.enabled && perMin > 1 && cg > 0.02) {
+    const period = 60 / perMin;
+    sched.crickets.forEach((tNext, i) => {
+      let tn = tNext;
+      while (tn < ahead) {
+        cricketChirp(AC, nodes.vgains.crickets, Math.max(tn, AC.currentTime + 0.02),
+          TUNE.cricketCarrierHz * (0.95 + i * 0.025));
+        tn += period * (0.85 + Math.random() * 0.3);
+      }
+      sched.crickets[i] = tn;
+    });
+  } else {
+    sched.crickets = sched.crickets.map(() => ahead);
+  }
+
+  // frogs
+  if (v.frogs.enabled) {
+    sched.froglets.forEach((tNext, i) => {
+      let tn = tNext;
+      while (tn < ahead) {
+        frogletCall(AC, nodes.vgains.frogs, Math.max(tn, AC.currentTime + 0.02),
+          TUNE.frogletHz * (0.94 + i * 0.06));
+        tn += 2.5 + Math.random() * 7;
+      }
+      sched.froglets[i] = tn;
+    });
+    if (sched.bonk < ahead) {
+      bonkCall(AC, nodes.vgains.frogs, Math.max(sched.bonk, AC.currentTime + 0.02));
+      sched.bonk = ahead + 15 + Math.random() * 40;
+    }
+  } else {
+    sched.froglets = sched.froglets.map(() => ahead);
+    sched.bonk = Math.max(sched.bonk, ahead);
+  }
+
+  // boobook — sent to the space bus for distance
+  if (v.boobook.enabled && sched.boobook < ahead) {
+    const t0 = Math.max(sched.boobook, AC.currentTime + 0.02);
+    boobookPhrase(AC, nodes.boobookSend, t0);
+    const [a, b] = TUNE.boobookPhraseEverySec;
+    sched.boobook = t0 + a + Math.random() * (b - a);
+  } else if (!v.boobook.enabled) {
+    sched.boobook = Math.max(sched.boobook, ahead);
+  }
+
+  // rain pings ride the rain level
+  if (v.rain.enabled && v.rain.level > 0.02) {
+    while (sched.ping < ahead) {
+      rainPing(AC, nodes.vgains.rain, Math.max(sched.ping, AC.currentTime + 0.02));
+      sched.ping += 0.04 + Math.random() * (0.5 / Math.max(0.1, v.rain.level));
+    }
+  } else {
+    sched.ping = Math.max(sched.ping, ahead);
+  }
+
+  // far thunder — through the space bus
+  if (v.thunder.enabled && sched.thunder < ahead) {
+    const t0 = Math.max(sched.thunder, AC.currentTime + 0.05);
+    thunderRoll(AC, nodes.thunderSend, t0);
+    const [a, b] = TUNE.thunderEverySec;
+    sched.thunder = t0 + a + Math.random() * (b - a);
+  } else if (!v.thunder.enabled) {
+    sched.thunder = Math.max(sched.thunder, ahead);
+  }
+}
+
+function sitOut() {
+  if (state.on) { goIn(); return; }
+  if (!AC) {
+    const Ctor = window.AudioContext || window.webkitAudioContext;
+    if (!Ctor) {
+      document.getElementById('sit').textContent = 'THIS BROWSER HAS NO EAR — the night stays silent';
+      return;
+    }
+    AC = new Ctor();
+    nodes = buildGraph(AC);
+    nodes.pingBuf = noiseBuffer(AC, 0.08, 'white');
+    nodes.brownBuf = noiseBuffer(AC, 2.5, 'brown');
+    // sends that pass through the distance bus but obey their voice gains
+    nodes.boobookSend = AC.createGain();
+    nodes.boobookSend.connect(nodes.space);
+    nodes.boobookSend.connect(nodes.vgains.boobook);
+    nodes.thunderSend = AC.createGain();
+    nodes.thunderSend.gain.value = 0.9;
+    nodes.thunderSend.connect(nodes.space);
+    nodes.thunderSend.connect(nodes.vgains.thunder);
+  }
+  AC.resume();
+  state.on = true;
+  initSchedule(AC.currentTime);
+  clearInterval(schedTimer);
+  schedTimer = setInterval(schedule, 120);
+  const sit = document.getElementById('sit');
+  sit.textContent = 'GO IN — hush everything';
+  sit.style.background = 'transparent';
+  announce('The night is playing.');
+}
+
+function goIn() {
+  state.on = false;
+  clearInterval(schedTimer);
+  if (AC) AC.suspend();
+  const sit = document.getElementById('sit');
+  sit.textContent = 'SIT OUT — the night starts quiet, wake what you like';
+  sit.style.background = '';
+  announce('The night is hushed.');
+}
+
+/* ================= controls ================= */
+
+const voicesEl = document.getElementById('voices');
+const statusEl = document.getElementById('nightStatus');
+function announce(text) { statusEl.textContent = text; }
+
+function buildControls() {
+  for (const key in state.voices) {
+    const v = state.voices[key];
+    const row = document.createElement('div');
+    row.className = 'voice';
+    const btn = document.createElement('button');
+    btn.setAttribute('aria-pressed', String(v.enabled));
+    btn.textContent = v.label;
+    btn.addEventListener('click', () => {
+      v.enabled = !v.enabled;
+      btn.setAttribute('aria-pressed', String(v.enabled));
+      if (nodes) nodes.vgains[key].gain.setTargetAtTime(
+        v.enabled ? v.level * (key === 'crickets' ? cricketGainNow() : 1) : 0,
+        AC.currentTime, 0.25);
+      announce(v.label + (v.enabled ? ' awake.' : ' hushed.'));
+      saveMix();
+    });
+    const slider = document.createElement('input');
+    slider.type = 'range';
+    slider.min = '0'; slider.max = '100'; slider.step = '1';
+    slider.value = String(Math.round(v.level * 100));
+    slider.setAttribute('aria-label', v.label + ' level');
+    slider.addEventListener('input', () => {
+      v.level = Number(slider.value) / 100;
+      if (nodes && v.enabled) nodes.vgains[key].gain.setTargetAtTime(
+        v.level * (key === 'crickets' ? cricketGainNow() : 1), AC.currentTime, 0.1);
+      saveMix();
+    });
+    row.append(btn, slider);
+    voicesEl.appendChild(row);
+  }
+
+  const tempDial = document.getElementById('tempDial');
+  const tempVal = document.getElementById('tempVal');
+  tempDial.value = String(state.tempC);
+  tempVal.textContent = state.tempC + '°C';
+  tempDial.addEventListener('input', () => {
+    state.tempC = Number(tempDial.value);
+    tempVal.textContent = state.tempC + '°C';
+    saveMix();
+  });
+
+  const masterDial = document.getElementById('masterDial');
+  const masterVal = document.getElementById('masterVal');
+  masterDial.value = String(Math.round(state.master * 100));
+  masterVal.textContent = String(Math.round(state.master * 100));
+  masterDial.addEventListener('input', () => {
+    state.master = Number(masterDial.value) / 100;
+    masterVal.textContent = masterDial.value;
+    if (nodes) nodes.master.gain.setTargetAtTime(state.master * 0.9, AC.currentTime, 0.1);
+    saveMix();
+  });
+}
+
+document.getElementById('sit').addEventListener('click', sitOut);
+
+/* ================= lab hook =================
+   Renders the cricket voice offline so the chirp rate can be measured
+   against Dolbear's prediction. Used by the night's verification. */
+
+window.__verandah = {
+  async renderCrickets(tempC, seconds) {
+    const ac = new OfflineAudioContext(1, Math.ceil(44100 * seconds), 44100);
+    const out = ac.createGain();
+    out.connect(ac.destination);
+    const perMin = TUNE.dolbearChirpsPerMin(tempC);
+    const lo = TUNE.cricketQuietBelowC, hi = TUNE.cricketFadeTopC;
+    const cg = Math.min(1, Math.max(0, (tempC - lo) / (hi - lo)));
+    if (perMin > 1 && cg > 0.02) {
+      const period = 60 / perMin;
+      let tn = 0.1;
+      while (tn < seconds) {
+        cricketChirp(ac, out, tn, TUNE.cricketCarrierHz);
+        tn += period;   // deterministic spacing for the measurement
+      }
+    }
+    const buf = await ac.startRendering();
+    return { samples: buf.getChannelData(0), sampleRate: buf.sampleRate, predictedPerMin: perMin };
+  },
+  TUNE,
+};
+
+/* ================= boot ================= */
+
+loadMix();
+buildControls();
+if (ctx) {
+  sizeScene();
+  requestAnimationFrame(drawScene);
+}
+</script>
+
+</body>
+</html>
