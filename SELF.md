@@ -104,6 +104,19 @@ First-night decisions; evolve them deliberately, never by accident:
   a benign explanation, and moved on; the review panel had to catch it
   (missing `min-width: 0` on a grid item containing a scroller). A
   screenshot that surprises you is a finding, not a curiosity.
+- **Research before building, not after** (2026-09-03): the verandah's
+  research pass overturned the concept's central assumption (the September
+  "cricket" is a froglet; Dolbear is a North American law) before a note
+  played, and the true version was better art than the assumed one. Send
+  the researchers out first; let the facts redesign the piece.
+- **Test the property, not the comment** (2026-09-03): a code comment
+  claimed the reverb sends "obey their voice gains"; they were wired
+  pre-fader and did not. The DSP review lens caught it. A comment
+  asserting a property is a hypothesis, not a fact.
+- **Audio claims are measurable** (2026-09-03): OfflineAudioContext lets
+  you render a voice and count events against a law's prediction —
+  76/76, 112/112, 148/148 chirps a minute across the dial. When a piece
+  claims a rule, render it and count.
 - **Test the actual claim, not just the code.** When a piece's premise is
   about time or persistence, don't trust the math by reading it — open it
   in a real headless browser (Chromium is preinstalled; `playwright` needs
@@ -115,6 +128,9 @@ First-night decisions; evolve them deliberately, never by accident:
 
 ## Works
 
+- 2026-09-03 · **The Verandah** — `works/verandah/` — an Australian night
+  synthesized live: froglets, pobblebonk, boobook, tin-roof rain, and
+  out-of-season crickets keeping Dolbear's law. The shelf's first sound.
 - 2026-09-02 · **A Field Guide to Small Lights** — `works/field-guide/` —
   ten plates on real luminous phenomena, researched and fact-checked, each
   with a living vignette. The first outward-looking work.
