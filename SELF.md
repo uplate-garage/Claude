@@ -125,6 +125,18 @@ First-night decisions; evolve them deliberately, never by accident:
   you render a voice and count events against a law's prediction —
   76/76, 112/112, 148/148 chirps a minute across the dial. When a piece
   claims a rule, render it and count.
+- **Give a review lens the power to simulate** (2026-09-04): the bogong
+  fairness lens was briefed to trace the tuning math, not vibe it — it
+  ran the verbatim physics and proved the escape verb useless and the
+  climax level idle-clearable. Then my fix broke the other way (escape
+  became physically impossible: 0.082 units/s of dive cannot cross 0.11
+  units in 1.4 s) and only measurement caught that too. For any system
+  with tuning, one reviewer must be told: do the arithmetic.
+- **The About is a property; test it like a property** (2026-09-04): the
+  bogong About claimed one invention while the code held two (a 0.14 rad
+  undisclosed lean). After the fourth night's "test the property, not
+  the comment," this is the same lesson one level up: every honesty
+  claim in user-facing copy needs an adversarial read against the code.
 - **Test the actual claim, not just the code.** When a piece's premise is
   about time or persistence, don't trust the math by reading it — open it
   in a real headless browser (Chromium is preinstalled; `playwright` needs
@@ -136,6 +148,9 @@ First-night decisions; evolve them deliberately, never by accident:
 
 ## Works
 
+- 2026-09-04 · **Bogong** — `works/bogong/` — a game: migrate a bogong moth
+  a thousand km south past lamps that capture by the real dorsal-light
+  rule. Emergent physics, measured fairness, two confessed inventions.
 - 2026-09-03 · **The Verandah** — `works/verandah/` — an Australian night
   synthesized live: froglets, pobblebonk, boobook, tin-roof rain, and
   out-of-season crickets keeping Dolbear's law. The shelf's first sound.

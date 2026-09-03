@@ -85,8 +85,9 @@
   /* HUD */
   .hud {
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
-    gap: 16px;
+    gap: 6px 16px;
     margin-top: 12px;
     font-family: var(--ledger);
     font-weight: 320;
@@ -95,10 +96,13 @@
     color: var(--mist);
   }
 
+  .hud > span { white-space: nowrap; }
+
   .hud .kms { margin-left: auto; color: var(--mist-dim); font-variant-numeric: tabular-nums; }
 
   .energy {
     flex: 0 1 220px;
+    min-width: 90px;
     height: 4px;
     align-self: center;
     border: 1px solid var(--loam-edge);
@@ -119,7 +123,7 @@
     position: absolute;
     inset: 0;
     display: grid;
-    place-items: center;
+    overflow-y: auto;
     background: rgba(7, 13, 22, 0.82);
     padding: 20px;
     text-align: center;
@@ -127,7 +131,7 @@
 
   .card[hidden] { display: none; }
 
-  .card .inner { max-width: 46ch; }
+  .card .inner { max-width: 46ch; margin: auto; }
 
   .card h2 {
     margin: 0 0 10px;
@@ -200,12 +204,29 @@
     background: transparent;
     border: 1px solid var(--loam-edge);
     border-radius: 10px;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
   .touchpads button:active { color: var(--ember); border-color: var(--ember); }
 
-  @media (pointer: coarse) {
+  .padhint {
+    display: none;
+    margin-top: 8px;
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--mist-dim);
+  }
+
+  @media (any-pointer: coarse) {
     .touchpads { display: flex; }
+    .padhint { display: block; }
+  }
+
+  @media (hover: none) and (pointer: coarse) {
     .controls .kbd { display: none; }
   }
 
@@ -257,8 +278,8 @@
   </header>
 
   <div class="field">
-    <canvas id="game" role="img" aria-label="A dark paddock seen from above. A small pale moth flies south toward the dark top edge; pools of lamplight lie in between. Near a lamp its path bends into orbit."></canvas>
-    <div class="card" id="card">
+    <canvas id="game" tabindex="-1" role="img" aria-label="A dark field seen from above. A small pale moth flies south toward the dark top edge."></canvas>
+    <div class="card" id="card" role="dialog" aria-modal="true" aria-labelledby="cardTitle" aria-describedby="cardBody">
       <div class="inner">
         <p class="eyebrow" id="cardEyebrow"></p>
         <h2 id="cardTitle"></h2>
@@ -270,7 +291,7 @@
 
   <div class="hud">
     <span id="nightLabel"></span>
-    <div class="energy" role="img" aria-label="energy remaining"><i id="energyBar"></i></div>
+    <div class="energy" role="progressbar" aria-label="energy" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><i id="energyBar"></i></div>
     <span class="kms" id="kmsLabel"></span>
   </div>
 
@@ -285,6 +306,7 @@
     <button id="padDive">DIVE</button>
     <button id="padRight">STEER →</button>
   </div>
+  <p class="padhint">dive breaks a light's hold — it costs energy</p>
 
   <p class="sr-only" role="status" id="gameStatus"></p>
 
@@ -298,7 +320,9 @@
     insects don't fly toward lights at all — they tilt their backs to them
     and end up orbiting, stalling, or flipping into the ground. This game
     simulates the orbit: the moth in your care never steers toward a lamp;
-    it is bent around it, and the capture emerges from the rule alone.</p>
+    it is bent around it. Deep in a lamp's grip your own steering weakens
+    too — the paper's moths held the tilt even when it cost them flight,
+    and here the reflex owns most of the wings.</p>
     <p><strong>The lamp is a trap, not a lure.</strong> The same study found
     no long-range attraction — in the one long-range release experiment
     cited, only 2 of 50 moths ended at a light 85 metres away. Lights
@@ -306,19 +330,22 @@
     suburb.</p>
     <p><strong>The compass is real too.</strong> Bogong moths navigate up
     to a thousand kilometres to alpine caves they have never seen, and in
-    2025 they became the first invertebrate shown to steer by the stars
-    (Dreyer, Warrant and colleagues, Nature) — with the earth's magnetic
-    field as a second compass under cloud, just as this game's fourth
-    night plays it.</p>
+    2025 they became the first invertebrate shown to navigate long
+    distances by the stars (Dreyer, Warrant and colleagues, Nature) —
+    with the earth's magnetic field as a second compass under cloud, just
+    as this game's fourth night plays it.</p>
     <p><strong>One story you will not find here</strong> is the old one:
     that moths mistake the lamp for the moon and spiral in. The 2024
     trajectories showed no such spirals. It was a lovely story, and it
     failed the data.</p>
-    <p><strong>One invention is mine.</strong> The dive. Real escapes
+    <p><strong>Two inventions are mine.</strong> The dive: real escapes
     happen when the bulb stops dominating the eye — switched off, left
-    behind, or occluded. Dropping low toward vegetation is a plausible
-    occlusion, but no one has documented moths doing it on purpose. A game
-    needs a verb; that one is mine, and now you know.</p>
+    behind, or occluded — and dropping low toward vegetation is a
+    plausible occlusion, but no one has documented moths doing it on
+    purpose. And a slight lightward lean in the captured hold, so an orbit
+    decays instead of circling forever: the 2024 moths escaped, stalled,
+    or crashed, and mine needed to be catchable. A game needs verbs; those
+    two are mine, and now you know.</p>
     <p><strong>The moth is real, and in trouble.</strong> After the
     2017–2019 drought crashed cave counts by around 99.5%, the bogong was
     listed Endangered on the IUCN Red List in 2021; wet years since have
@@ -334,23 +361,29 @@
 /* ================= tuning =================
    Fact-bearing values marked RESEARCH are set from the night's research. */
 
+const ASPECT = 0.62;         // canvas height / width; physics runs in height units
+
 const TUNE = {
-  mothSpeed: 0.105,          // world units (screen heights) per second
-  playerTurn: 2.6,           // rad/s of deliberate steering
+  mothSpeed: 0.105,          // height units per second, uniform in every direction
+  playerTurn: 2.6,           // rad/s of deliberate steering in open dark
+  steerDamp: 0.75,           // fraction of steering the reflex takes at closeness 1
   dorsalK: 7.0,              // max rad/s the light reflex can command up close
   dorsalRange: 0.24,         // beyond this distance a lamp barely speaks
   spiralBias: 0.14,          // the abeam-hold leans slightly lightward: orbits decay
   skyK: 0.35,                // the star compass's gentle hold
-  diveDuration: 1.4,
+  diveDuration: 2.2,
   diveCooldown: 1.0,
   diveFactor: 0.1,           // reflex multiplier while low
+  diveSpeed: 1.25,           // a dive trades height for speed
   diveCost: 9,
-  drainBase: 1.1,            // energy per second
+  drainBase: 3.2,            // energy per second: a clean night costs a third of you
   drainGlow: 5.0,            // extra drain inside a lamp's pool
-  glowRadius: 0.12,
+  glowRadius: 0.16,          // decisively outside the orbit band: capture always costs
   flowerGain: 26,
   totalKm: 1000,             // up to ~1,000 km each spring (Warrant et al. 2016)
 };
+
+const SIM_STEP = 1 / 120;    // fixed physics timestep: identical on every display
 
 /* ================= nights ================= */
 
@@ -402,7 +435,8 @@ const NIGHTS = [
     intro: `Headlights. In your season Canberra dims the floodlights on Parliament House itself, so that travellers like you can move on. The highway dims for no one — and these lights do not wait to be approached.`,
     sky: { dir: Math.PI, mode: 'stars' },
     lamps: [ { x: 0.1, y: 0.48, L: 0.9, vx: 0.16 }, { x: 0.6, y: 0.52, L: 0.9, vx: 0.16 },
-             { x: 0.35, y: 0.5, L: 0.9, vx: -0.13 }, { x: 0.85, y: 0.46, L: 0.9, vx: -0.13 } ],
+             { x: 0.35, y: 0.5, L: 0.9, vx: -0.13 }, { x: 0.85, y: 0.46, L: 0.9, vx: -0.13 },
+             { x: 0.5, y: 0.22, L: 0.6 } ],
     flowers: [ { x: 0.5, y: 0.8 } ],
     km: 180,
   },
@@ -411,8 +445,8 @@ const NIGHTS = [
     intro: `The air thins and cools, and you burn faster now. Above eighteen hundred metres the granite caves are waiting, their walls tiled seventeen thousand sleepers to the square metre. Two lodge lights below, then nothing but dark all the way up.`,
     sky: { dir: Math.PI, mode: 'stars' },
     lamps: [ { x: 0.3, y: 0.78, L: 0.5 }, { x: 0.7, y: 0.68, L: 0.45 } ],
-    flowers: [],
-    coldDrain: 0.9,
+    flowers: [ { x: 0.55, y: 0.48 } ],
+    coldDrain: 2.0,
     km: 250,
   },
 ];
@@ -469,7 +503,7 @@ const game = {
 function loadProgress() {
   try {
     const n = Number(localStorage.getItem('bogong-night-v1'));
-    if (n >= 0 && n < NIGHTS.length) return n;
+    if (Number.isInteger(n) && n >= 0 && n < NIGHTS.length) return n;
   } catch (e) { /* fine */ }
   return 0;
 }
@@ -486,7 +520,8 @@ function saveProgress(n) {
 function brightestLight(moth, lamps, sky) {
   let best = null, bestI = 0;
   for (const l of lamps) {
-    const dx = l.x - moth.x, dy = l.y - moth.y;
+    // aspect-corrected: physics circles coincide with the drawn glow circles
+    const dx = (l.x - moth.x) / ASPECT, dy = l.y - moth.y;
     const d2 = dx * dx + dy * dy;
     const I = l.L / (d2 + 0.002);
     if (I > bestI) { bestI = I; best = { dir: Math.atan2(dy, dx), d: Math.sqrt(d2), I, lamp: l }; }
@@ -508,10 +543,11 @@ function stepMoth(moth, dt, lamps, sky, input, diving) {
     const dA = Math.abs(wrapAngle(perpA - moth.a));
     const dB = Math.abs(wrapAngle(perpB - moth.a));
     let want, k;
+    let closeness = 0;
     if (src.lamp) {
       // near a lamp the hold leans slightly lightward, so the orbit decays
       want = dA < dB ? perpA - TUNE.spiralBias : perpB + TUNE.spiralBias;
-      const closeness = Math.max(0, 1 - src.d / TUNE.dorsalRange);
+      closeness = Math.max(0, 1 - src.d / TUNE.dorsalRange);
       k = TUNE.dorsalK * closeness;
     } else {
       want = dA < dB ? perpA : perpB;
@@ -519,13 +555,20 @@ function stepMoth(moth, dt, lamps, sky, input, diving) {
     }
     if (diving) k *= TUNE.diveFactor;
     reflex = Math.max(-k, Math.min(k, wrapAngle(want - moth.a) * 6)) ;
+    // deep in a lamp's grip, the reflex owns most of the wings; the dive
+    // restores full authority — that is what the dive is for
+    if (!diving) moth.authority = 1 - TUNE.steerDamp * closeness;
+    else moth.authority = 1;
+  } else {
+    moth.authority = 1;
   }
   let steer = 0;
   if (input.left) steer -= TUNE.playerTurn;
   if (input.right) steer += TUNE.playerTurn;
+  steer *= moth.authority;
   moth.a = wrapAngle(moth.a + (reflex + steer) * dt);
-  const sp = TUNE.mothSpeed * (diving ? 0.82 : 1);
-  moth.x += Math.cos(moth.a) * sp * dt;
+  const sp = TUNE.mothSpeed * (diving ? TUNE.diveSpeed : 1);
+  moth.x += Math.cos(moth.a) * sp * dt * ASPECT;
   moth.y += Math.sin(moth.a) * sp * dt;
   // soft walls, sides and bottom
   if (moth.x < 0.02) { moth.x = 0.02; }
@@ -546,12 +589,16 @@ const kmsLabel = document.getElementById('kmsLabel');
 const energyBar = document.getElementById('energyBar');
 const statusEl = document.getElementById('gameStatus');
 
+let cardShownAt = 0;
+
 function showCard(eyebrow, title, body, btn) {
   cardEyebrow.textContent = eyebrow;
   cardTitle.textContent = title;
   cardBody.textContent = body;
   cardBtn.textContent = btn;
   card.hidden = false;
+  card.scrollTop = 0;
+  cardShownAt = performance.now();
   cardBtn.focus();
 }
 
@@ -564,8 +611,16 @@ function startNight(n) {
   game.energy = 100;
   game.t = 0;
   game.diveUntil = 0; game.diveReadyAt = 0;
+  game.paused = false;
+  game.wasHeld = false; game.lowSaid = false; game.halfSaid = false;
+  game.lastGlowT = -99; game.energyBucket = -1;
+  simAcc = 0;
   game.phase = 'flying';
   card.hidden = true;
+  canvas.setAttribute('aria-label', N.eyebrow + ': ' + N.title + '. ' +
+    game.lamps.length + (game.lamps.length === 1 ? ' light' : ' lights') +
+    ' between you and the dark southern edge' +
+    (game.flowers.length ? ', with nectar in the dark.' : '.'));
   const done = NIGHTS.slice(0, n).reduce((s, x) => s + x.km, 0);
   game.kmDone = done;
   nightLabel.textContent = N.eyebrow + ' · ' + N.title.toLowerCase();
@@ -586,6 +641,8 @@ function nightCleared() {
   if (n + 1 >= NIGHTS.length) {
     game.phase = 'done';
     saveProgress(0);
+    kmsLabel.textContent = '0 km — the caves';
+    nightLabel.textContent = 'arrival';
     showCard('arrival', 'The caves', END_TEXT, 'MIGRATE AGAIN');
     statusEl.textContent = 'You reached the caves.';
   } else {
@@ -598,30 +655,49 @@ function nightCleared() {
 
 function mothDied() {
   game.phase = 'dead';
-  showCard(NIGHTS[game.night].eyebrow, 'The light kept you',
-    'All 0.33 grams of you were meant for the mountains. Rest, and try the night again.',
-    'TRY THE NIGHT AGAIN');
-  statusEl.textContent = 'The light kept you. Try again.';
+  const byLight = game.t - game.lastGlowT < 4;
+  const title = byLight ? 'The light kept you' : 'The night outlasted you';
+  const body = byLight
+    ? 'All 0.33 grams of you were meant for the mountains. Rest, and try the night again.'
+    : 'You starved in open dark — no lamp to blame, only distance. Rest, and try the night again.';
+  showCard(NIGHTS[game.night].eyebrow, title, body, 'TRY THE NIGHT AGAIN');
+  statusEl.textContent = title + '. Try again.';
 }
 
 cardBtn.addEventListener('click', () => {
+  // a dive key still held at death/clear must not dismiss the fresh card
+  if (performance.now() - cardShownAt < 350) return;
+  if (!ctx) {
+    cardBody.textContent = 'This game needs a canvas-capable browser; yours has declined. The moth thanks you for visiting anyway.';
+    return;
+  }
   if (game.phase === 'done') { game.night = 0; introNight(0); return; }
   startNight(game.night);
 });
 
 /* ================= input ================= */
 
-const keys = { ArrowLeft: 'left', ArrowRight: 'right', a: 'left', d: 'right' };
+const keys = { ArrowLeft: 'left', ArrowRight: 'right', a: 'left', d: 'right', A: 'left', D: 'right' };
 
 document.addEventListener('keydown', (e) => {
   if (e.altKey || e.ctrlKey || e.metaKey) return;
-  if (e.key === 'p' || e.key === 'P') { game.paused = !game.paused; return; }
+  if ((e.key === 'p' || e.key === 'P') && !e.repeat) {
+    if (game.phase === 'flying') {
+      game.paused = !game.paused;
+      statusEl.textContent = game.paused ? 'Paused.' : 'Flying.';
+    }
+    return;
+  }
   if (game.phase !== 'flying') return;
   if (keys[e.key]) { game.input[keys[e.key]] = true; e.preventDefault(); }
   if (e.key === 'ArrowDown' || e.key === ' ') { tryDive(); e.preventDefault(); }
 });
 document.addEventListener('keyup', (e) => {
   if (keys[e.key]) game.input[keys[e.key]] = false;
+});
+window.addEventListener('blur', () => {
+  game.input.left = false;
+  game.input.right = false;
 });
 
 function bindPad(id, key) {
@@ -632,12 +708,30 @@ function bindPad(id, key) {
   el.addEventListener('pointerup', off);
   el.addEventListener('pointerleave', off);
   el.addEventListener('pointercancel', off);
+  // keyboard and assistive-tech activation: dive fires; steering pulses
+  if (key === 'dive') {
+    el.addEventListener('click', (ev) => { if (ev.detail === 0) tryDive(); });
+  } else {
+    el.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); game.input[key] = true; }
+    });
+    el.addEventListener('keyup', (ev) => {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); game.input[key] = false; }
+    });
+    el.addEventListener('click', (ev) => {
+      if (ev.detail === 0) {
+        game.input[key] = true;
+        setTimeout(() => { game.input[key] = false; }, 300);
+      }
+    });
+  }
 }
 bindPad('padLeft', 'left');
 bindPad('padRight', 'right');
 bindPad('padDive', 'dive');
 
 function tryDive() {
+  if (game.phase !== 'flying' || game.paused) return;
   if (game.t < game.diveReadyAt || game.energy <= TUNE.diveCost) return;
   game.diveUntil = game.t + TUNE.diveDuration;
   game.diveReadyAt = game.diveUntil + TUNE.diveCooldown;
@@ -648,48 +742,70 @@ function tryDive() {
 
 let last = performance.now();
 
+function simTick(dt) {
+  game.t += dt;
+  const N = NIGHTS[game.night];
+  const diving = game.t < game.diveUntil;
+
+  // moving lamps (the highway)
+  for (const l of game.lamps) {
+    if (l.vx) {
+      l.x += l.vx * dt;
+      if (l.x > 1.15) l.x = -0.15;
+      if (l.x < -0.15) l.x = 1.15;
+    }
+  }
+
+  const src = stepMoth(game.moth, dt, game.lamps, N.sky, game.input, diving);
+
+  // energy
+  let drain = TUNE.drainBase + (N.coldDrain || 0);
+  for (const l of game.lamps) {
+    const d = Math.hypot((l.x - game.moth.x) / ASPECT, l.y - game.moth.y);
+    if (d < TUNE.glowRadius) { drain += TUNE.drainGlow; game.lastGlowT = game.t; }
+  }
+  game.energy -= drain * dt;
+
+  // flowers
+  for (const f of game.flowers) {
+    if (!f.taken && Math.hypot((f.x - game.moth.x) / ASPECT, f.y - game.moth.y) < 0.04) {
+      f.taken = true;
+      game.energy = Math.min(100, game.energy + TUNE.flowerGain);
+      statusEl.textContent = 'Nectar. Energy restored.';
+    }
+  }
+
+  // edge-triggered narration for players who fly by ear
+  const held = !!(src && src.lamp);
+  if (held && !game.wasHeld) statusEl.textContent = 'A light has you. Dive, or steer hard away.';
+  else if (!held && game.wasHeld) statusEl.textContent = 'Free of the light.';
+  game.wasHeld = held;
+  if (game.energy < 25 && !game.lowSaid) { game.lowSaid = true; statusEl.textContent = 'Energy low.'; }
+  if (game.moth.y < 0.5 && !game.halfSaid) { game.halfSaid = true; statusEl.textContent = 'Halfway through the night.'; }
+
+  if (game.moth.y < 0.055) { nightCleared(); return; }
+  if (game.energy <= 0) mothDied();
+}
+
+let simAcc = 0;
+
 function frame(nowMs) {
-  const dt = Math.min((nowMs - last) / 1000, 0.05);
+  const dtFrame = Math.min((nowMs - last) / 1000, 0.05);
   last = nowMs;
   if (!ctx) return;
 
   if (game.phase === 'flying' && !game.paused) {
-    game.t += dt;
-    const N = NIGHTS[game.night];
-    const diving = game.t < game.diveUntil;
-
-    // moving lamps (the highway)
-    for (const l of game.lamps) {
-      if (l.vx) {
-        l.x += l.vx * dt;
-        if (l.x > 1.15) l.x = -0.15;
-        if (l.x < -0.15) l.x = 1.15;
-      }
+    simAcc += dtFrame;
+    while (simAcc >= SIM_STEP && game.phase === 'flying') {
+      simTick(SIM_STEP);
+      simAcc -= SIM_STEP;
     }
-
-    const src = stepMoth(game.moth, dt, game.lamps, N.sky, game.input, diving);
-
-    // energy
-    let drain = TUNE.drainBase + (N.coldDrain || 0);
-    for (const l of game.lamps) {
-      const d = Math.hypot(l.x - game.moth.x, l.y - game.moth.y);
-      if (d < TUNE.glowRadius) drain += TUNE.drainGlow;
-    }
-    game.energy -= drain * dt;
-
-    // flowers
-    for (const f of game.flowers) {
-      if (!f.taken && Math.hypot(f.x - game.moth.x, f.y - game.moth.y) < 0.035) {
-        f.taken = true;
-        game.energy = Math.min(100, game.energy + TUNE.flowerGain);
-        statusEl.textContent = 'Nectar. Energy restored.';
-      }
-    }
-
     energyBar.style.width = Math.max(0, game.energy) + '%';
-
-    if (game.moth.y < 0.055) nightCleared();
-    else if (game.energy <= 0) mothDied();
+    const bucket = Math.max(0, Math.round(game.energy / 10) * 10);
+    if (bucket !== game.energyBucket) {
+      game.energyBucket = bucket;
+      energyBar.parentElement.setAttribute('aria-valuenow', String(bucket));
+    }
   }
 
   draw();
