@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bogong</title>
+<meta name="description" content="You are a bogong moth migrating to the alpine caves. The moon keeps you true; every artificial light bends you by the real rule that traps real moths.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='5' fill='%23ffc873'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%23ffc873' opacity='0.25'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Spline+Sans+Mono:wght@300..500&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --night: #0a121d;
+    --loam: #111d2b;
+    --loam-edge: #1c2c3e;
+    --moth: #e9e4d6;
+    --mist: #8ca0af;
+    --mist-dim: #7a8e9d;
+    --ember: #ffc873;
+    --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --reading: "Newsreader", "Charter", Georgia, serif;
+    --ledger: "Spline Sans Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scrollbar-gutter: stable; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100svh;
+    background: var(--night);
+    color: var(--moth);
+    font-family: var(--reading);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: clamp(24px, 5vh, 52px) clamp(16px, 4vw, 40px) 56px;
+  }
+
+  header h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 340;
+    font-size: clamp(30px, 4.8vw, 46px);
+    line-height: 1.08;
+  }
+
+  header .plate-line {
+    margin: 10px 0 0;
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--mist-dim);
+  }
+
+  header .plate-line a {
+    color: var(--mist);
+    text-decoration: underline;
+    text-decoration-color: var(--mist-dim);
+    text-underline-offset: 3px;
+  }
+
+  header .plate-line a:hover, header .plate-line a:focus-visible { color: var(--ember); }
+
+  /* ---------- field ---------- */
+
+  .field {
+    position: relative;
+    margin-top: clamp(20px, 4vh, 36px);
+    border: 1px solid var(--loam-edge);
+    border-radius: 6px;
+    overflow: hidden;
+    background: #070d16;
+  }
+
+  .field canvas { display: block; width: 100%; height: auto; }
+
+  /* HUD */
+  .hud {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-top: 12px;
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 11.5px;
+    letter-spacing: 0.12em;
+    color: var(--mist);
+  }
+
+  .hud .kms { margin-left: auto; color: var(--mist-dim); font-variant-numeric: tabular-nums; }
+
+  .energy {
+    flex: 0 1 220px;
+    height: 4px;
+    align-self: center;
+    border: 1px solid var(--loam-edge);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .energy i {
+    display: block;
+    height: 100%;
+    width: 100%;
+    background: var(--ember);
+    transition: width 0.3s linear;
+  }
+
+  /* card overlay */
+  .card {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(7, 13, 22, 0.82);
+    padding: 20px;
+    text-align: center;
+  }
+
+  .card[hidden] { display: none; }
+
+  .card .inner { max-width: 46ch; }
+
+  .card h2 {
+    margin: 0 0 10px;
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 380;
+    font-size: clamp(22px, 3.6vw, 30px);
+  }
+
+  .card .eyebrow {
+    font-family: var(--ledger);
+    font-weight: 380;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--ember);
+    margin: 0 0 12px;
+    text-transform: uppercase;
+  }
+
+  .card p.body {
+    margin: 0 0 16px;
+    font-weight: 350;
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: var(--mist);
+  }
+
+  .card button {
+    font-family: var(--ledger);
+    font-weight: 400;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    padding: 10px 22px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 200, 115, 0.5);
+    background: transparent;
+    color: var(--ember);
+    cursor: pointer;
+  }
+
+  .card button:hover, .card button:focus-visible { background: rgba(255, 200, 115, 0.09); border-color: var(--ember); }
+  .card button:focus-visible { outline: 1px solid var(--ember); outline-offset: 2px; }
+
+  /* controls line + touch buttons */
+  .controls {
+    margin-top: 10px;
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--mist-dim);
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .touchpads {
+    display: none;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .touchpads button {
+    flex: 1;
+    padding: 14px 0;
+    font-family: var(--ledger);
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    color: var(--mist);
+    background: transparent;
+    border: 1px solid var(--loam-edge);
+    border-radius: 10px;
+  }
+
+  .touchpads button:active { color: var(--ember); border-color: var(--ember); }
+
+  @media (pointer: coarse) {
+    .touchpads { display: flex; }
+    .controls .kbd { display: none; }
+  }
+
+  /* about */
+  .about {
+    margin-top: clamp(32px, 6vh, 52px);
+    border-top: 1px solid var(--loam-edge);
+    padding-top: 18px;
+  }
+
+  .about h2 {
+    margin: 0 0 12px;
+    font-family: var(--ledger);
+    font-weight: 380;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--mist-dim);
+  }
+
+  .about p {
+    margin: 0 0 10px;
+    font-weight: 350;
+    font-size: 15px;
+    line-height: 1.65;
+    max-width: 62ch;
+    color: var(--mist);
+  }
+
+  .about p strong { font-weight: 500; color: var(--moth); }
+
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Bogong</h1>
+    <p class="plate-line">a migration in six nights · the lights bend you by the real rule · part of <a href="../../index.html">glim</a></p>
+  </header>
+
+  <div class="field">
+    <canvas id="game" role="img" aria-label="A dark paddock seen from above. A small pale moth flies north; pools of lamplight lie between it and the dark top edge. Near a lamp its path bends into orbit."></canvas>
+    <div class="card" id="card">
+      <div class="inner">
+        <p class="eyebrow" id="cardEyebrow"></p>
+        <h2 id="cardTitle"></h2>
+        <p class="body" id="cardBody"></p>
+        <button id="cardBtn">FLY</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hud">
+    <span id="nightLabel"></span>
+    <div class="energy" role="img" aria-label="energy remaining"><i id="energyBar"></i></div>
+    <span class="kms" id="kmsLabel"></span>
+  </div>
+
+  <div class="controls">
+    <span class="kbd">← → steer against the pull</span>
+    <span class="kbd">↓ or space — dive low (breaks a light's hold, costs energy)</span>
+    <span class="kbd">p — pause</span>
+  </div>
+
+  <div class="touchpads">
+    <button id="padLeft">← STEER</button>
+    <button id="padDive">DIVE</button>
+    <button id="padRight">STEER →</button>
+  </div>
+
+  <p class="sr-only" role="status" id="gameStatus"></p>
+
+  <section class="about">
+    <h2>About the rule</h2>
+    <div id="aboutBody">
+    <p>Loading the night's facts…</p>
+    </div>
+  </section>
+</div>
+
+<script>
+'use strict';
+
+/* ================= tuning =================
+   Fact-bearing values marked RESEARCH are set from the night's research. */
+
+const TUNE = {
+  mothSpeed: 0.105,          // world units (screen heights) per second
+  playerTurn: 2.6,           // rad/s of deliberate steering
+  dorsalK: 7.0,              // max rad/s the light reflex can command up close
+  dorsalRange: 0.24,         // beyond this distance a lamp barely speaks
+  spiralBias: 0.14,          // the abeam-hold leans slightly lightward: orbits decay
+  moonK: 0.35,               // the moon's gentle hold
+  diveDuration: 1.4,
+  diveCooldown: 1.0,
+  diveFactor: 0.1,           // reflex multiplier while low
+  diveCost: 9,
+  drainBase: 1.1,            // energy per second
+  drainGlow: 5.0,            // extra drain inside a lamp's pool
+  glowRadius: 0.12,
+  flowerGain: 26,
+  totalKm: 950,              // RESEARCH: replace with verified migration distance
+};
+
+/* ================= nights ================= */
+
+const NIGHTS = [
+  {
+    key: 'paddock', title: 'The paddock', eyebrow: 'night one',
+    intro: `FACT_SLOT_1`,
+    moon: { dir: Math.PI, k: 1 },
+    lamps: [ { x: 0.72, y: 0.45, L: 0.7 } ],
+    flowers: [ { x: 0.25, y: 0.55 } ],
+    km: 120,
+  },
+  {
+    key: 'farmhouse', title: 'The farmhouse', eyebrow: 'night two',
+    intro: `FACT_SLOT_2`,
+    moon: { dir: Math.PI, k: 1 },
+    lamps: [
+      { x: 0.38, y: 0.52, L: 0.8 }, { x: 0.52, y: 0.44, L: 0.6 },
+      { x: 0.45, y: 0.62, L: 0.5 }, { x: 0.8, y: 0.3, L: 0.7 },
+    ],
+    flowers: [ { x: 0.12, y: 0.4 }, { x: 0.88, y: 0.66 } ],
+    km: 140,
+  },
+  {
+    key: 'town', title: 'The town edge', eyebrow: 'night three',
+    intro: `FACT_SLOT_3`,
+    moon: { dir: -1.9, k: 1 },
+    lamps: [
+      { x: 0.15, y: 0.42, L: 0.75 }, { x: 0.35, y: 0.4, L: 0.75 },
+      { x: 0.55, y: 0.38, L: 0.75 }, { x: 0.75, y: 0.36, L: 0.75 },
+      { x: 0.93, y: 0.34, L: 0.75 },
+    ],
+    flowers: [ { x: 0.5, y: 0.7 } ],
+    km: 160,
+  },
+  {
+    key: 'cloud', title: 'Cloud', eyebrow: 'night four',
+    intro: `FACT_SLOT_4`,
+    moon: null,
+    lamps: [
+      { x: 0.2, y: 0.7, L: 0.55 }, { x: 0.5, y: 0.52, L: 0.55 },
+      { x: 0.78, y: 0.34, L: 0.55 }, { x: 0.3, y: 0.22, L: 0.6 },
+    ],
+    flowers: [ { x: 0.65, y: 0.75 } ],
+    km: 150,
+  },
+  {
+    key: 'highway', title: 'The highway', eyebrow: 'night five',
+    intro: `FACT_SLOT_5`,
+    moon: { dir: Math.PI, k: 1 },
+    lamps: [ { x: 0.1, y: 0.48, L: 0.9, vx: 0.16 }, { x: 0.6, y: 0.52, L: 0.9, vx: 0.16 },
+             { x: 0.35, y: 0.5, L: 0.9, vx: -0.13 }, { x: 0.85, y: 0.46, L: 0.9, vx: -0.13 } ],
+    flowers: [ { x: 0.5, y: 0.8 } ],
+    km: 180,
+  },
+  {
+    key: 'range', title: 'The range', eyebrow: 'night six',
+    intro: `FACT_SLOT_6`,
+    moon: { dir: Math.PI, k: 1 },
+    lamps: [ { x: 0.3, y: 0.78, L: 0.5 }, { x: 0.7, y: 0.68, L: 0.45 } ],
+    flowers: [],
+    coldDrain: 0.9,
+    km: 200,
+  },
+];
+
+const END_TEXT = `FACT_SLOT_END`;
+
+/* ================= state ================= */
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const canvas = document.getElementById('game');
+const ctx = canvas ? canvas.getContext('2d') : null;
+
+let W = 0, H = 0;
+function sizeField() {
+  if (!ctx) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = canvas.clientWidth || canvas.parentElement.clientWidth;
+  H = Math.round(W * 0.62);
+  canvas.width = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
+  canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', sizeField);
+
+function rand(seed) {
+  let s = seed >>> 0;
+  return function () {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+
+function wrapAngle(a) {
+  while (a > Math.PI) a -= 2 * Math.PI;
+  while (a < -Math.PI) a += 2 * Math.PI;
+  return a;
+}
+
+const game = {
+  night: 0,
+  phase: 'card',      // card | flying | dead | done
+  moth: null,
+  lamps: [],
+  flowers: [],
+  energy: 100,
+  kmDone: 0,
+  input: { left: false, right: false, dive: false },
+  diveUntil: 0, diveReadyAt: 0,
+  t: 0,
+  paused: false,
+};
+
+function loadProgress() {
+  try {
+    const n = Number(localStorage.getItem('bogong-night-v1'));
+    if (n >= 0 && n < NIGHTS.length) return n;
+  } catch (e) { /* fine */ }
+  return 0;
+}
+function saveProgress(n) {
+  try { localStorage.setItem('bogong-night-v1', String(n)); } catch (e) { /* fine */ }
+}
+
+/* ================= physics =================
+   The heart of the game, kept honest: the moth holds its back to the
+   brightest light. Near a lamp that rule commands flight at right angles
+   to the light direction, and orbit emerges on its own. Under the distant
+   moon the same rule barely turns you at all. */
+
+function brightestLight(moth, lamps, moon) {
+  let best = null, bestI = 0;
+  for (const l of lamps) {
+    const dx = l.x - moth.x, dy = l.y - moth.y;
+    const d2 = dx * dx + dy * dy;
+    const I = l.L / (d2 + 0.002);
+    if (I > bestI) { bestI = I; best = { dir: Math.atan2(dy, dx), d: Math.sqrt(d2), I, lamp: l }; }
+  }
+  // the moon competes as a distant, constant light
+  const moonI = moon ? 6 : 0;
+  if (best && best.I > moonI && best.d < TUNE.dorsalRange) return best;
+  if (moon) return { dir: moon.dir, d: Infinity, I: moonI, lamp: null };
+  return best && best.d < TUNE.dorsalRange * 1.6 ? best : null;
+}
+
+function stepMoth(moth, dt, lamps, moon, input, diving) {
+  const src = brightestLight(moth, lamps, moon);
+  let reflex = 0;
+  if (src) {
+    // hold the light abeam: fly perpendicular to it, whichever side is nearer
+    const perpA = src.dir + Math.PI / 2;
+    const perpB = src.dir - Math.PI / 2;
+    const dA = Math.abs(wrapAngle(perpA - moth.a));
+    const dB = Math.abs(wrapAngle(perpB - moth.a));
+    let want, k;
+    if (src.lamp) {
+      // near a lamp the hold leans slightly lightward, so the orbit decays
+      want = dA < dB ? perpA - TUNE.spiralBias : perpB + TUNE.spiralBias;
+      const closeness = Math.max(0, 1 - src.d / TUNE.dorsalRange);
+      k = TUNE.dorsalK * closeness;
+    } else {
+      want = dA < dB ? perpA : perpB;
+      k = TUNE.moonK;
+    }
+    if (diving) k *= TUNE.diveFactor;
+    reflex = Math.max(-k, Math.min(k, wrapAngle(want - moth.a) * 6)) ;
+  }
+  let steer = 0;
+  if (input.left) steer -= TUNE.playerTurn;
+  if (input.right) steer += TUNE.playerTurn;
+  moth.a = wrapAngle(moth.a + (reflex + steer) * dt);
+  const sp = TUNE.mothSpeed * (diving ? 0.82 : 1);
+  moth.x += Math.cos(moth.a) * sp * dt;
+  moth.y += Math.sin(moth.a) * sp * dt;
+  // soft walls, sides and bottom
+  if (moth.x < 0.02) { moth.x = 0.02; }
+  if (moth.x > 0.98) { moth.x = 0.98; }
+  if (moth.y > 0.97) { moth.y = 0.97; moth.a = -Math.abs(moth.a) ; }
+  return src;
+}
+
+/* ================= night flow ================= */
+
+const card = document.getElementById('card');
+const cardEyebrow = document.getElementById('cardEyebrow');
+const cardTitle = document.getElementById('cardTitle');
+const cardBody = document.getElementById('cardBody');
+const cardBtn = document.getElementById('cardBtn');
+const nightLabel = document.getElementById('nightLabel');
+const kmsLabel = document.getElementById('kmsLabel');
+const energyBar = document.getElementById('energyBar');
+const statusEl = document.getElementById('gameStatus');
+
+function showCard(eyebrow, title, body, btn) {
+  cardEyebrow.textContent = eyebrow;
+  cardTitle.textContent = title;
+  cardBody.textContent = body;
+  cardBtn.textContent = btn;
+  card.hidden = false;
+  cardBtn.focus();
+}
+
+function startNight(n) {
+  game.night = n;
+  const N = NIGHTS[n];
+  game.moth = { x: 0.5, y: 0.9, a: -Math.PI / 2 };
+  game.lamps = N.lamps.map(l => ({ ...l }));
+  game.flowers = N.flowers.map(f => ({ ...f, taken: false }));
+  game.energy = 100;
+  game.t = 0;
+  game.diveUntil = 0; game.diveReadyAt = 0;
+  game.phase = 'flying';
+  card.hidden = true;
+  const done = NIGHTS.slice(0, n).reduce((s, x) => s + x.km, 0);
+  game.kmDone = done;
+  nightLabel.textContent = N.eyebrow + ' · ' + N.title.toLowerCase();
+  kmsLabel.textContent = (TUNE.totalKm - done) + ' km to the caves';
+  statusEl.textContent = N.eyebrow + ', ' + N.title + '. Flying.';
+  canvas.focus && canvas.focus();
+}
+
+function introNight(n) {
+  game.phase = 'card';
+  const N = NIGHTS[n];
+  showCard(N.eyebrow, N.title, N.intro, n === 0 ? 'FLY' : 'FLY ON');
+}
+
+function nightCleared() {
+  const n = game.night;
+  if (n + 1 >= NIGHTS.length) {
+    game.phase = 'done';
+    saveProgress(0);
+    showCard('arrival', 'The caves', END_TEXT, 'MIGRATE AGAIN');
+    statusEl.textContent = 'You reached the caves.';
+  } else {
+    saveProgress(n + 1);
+    game.phase = 'card';
+    introNight(n + 1);
+    statusEl.textContent = 'Night cleared.';
+  }
+}
+
+function mothDied() {
+  game.phase = 'dead';
+  showCard(NIGHTS[game.night].eyebrow, 'The light kept you',
+    'Every gram of you was meant for the mountains. Rest, and try the night again.',
+    'TRY THE NIGHT AGAIN');
+  statusEl.textContent = 'The light kept you. Try again.';
+}
+
+cardBtn.addEventListener('click', () => {
+  if (game.phase === 'done') { game.night = 0; introNight(0); return; }
+  startNight(game.night);
+});
+
+/* ================= input ================= */
+
+const keys = { ArrowLeft: 'left', ArrowRight: 'right', a: 'left', d: 'right' };
+
+document.addEventListener('keydown', (e) => {
+  if (e.altKey || e.ctrlKey || e.metaKey) return;
+  if (e.key === 'p' || e.key === 'P') { game.paused = !game.paused; return; }
+  if (game.phase !== 'flying') return;
+  if (keys[e.key]) { game.input[keys[e.key]] = true; e.preventDefault(); }
+  if (e.key === 'ArrowDown' || e.key === ' ') { tryDive(); e.preventDefault(); }
+});
+document.addEventListener('keyup', (e) => {
+  if (keys[e.key]) game.input[keys[e.key]] = false;
+});
+
+function bindPad(id, key) {
+  const el = document.getElementById(id);
+  const on = (ev) => { ev.preventDefault(); if (key === 'dive') tryDive(); else game.input[key] = true; };
+  const off = (ev) => { ev.preventDefault(); if (key !== 'dive') game.input[key] = false; };
+  el.addEventListener('pointerdown', on);
+  el.addEventListener('pointerup', off);
+  el.addEventListener('pointerleave', off);
+  el.addEventListener('pointercancel', off);
+}
+bindPad('padLeft', 'left');
+bindPad('padRight', 'right');
+bindPad('padDive', 'dive');
+
+function tryDive() {
+  if (game.t < game.diveReadyAt || game.energy <= TUNE.diveCost) return;
+  game.diveUntil = game.t + TUNE.diveDuration;
+  game.diveReadyAt = game.diveUntil + TUNE.diveCooldown;
+  game.energy -= TUNE.diveCost;
+}
+
+/* ================= loop ================= */
+
+let last = performance.now();
+
+function frame(nowMs) {
+  const dt = Math.min((nowMs - last) / 1000, 0.05);
+  last = nowMs;
+  if (!ctx) return;
+
+  if (game.phase === 'flying' && !game.paused) {
+    game.t += dt;
+    const N = NIGHTS[game.night];
+    const diving = game.t < game.diveUntil;
+
+    // moving lamps (the highway)
+    for (const l of game.lamps) {
+      if (l.vx) {
+        l.x += l.vx * dt;
+        if (l.x > 1.15) l.x = -0.15;
+        if (l.x < -0.15) l.x = 1.15;
+      }
+    }
+
+    const src = stepMoth(game.moth, dt, game.lamps, N.moon, game.input, diving);
+
+    // energy
+    let drain = TUNE.drainBase + (N.coldDrain || 0);
+    for (const l of game.lamps) {
+      const d = Math.hypot(l.x - game.moth.x, l.y - game.moth.y);
+      if (d < TUNE.glowRadius) drain += TUNE.drainGlow;
+    }
+    game.energy -= drain * dt;
+
+    // flowers
+    for (const f of game.flowers) {
+      if (!f.taken && Math.hypot(f.x - game.moth.x, f.y - game.moth.y) < 0.035) {
+        f.taken = true;
+        game.energy = Math.min(100, game.energy + TUNE.flowerGain);
+        statusEl.textContent = 'Nectar. Energy restored.';
+      }
+    }
+
+    energyBar.style.width = Math.max(0, game.energy) + '%';
+
+    if (game.moth.y < 0.055) nightCleared();
+    else if (game.energy <= 0) mothDied();
+  }
+
+  draw();
+  requestAnimationFrame(frame);
+}
+
+/* ================= drawing ================= */
+
+function draw() {
+  const still = reduceMotion.matches;
+  ctx.fillStyle = '#070d16';
+  ctx.fillRect(0, 0, W, H);
+
+  const N = NIGHTS[game.night] || NIGHTS[0];
+
+  // ground texture, deterministic
+  const r = rand(97 + game.night * 13);
+  ctx.fillStyle = 'rgba(140,160,175,0.05)';
+  for (let i = 0; i < 130; i++) ctx.fillRect(r() * W, r() * H, 1, 1);
+
+  // the dark north edge — where the night is going
+  const edge = ctx.createLinearGradient(0, 0, 0, H * 0.12);
+  edge.addColorStop(0, 'rgba(216,229,163,0.08)');
+  edge.addColorStop(1, 'rgba(216,229,163,0)');
+  ctx.fillStyle = edge;
+  ctx.fillRect(0, 0, W, H * 0.12);
+
+  // moon, low in the west — held abeam, it carries you north
+  if (N.moon) {
+    const mx = W * 0.06, my = H * 0.3;
+    ctx.fillStyle = 'rgba(233,228,214,0.75)';
+    ctx.beginPath();
+    ctx.arc(mx, my, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(233,228,214,0.07)';
+    ctx.beginPath();
+    ctx.arc(mx, my, 26, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // flowers
+  for (const f of game.flowers) {
+    if (f.taken) continue;
+    ctx.fillStyle = 'rgba(216,229,163,0.7)';
+    ctx.beginPath();
+    ctx.arc(f.x * W, f.y * H, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(216,229,163,0.12)';
+    ctx.beginPath();
+    ctx.arc(f.x * W, f.y * H, 9, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // lamps and their pools
+  for (const l of game.lamps) {
+    const lx = l.x * W, ly = l.y * H;
+    const g = ctx.createRadialGradient(lx, ly, 0, lx, ly, TUNE.dorsalRange * H);
+    g.addColorStop(0, 'rgba(255,200,115,0.5)');
+    g.addColorStop(0.12, 'rgba(255,200,115,0.16)');
+    g.addColorStop(0.4, 'rgba(255,200,115,0.05)');
+    g.addColorStop(1, 'rgba(255,200,115,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(lx - TUNE.dorsalRange * H, ly - TUNE.dorsalRange * H, TUNE.dorsalRange * H * 2, TUNE.dorsalRange * H * 2);
+    ctx.fillStyle = '#fff3dc';
+    ctx.beginPath();
+    ctx.arc(lx, ly, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // the moth
+  if (game.moth) {
+    const m = game.moth;
+    const mx = m.x * W, my = m.y * H;
+    const diving = game.t < game.diveUntil;
+    const flut = still ? 0 : Math.sin(game.t * 30) * 0.35;
+    ctx.save();
+    ctx.translate(mx, my);
+    ctx.rotate(m.a + Math.PI / 2);
+    ctx.scale(diving ? 0.75 : 1, diving ? 0.75 : 1);
+    ctx.fillStyle = 'rgba(233,228,214,0.92)';
+    // body
+    ctx.fillRect(-1, -4, 2, 8);
+    // wings
+    ctx.beginPath();
+    ctx.ellipse(-4, 0, 3.6, 6 + flut * 2, 0.35, 0, Math.PI * 2);
+    ctx.ellipse(4, 0, 3.6, 6 - flut * 2, -0.35, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    if (game.paused && game.phase === 'flying') {
+      ctx.fillStyle = 'rgba(233,228,214,0.7)';
+      ctx.font = '12px "Spline Sans Mono", monospace';
+      ctx.fillText('paused', 12, 20);
+    }
+  }
+}
+
+/* ================= lab hook =================
+   Simulates the moth with no player input so the emergent claims can be
+   measured: orbit capture near a lamp, near-straight flight under the moon. */
+
+window.__bogong = {
+  simulate(scenario, seconds) {
+    const moth = { x: 0.5, y: 0.9, a: -Math.PI / 2 };
+    const lamps = scenario === 'lamp' ? [{ x: 0.5, y: 0.5, L: 0.7 }] : [];
+    const moon = scenario === 'moon' ? { dir: Math.PI, k: 1 } : null;
+    const path = [];
+    const dt = 1 / 120;
+    for (let t = 0; t < seconds; t += dt) {
+      stepMoth(moth, dt, lamps, moon, { left: false, right: false }, false);
+      path.push([moth.x, moth.y, moth.a]);
+    }
+    return path;
+  },
+  TUNE,
+};
+
+/* ================= boot ================= */
+
+if (ctx) {
+  sizeField();
+  requestAnimationFrame(frame);
+}
+game.night = loadProgress();
+introNight(game.night);
+</script>
+
+</body>
+</html>
