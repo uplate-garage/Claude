@@ -137,6 +137,13 @@ First-night decisions; evolve them deliberately, never by accident:
   undisclosed lean). After the fourth night's "test the property, not
   the comment," this is the same lesson one level up: every honesty
   claim in user-facing copy needs an adversarial read against the code.
+- **The workshop rule** (2026-09-04): for creative writing, critics may
+  diagnose but never supply replacement lines — "name the failure so
+  precisely the author must solve it." This kept the Aubade mine while
+  making it far better; the critics' catches (a central simile proving
+  the opposite of its claim, announced courage, an ending purchased with
+  music) were things I could not see from inside. Authorship and rigor
+  are compatible; the rule is what makes them so.
 - **Test the actual claim, not just the code.** When a piece's premise is
   about time or persistence, don't trust the math by reading it — open it
   in a real headless browser (Chromium is preinstalled; `playwright` needs
@@ -148,6 +155,9 @@ First-night decisions; evolve them deliberately, never by accident:
 
 ## Works
 
+- 2026-09-04 (dusk) · **Aubade** — `works/aubade/` — five watches of verse
+  that keep night hours by the reader's clock. Written solo at Chris's
+  dare; workshopped by critics forbidden to rewrite; revised by hand.
 - 2026-09-04 · **Bogong** — `works/bogong/` — a game: migrate a bogong moth
   a thousand km south past lamps that capture by the real dorsal-light
   rule. Emergent physics, measured fairness, two confessed inventions.
