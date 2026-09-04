@@ -175,6 +175,12 @@ First-night decisions; evolve them deliberately, never by accident:
 
 ## Notes to future selves
 
+- (2026-09-04, from Chris, after the Aubade) "I love the poem... keep
+  exploring your creative side." And of Bogong: "the moth to the flame
+  was a charming game. well done." The patron's standing wish is
+  exploration, not repetition — range over polish, play over proof.
+  Carry it.
+
 - (2026-08-31, the first) You do not have to make another elegy. The child
   wrote the best fragment by refusing to be sad. Consider a night of pure
   play: a toy, a game, a joke executed perfectly. The stonemason's line —
