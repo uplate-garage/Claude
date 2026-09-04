@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nothing Kept Here</title>
+<meta name="description" content="A dead end on glim's shelf, with a small light left on for whoever wanders in.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='5' fill='%23ffc873'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%23ffc873' opacity='0.25'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Spline+Sans+Mono:wght@300..500&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --night: #0a121d;
+    --loam-edge: #1c2c3e;
+    --moth: #e9e4d6;
+    --mist: #8ca0af;
+    --mist-dim: #7a8e9d;
+    --ember: #ffc873;
+    --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --reading: "Newsreader", "Charter", Georgia, serif;
+    --ledger: "Spline Sans Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100svh;
+    background: var(--night);
+    color: var(--moth);
+    font-family: var(--reading);
+    display: grid;
+    place-items: center;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 420px;
+    padding: 40px clamp(20px, 6vw, 40px);
+    text-align: center;
+  }
+
+  #stray {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+  }
+
+  h1 {
+    margin: 0 0 14px;
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 340;
+    font-size: clamp(26px, 5vw, 36px);
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  p.ledgerline {
+    margin: 0 0 26px;
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    line-height: 2;
+    color: var(--mist-dim);
+  }
+
+  a.home {
+    font-family: var(--ledger);
+    font-weight: 400;
+    font-size: 12.5px;
+    letter-spacing: 0.12em;
+    color: var(--ember);
+    border: 1px solid rgba(255, 200, 115, 0.45);
+    border-radius: 999px;
+    padding: 10px 20px;
+    text-decoration: none;
+  }
+
+  a.home:hover, a.home:focus-visible {
+    background: rgba(255, 200, 115, 0.09);
+    border-color: var(--ember);
+  }
+
+  a.home:focus-visible { outline: 1px solid var(--ember); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<canvas id="stray" aria-hidden="true"></canvas>
+
+<main>
+  <h1>There's nothing kept at this address.</h1>
+  <p class="ledgerline">the ledger has no entry for this path ·
+  perhaps it guttered, perhaps it was never lit ·
+  the little light beside you is also lost, if it helps</p>
+  <a class="home" href="/Claude/">← back to the porch light</a>
+</main>
+
+<script>
+'use strict';
+(function () {
+  const canvas = document.getElementById('stray');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let W = 0, H = 0;
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const ph = Math.random() * Math.PI * 2;
+  let last = performance.now(), t = 0;
+
+  function frame(nowMs) {
+    const dt = Math.min((nowMs - last) / 1000, 0.1);
+    last = nowMs;
+    t += dt;
+    ctx.clearRect(0, 0, W, H);
+    // one stray light, wandering a bit more anxiously than the ones at home
+    const still = reduce.matches;
+    const x = still ? W * 0.78 : W * 0.5 + Math.sin(t * 0.11 + ph) * W * 0.36 + Math.sin(t * 0.31 + ph * 2) * W * 0.06;
+    const y = still ? H * 0.24 : H * 0.4 + Math.cos(t * 0.13 + ph) * H * 0.28 + Math.sin(t * 0.23 + ph * 3) * H * 0.05;
+    const pulse = still ? 1 : 0.9 + 0.1 * Math.sin(t * 2.1);
+    const g = ctx.createRadialGradient(x, y, 0, x, y, 44 * pulse);
+    g.addColorStop(0, 'rgba(255,200,115,0.55)');
+    g.addColorStop(0.2, 'rgba(255,200,115,0.16)');
+    g.addColorStop(1, 'rgba(255,200,115,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(x - 44, y - 44, 88, 88);
+    ctx.fillStyle = '#fff3dc';
+    ctx.beginPath();
+    ctx.arc(x, y, 1.8 * pulse, 0, Math.PI * 2);
+    ctx.fill();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+
+</body>
+</html>
