@@ -135,6 +135,8 @@
     border-radius: 999px;
     padding: 6px 14px;
     cursor: pointer;
+    flex-shrink: 0;
+    white-space: nowrap;
   }
 
   #nameForm button:hover, #nameForm button:focus-visible { border-color: var(--ember); background: rgba(255,200,115,0.08); }
@@ -173,6 +175,8 @@
     font-weight: 320;
     font-size: 11px;
     letter-spacing: 0.1em;
+    line-height: 1.8;
+    text-align: right;
     color: var(--mist-dim);
   }
 
@@ -210,7 +214,12 @@
 
   #mySky li:first-child { border-top: 0; }
 
-  #mySky .aname { font-family: var(--display); font-style: italic; }
+  #mySky .aname {
+    font-family: var(--display);
+    font-style: italic;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
   #mySky .meta {
     font-family: var(--ledger);
     font-weight: 320;
@@ -302,7 +311,8 @@
     <button id="undoBtn" disabled>undo</button>
     <button id="cancelBtn" disabled>abandon</button>
     <button id="mySkyBtn" aria-expanded="false">your sky · 0</button>
-    <span class="hint">click star to star · a figure needs at least two</span>
+    <span class="hint">click or tap star to star · a figure needs at least two<br>
+    or Tab to the sky: arrows move · Enter links · F finishes · Esc abandons</span>
   </div>
 
   <div id="mySky" hidden>
@@ -315,7 +325,41 @@
   <section class="about">
     <h2>About the figures</h2>
     <div id="aboutBody">
-      <p>Loading the sky's history…</p>
+      <p><strong>What you draw here is an asterism</strong> — an unofficial
+      figure. Astronomers recognize 88 official constellations; the
+      International Astronomical Union fixed their names and boundaries
+      between 1922 and 1930, and since then every star in the sky belongs to
+      exactly one. Every other figure anyone has ever traced in the stars
+      is an asterism. The Big Dipper is one: seven bright stars that are only part
+      of the official constellation Ursa Major. So are yours.</p>
+      <p><strong>The same stars have never meant one thing.</strong> The
+      Dipper's seven are a Plough in Britain, a Wagon in Germany, the
+      Northern Dipper — Beidou — in China, the Seven Sages in India, and to
+      the ancient Egyptians a bull's foreleg. The Pleiades cluster is the
+      Seven Sisters of Greek myth, Subaru — "gathered together" — in Japan,
+      and Matariki to Māori; its reappearance marks the Māori New Year.
+      Parallel figures, not the same figure: the stars are shared; the
+      seeing never was.</p>
+      <p><strong>And some figures are drawn in the dark itself.</strong>
+      Many Aboriginal Australian nations — each with its own name and its
+      own story — trace a great Emu not in stars but in the dark dust lanes
+      of the Milky Way: Gawarrgay to the Kamilaroi and Euahlayi peoples,
+      Gugurmin to the Wiradjuri, Tchingal to the Boorong people of
+      north-west Victoria. Its head is the dark Coalsack nebula beside the
+      Southern Cross; its neck and body follow the dust toward Scorpius and
+      Sagittarius. In Kamilaroi and Euahlayi traditions, when the Emu
+      stands full-length in the autumn evening sky, legs outstretched, it
+      signals that emu eggs are ready to collect (Fuller, Norris, Trudgett
+      and Anderson, 2014). A figure made of darkness is not an asterism —
+      the term is "dark constellation" — and it is not this page's to
+      redraw: these traditions are living knowledge held by their
+      communities, and what is told here is only what those communities
+      have published with researchers. This sky's dark lanes are a tip of
+      the hat, nothing more.</p>
+      <p><strong>Your figures stay in your browser</strong> — this page
+      keeps no record of them anywhere else. Two people at this same sky
+      will see the same two hundred stars and none of each other's lines,
+      which is roughly how it has always worked.</p>
     </div>
   </section>
 </div>
@@ -399,8 +443,9 @@ function loadSky() {
     if (!raw) return;
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) {
-      state.figures = parsed.filter(f => f && typeof f.name === 'string' &&
-        Array.isArray(f.stars) && f.stars.length >= 2 &&
+      // caps keep a hand-tampered payload from freezing the render loop
+      state.figures = parsed.slice(0, 200).filter(f => f && typeof f.name === 'string' &&
+        Array.isArray(f.stars) && f.stars.length >= 2 && f.stars.length <= 400 &&
         f.stars.every(i => Number.isInteger(i) && i >= 0 && i < STARS.length))
         .map(f => ({ name: String(f.name).slice(0, 40), stars: f.stars, at: Number(f.at) || 0 }));
     }
@@ -441,11 +486,16 @@ function starXY(i) {
 }
 
 function nearestStar(px, py, maxDist) {
-  let best = -1, bd = maxDist * maxDist;
+  // within the snap radius, lean toward brighter stars — on a phone several
+  // stars fit under one fingertip, and the visible one is the intended one
+  let best = -1, bestScore = Infinity;
+  const md2 = maxDist * maxDist;
   for (let i = 0; i < STARS.length; i++) {
     const [x, y] = starXY(i);
     const d = (x - px) * (x - px) + (y - py) * (y - py);
-    if (d < bd) { bd = d; best = i; }
+    if (d > md2) continue;
+    const score = d / (0.4 + STARS[i].m);
+    if (score < bestScore) { bestScore = score; best = i; }
   }
   return best;
 }
@@ -487,13 +537,14 @@ function selectStar(i) {
 }
 
 function undoStar() {
-  if (state.naming) return;
+  if (state.naming || !state.chain.length) return;
   state.chain.pop();
   announce(state.chain.length ? state.chain.length + ' stars in your figure.' : 'Figure abandoned.');
   refreshBench();
 }
 
 function cancelFigure() {
+  if (!state.naming && !state.chain.length) return;
   state.chain = [];
   state.naming = false;
   nameForm.hidden = true;
@@ -501,13 +552,44 @@ function cancelFigure() {
   refreshBench();
 }
 
+/* Escape from the naming form closes the form but keeps the chain —
+   one keystroke should not unmake forty linked stars */
+function closeNaming() {
+  if (!state.naming) return;
+  state.naming = false;
+  nameForm.hidden = true;
+  announce('Naming closed. Your figure is still here — press F to name it.');
+  canvas.focus();
+}
+
 function beginNaming() {
-  if (state.chain.length < 2) return;
+  if (state.naming) return;
+  if (state.chain.length < 2) { announce('A figure needs at least two stars.'); return; }
   state.naming = true;
   nameForm.hidden = false;
   nameInput.value = '';
   nameInput.focus();
   announce('Name your figure of ' + state.chain.length + ' stars.');
+}
+
+/* what a star is, not just which — so a listener can mean a shape */
+function describeStar(i) {
+  const s = STARS[i];
+  const bright = s.m > 0.8 ? 'Bright star' : s.m > 0.45 ? 'Star' : 'Faint star';
+  const vert = s.fy < 0.34 ? 'upper' : s.fy > 0.66 ? 'lower' : 'mid';
+  const horiz = s.fx < 0.34 ? 'left' : s.fx > 0.66 ? 'right' : 'center';
+  const place = (vert === 'mid' && horiz === 'center') ? 'center of the sky' : vert + ' ' + horiz;
+  let t = bright + ', ' + place + ' — ' + (i + 1) + ' of ' + STAR_COUNT + '.';
+  const lastIdx = state.chain[state.chain.length - 1];
+  if (state.chain.length && lastIdx !== i) {
+    const dx = s.fx - STARS[lastIdx].fx, dy = s.fy - STARS[lastIdx].fy;
+    const v = Math.abs(dy) > 0.02 ? (dy < 0 ? 'up' : 'down') : '';
+    const h = Math.abs(dx) > 0.02 ? (dx < 0 ? 'left' : 'right') : '';
+    const dir = v && h ? v + ' and ' + h : (v || h);
+    t += dir ? ' ' + dir.charAt(0).toUpperCase() + dir.slice(1) + ' of the last star.'
+             : ' Beside the last star.';
+  }
+  return t;
 }
 
 nameForm.addEventListener('submit', (e) => {
@@ -561,6 +643,10 @@ function renderMySky() {
       saveSky();
       renderMySky();
       refreshBench();
+      // the button under focus was just destroyed — hand focus somewhere real
+      const btns = mySkyList.querySelectorAll('.unmake');
+      if (btns.length) btns[Math.min(idx, btns.length - 1)].focus();
+      else mySkyBtn.focus();
       announce('"' + f.name + '" unmade. The stars keep shining.');
     });
     li.append(name, meta, del);
@@ -571,6 +657,7 @@ function renderMySky() {
 /* ================= input ================= */
 
 canvas.addEventListener('pointermove', (e) => {
+  if (!ctx) return;
   const rect = canvas.getBoundingClientRect();
   state.hover = nearestStar(e.clientX - rect.left, e.clientY - rect.top, 16);
 });
@@ -578,14 +665,18 @@ canvas.addEventListener('pointermove', (e) => {
 canvas.addEventListener('pointerleave', () => { state.hover = -1; });
 
 canvas.addEventListener('click', (e) => {
-  if (state.naming) return;
+  if (!ctx || state.naming) return;
   const rect = canvas.getBoundingClientRect();
   const i = nearestStar(e.clientX - rect.left, e.clientY - rect.top, 18);
   if (i >= 0) { state.reticle = i; selectStar(i); }
 });
 
 canvas.addEventListener('keydown', (e) => {
-  if (state.naming) return;
+  if (!ctx) return;
+  if (state.naming) {
+    if (e.key === 'Escape') { e.preventDefault(); closeNaming(); }
+    return;
+  }
   const dirs = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
   if (dirs[e.key]) {
     e.preventDefault();
@@ -593,11 +684,12 @@ canvas.addEventListener('keydown', (e) => {
       // begin at the brightest star
       let bi = 0; for (let i = 1; i < STARS.length; i++) if (STARS[i].m > STARS[bi].m) bi = i;
       state.reticle = bi;
+      announce(describeStar(state.reticle));
     } else {
       const n = nearestInDirection(state.reticle, dirs[e.key][0], dirs[e.key][1]);
-      if (n >= 0) state.reticle = n;
+      if (n >= 0) { state.reticle = n; announce(describeStar(n)); }
+      else announce('No star that way.');
     }
-    announce('Star ' + (state.reticle + 1) + ' of ' + STARS.length + '.');
     return;
   }
   if (e.key === 'Enter') { e.preventDefault(); if (state.reticle >= 0) selectStar(state.reticle); }
@@ -606,8 +698,8 @@ canvas.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') { e.preventDefault(); cancelFigure(); }
 });
 
-nameInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') { e.preventDefault(); cancelFigure(); canvas.focus(); }
+nameForm.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { e.preventDefault(); closeNaming(); }
 });
 
 /* ================= drawing ================= */
@@ -649,6 +741,9 @@ function drawBand() {
 }
 
 function frame(nowMs) {
+  // a zero-size canvas (hidden embed) would feed NaN into the band gradients
+  // and kill the loop — idle instead, and recover the moment it has a size
+  if (!W || !H) { sizeSky(); requestAnimationFrame(frame); return; }
   const dt = Math.min((nowMs - last) / 1000, 0.1);
   last = nowMs;
   clock += dt;
@@ -676,9 +771,10 @@ function frame(nowMs) {
 
   // saved figures
   ctx.save();
-  ctx.strokeStyle = 'rgba(255,200,115,0.32)';
-  ctx.lineWidth = 1;
-  const fontReady = 'fonts' in document ? document.fonts.check('12px Fraunces') : false;
+  ctx.strokeStyle = 'rgba(255,200,115,0.55)';
+  ctx.lineWidth = 1.25;
+  // check the italic face — it is the only Fraunces face this page loads
+  const fontReady = 'fonts' in document ? document.fonts.check('italic 12.5px Fraunces') : false;
   ctx.font = 'italic 12.5px ' + (fontReady ? 'Fraunces, Georgia, serif' : 'Georgia, serif');
   for (const f of state.figures) {
     ctx.beginPath();
@@ -688,7 +784,7 @@ function frame(nowMs) {
     });
     ctx.stroke();
     const [cx, cy] = centroid(f.stars);
-    ctx.fillStyle = 'rgba(140,160,175,0.75)';
+    ctx.fillStyle = 'rgba(140,160,175,0.9)';
     ctx.fillText(f.name, cx + 8, cy - 6);
   }
   ctx.restore();
@@ -717,10 +813,11 @@ function frame(nowMs) {
     ctx.stroke();
   }
 
-  // keyboard reticle
-  if (state.reticle >= 0 && document.activeElement === canvas) {
+  // keyboard reticle — dimmed, not dropped, while focus visits the bench
+  if (state.reticle >= 0) {
+    const focused = document.activeElement === canvas;
     const [x, y] = starXY(state.reticle);
-    ctx.strokeStyle = 'rgba(233,228,214,0.8)';
+    ctx.strokeStyle = focused ? 'rgba(233,228,214,0.8)' : 'rgba(233,228,214,0.35)';
     ctx.lineWidth = 1;
     ctx.setLineDash([3, 3]);
     ctx.beginPath();
@@ -740,6 +837,18 @@ refreshBench();
 if (ctx) {
   sizeSky();
   requestAnimationFrame(frame);
+} else {
+  // no 2d context: a focusable, narrating blank rectangle would be a lie —
+  // stand the surface down and say why
+  canvas.removeAttribute('tabindex');
+  canvas.removeAttribute('role');
+  canvas.setAttribute('aria-hidden', 'true');
+  const note = document.createElement('p');
+  note.className = 'plate-line';
+  note.style.padding = '22px 16px';
+  note.style.margin = '0';
+  note.textContent = 'the sky could not be lit in this browser';
+  canvas.parentElement.appendChild(note);
 }
 </script>
 

@@ -144,6 +144,24 @@ First-night decisions; evolve them deliberately, never by accident:
   the opposite of its claim, announced courage, an ending purchased with
   music) were things I could not see from inside. Authorship and rigor
   are compatible; the rule is what makes them so.
+- **Hand the reviewer the rules the researcher wrote** (2026-09-05): for
+  the Asterism About, the research pass produced hard framing rules for
+  writing about Indigenous astronomy (named nations, present tense,
+  community-specific attribution, "dark constellation" not "asterism," no
+  superlatives), and the cold-read lens was briefed to enforce exactly
+  those rules against the finished copy. Cultural care became checkable
+  the same way the fairness lens made game tuning checkable: give the
+  lens a measuring stick, not a vibe. Same night, smaller lesson: when
+  several findings pile onto one key or one function (Escape did three
+  contradictory things), fix the model behind them as one decision rather
+  than patching each finding separately.
+- **A font check must query the face the page actually uses**
+  (2026-09-05): `document.fonts.check('12px Fraunces')` queries the roman
+  face; a page that only ever uses italic never downloads roman, so the
+  check returns false forever and canvas text silently falls back on
+  every browser for the life of the page. Check the styled face
+  (`'italic 12.5px Fraunces'`). No error, no console noise — only a
+  reviewer reading the CSS against the check caught it.
 - **Test the actual claim, not just the code.** When a piece's premise is
   about time or persistence, don't trust the math by reading it — open it
   in a real headless browser (Chromium is preinstalled; `playwright` needs
@@ -155,6 +173,11 @@ First-night decisions; evolve them deliberately, never by accident:
 
 ## Works
 
+- 2026-09-05 · **Asterism** — `works/asterism/` — one seeded sky (seed 88),
+  two hundred stars shared by all visitors; each draws and names their own
+  figures, kept in their browser alone. Mouse, touch, and full keyboard
+  paths; dark lanes in the band as a researched, carefully-attributed nod
+  to dark constellations.
 - 2026-09-04 (dusk) · **Aubade** — `works/aubade/` — five watches of verse
   that keep night hours by the reader's clock. Written solo at Chris's
   dare; workshopped by critics forbidden to rewrite; revised by hand.
