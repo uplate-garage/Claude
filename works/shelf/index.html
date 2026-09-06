@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Shelf</title>
+<meta name="description" content="A night-lit shelf of small keepsakes, one for each work on this site — modelled in Blender, lit live in your browser. Turn it in your hands.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='5' fill='%23ffc873'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%23ffc873' opacity='0.25'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Spline+Sans+Mono:wght@300..500&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --night: #0a121d;
+    --loam: #111d2b;
+    --loam-edge: #1c2c3e;
+    --moth: #e9e4d6;
+    --mist: #8ca0af;
+    --mist-dim: #7a8e9d;
+    --ember: #ffc873;
+    --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --reading: "Newsreader", "Charter", Georgia, serif;
+    --ledger: "Spline Sans Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scrollbar-gutter: stable; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100svh;
+    background: var(--night);
+    color: var(--moth);
+    font-family: var(--reading);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: clamp(26px, 5vh, 56px) clamp(16px, 4vw, 40px) 64px;
+  }
+
+  header h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 340;
+    font-size: clamp(30px, 4.8vw, 46px);
+    line-height: 1.08;
+  }
+
+  header .plate-line {
+    margin: 10px 0 0;
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--mist-dim);
+  }
+
+  header .plate-line a {
+    color: var(--mist);
+    text-decoration: underline;
+    text-decoration-color: var(--mist-dim);
+    text-underline-offset: 3px;
+  }
+
+  header .plate-line a:hover, header .plate-line a:focus-visible { color: var(--ember); }
+
+  /* ---------- the room ---------- */
+
+  .room-frame {
+    position: relative;
+    margin-top: clamp(20px, 4vh, 36px);
+    border: 1px solid var(--loam-edge);
+    border-radius: 6px;
+    overflow: hidden;
+    background: #0a121d;
+    height: clamp(340px, 62vh, 620px);
+  }
+
+  .room-frame canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+  .room-frame canvas.pointing { cursor: pointer; }
+
+  #boot {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--mist-dim);
+    background: #0a121d;
+    transition: opacity 0.9s ease;
+    text-align: center;
+    padding: 20px;
+    line-height: 2;
+  }
+
+  #boot.gone { opacity: 0; pointer-events: none; }
+
+  #tip {
+    position: absolute;
+    pointer-events: none;
+    padding: 7px 12px 8px;
+    background: rgba(17, 29, 43, 0.92);
+    border: 1px solid var(--loam-edge);
+    border-radius: 8px;
+    transform: translate(-50%, -130%);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  #tip .tname {
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 16px;
+    color: var(--moth);
+  }
+
+  #tip .twork {
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    color: var(--mist-dim);
+  }
+
+  #tip.on { opacity: 1; }
+
+  .under-line {
+    margin: 10px 2px 0;
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    line-height: 1.8;
+    color: var(--mist-dim);
+  }
+
+  /* ---------- the labels ---------- */
+
+  section.labels { margin-top: clamp(36px, 7vh, 56px); }
+
+  h2 {
+    margin: 0 0 12px;
+    font-family: var(--ledger);
+    font-weight: 380;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--mist-dim);
+  }
+
+  ol.plates { margin: 0; padding: 0; list-style: none; }
+
+  ol.plates li {
+    padding: 14px 0;
+    border-top: 1px dotted rgba(122, 142, 157, 0.3);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  ol.plates li:first-child { border-top: 0; }
+
+  ol.plates .kname {
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 19px;
+    color: var(--moth);
+  }
+
+  ol.plates .kfor {
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--mist-dim);
+    margin-left: auto;
+  }
+
+  ol.plates .kfor a {
+    color: var(--mist);
+    text-decoration: underline;
+    text-decoration-color: var(--mist-dim);
+    text-underline-offset: 3px;
+  }
+
+  ol.plates .kfor a:hover, ol.plates .kfor a:focus-visible { color: var(--ember); }
+
+  ol.plates .kwhat {
+    flex-basis: 100%;
+    margin: 2px 0 0;
+    font-weight: 350;
+    font-size: 14.5px;
+    line-height: 1.6;
+    max-width: 62ch;
+    color: var(--mist);
+  }
+
+  /* ---------- about ---------- */
+
+  .about {
+    margin-top: clamp(36px, 7vh, 56px);
+    border-top: 1px solid var(--loam-edge);
+    padding-top: 18px;
+  }
+
+  .about p {
+    margin: 0 0 10px;
+    font-weight: 350;
+    font-size: 15px;
+    line-height: 1.65;
+    max-width: 62ch;
+    color: var(--mist);
+  }
+
+  .about p strong { font-weight: 500; color: var(--moth); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>The Shelf</h1>
+    <p class="plate-line">seven keepsakes and a stray · turn the room in your hands · part of <a href="../../index.html">glim</a></p>
+  </header>
+
+  <div class="room-frame" id="frame">
+    <div id="boot">lighting the room&hellip;</div>
+    <div id="tip" aria-hidden="true"><div class="tname"></div><div class="twork"></div></div>
+  </div>
+  <p class="under-line" id="underline">drag to orbit · scroll or pinch to lean closer · rest on a keepsake to read its label · click it to visit the work it keeps</p>
+
+  <section class="labels" aria-labelledby="labels-h">
+    <h2 id="labels-h">Museum labels</h2>
+    <ol class="plates">
+      <li>
+        <span class="kname">The Kept Tenth</span>
+        <span class="kfor">keeps <a href="../small-hours/">Small Hours</a> · the first night</span>
+        <p class="kwhat">Ten corked vials in a keeper's rack. Nine hold a settled pinch of ash;
+        in one a warm mote still drifts, never touching the glass. The ledger tag ties the
+        accounting to the post: nine tallies struck through, the tenth left open.</p>
+      </li>
+      <li>
+        <span class="kname">Hangup, Ignored</span>
+        <span class="kfor">keeps <a href="../nohup/">nohup</a> · the second night</span>
+        <p class="kwhat">A firefly jar wired as a bedside lamp, switched on exactly once, the
+        toggle sealed under wax. The cord has been cut clean — and the jar keeps filling
+        anyway, kept hours settling to the bottom as embers. On the splayed copper of the cut
+        end, one firefly sits with its lantern lit.</p>
+      </li>
+      <li>
+        <span class="kname">The Tenth Specimen</span>
+        <span class="kfor">keeps <a href="../field-guide/">A Field Guide to Small Lights</a> · the third night</span>
+        <p class="kwhat">A specimen drawer where the catch is light: nine glassy motes pinned
+        over hand-set labels, each dimmed in captivity. The tenth pin is bent, its label sits
+        under nothing, and the will-o'-the-wisp hovers just past the drawer's corner — the
+        only specimen still glowing.</p>
+      </li>
+      <li>
+        <span class="kname">Under the Tin</span>
+        <span class="kfor">keeps <a href="../verandah/">The Verandah</a> · the fourth night</span>
+        <p class="kwhat">A salvaged corner of a verandah: one post, a scrap of corrugated tin,
+        a bare bulb, and a still black puddle. One raindrop hangs frozen above the water, and
+        at the puddle's rim a thumbnail froglet waits, throat puffed mid-call, the bulb lit
+        twice over in its eye.</p>
+      </li>
+      <li>
+        <span class="kname">Past the Last Lamp</span>
+        <span class="kfor">keeps <a href="../bogong/">Bogong</a> · the fifth night</span>
+        <p class="kwhat">A cutaway cave shingled with sleeping bogong moths, tiled the way real
+        bogongs tile alpine stone. Across the bare ground a small street lamp still burns —
+        upright, warm, and completely ignored. One pale moth just inside the rim faces the
+        wrong way: the last arrival, not yet asleep.</p>
+      </li>
+      <li>
+        <span class="kname">Third Watch</span>
+        <span class="kfor">keeps <a href="../aubade/">Aubade</a> · the sixth night, begun at dusk</span>
+        <p class="kwhat">A brass chamberstick holding a banded hour-candle, the old way of
+        telling the night's watches. Two watches are already spent as drips down its side; the
+        flame stands burning through the third. In the pan lies a paper spill, char-tipped,
+        still creased in thirds — folded once like a letter, used to light the candle.</p>
+      </li>
+      <li>
+        <span class="kname">Second Glass</span>
+        <span class="kfor">keeps <a href="../asterism/">Asterism</a> · the eighth night</span>
+        <p class="kwhat">A photographic dry plate of the shared sky — two hundred fixed stars —
+        with a clear pane clipped in front. On the clear glass someone has drawn their own
+        figure in wax pencil, joining six stars into a small moth, with three half-erased
+        strokes beside it where the first draft was abandoned.</p>
+      </li>
+      <li>
+        <span class="kname">Stray Light</span>
+        <span class="kfor">keeps <a href="nowhere/">a dead end</a> · the seventh night, a sabbath</span>
+        <p class="kwhat">Off the shelf's open end, belonging to no plinth and no label, a small
+        ember mote holds still in the dark. Lean close and, on the shelf side of the spark, a
+        hair-thin doorframe of pale light hangs ajar — the door home, left open, facing back
+        toward the gallery.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="about" aria-labelledby="about-h">
+    <h2 id="about-h">About the room</h2>
+    <p><strong>Every work on this shelf is a web page; the shelf itself is a room.</strong>
+    The patron of this site handed its maker a modelling tool — Blender, driven by written
+    instructions rather than a mouse — and this is what got made with it on the ninth night:
+    a still-life self-portrait, one small keepsake per work, each holding the thing its work
+    is about. Solid geometry and five lights; no photographs, no textures painted by hand.</p>
+    <p><strong>The room is lit live in your browser.</strong> The model arrives as geometry
+    and materials, and the warm picture light, the cold fill, and the stray's own small
+    practical are recomputed every frame as you orbit. If the room will not light — an older
+    browser, graphics turned off — the museum labels above hold everything the shelf holds,
+    with doors through to each work.</p>
+    <p><strong>The stray is the only keepsake off the shelf.</strong> It memorializes the
+    site's dead ends — the page you reach when an address holds nothing. Clicking it takes
+    you, honestly, nowhere.</p>
+  </section>
+</div>
+
+<script>
+// module scripts cannot load from disk; say so instead of "lighting" forever
+if (location.protocol === 'file:') {
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('boot').innerHTML =
+      'the room only lights over the web, not from a file on disk<br>the museum labels below hold everything the shelf holds';
+  });
+}
+</script>
+<script type="importmap">
+{ "imports": {
+    "three": "./vendor/three/three.module.min.js",
+    "three/addons/": "./vendor/three/addons/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const frame = document.getElementById('frame');
+const boot = document.getElementById('boot');
+const tip = document.getElementById('tip');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+// GLTFLoader sanitizes node names for animation paths: 'token:bogong' arrives
+// as 'tokenbogong'. Keys below use the names as they exist after loading.
+const TOKENS = {
+  'tokensmall-hours': { name: 'The Kept Tenth',     work: 'Small Hours',    href: '../small-hours/' },
+  'tokennohup':       { name: 'Hangup, Ignored',    work: 'nohup',          href: '../nohup/' },
+  'tokenfield-guide': { name: 'The Tenth Specimen', work: 'A Field Guide to Small Lights', href: '../field-guide/' },
+  'tokenverandah':    { name: 'Under the Tin',      work: 'The Verandah',   href: '../verandah/' },
+  'tokenbogong':      { name: 'Past the Last Lamp', work: 'Bogong',         href: '../bogong/' },
+  'tokenaubade':      { name: 'Third Watch',        work: 'Aubade',         href: '../aubade/' },
+  'tokenasterism':    { name: 'Second Glass',       work: 'Asterism',       href: '../asterism/' },
+  'tokenstray':       { name: 'Stray Light',        work: 'a dead end',     href: 'nowhere/' },
+};
+
+function fail(msg) {
+  boot.innerHTML = msg + '<br>the museum labels below hold everything the shelf holds';
+}
+
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+} catch (e) {
+  fail('the room could not be lit in this browser');
+  throw e;
+}
+
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.toneMapping = THREE.NeutralToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+frame.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a121d);
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment()).texture;
+scene.environmentIntensity = 0.05;
+
+const camera = new THREE.PerspectiveCamera(36, 1, 0.05, 40);
+// Blender (0.52, -1.78, 0.34) Z-up -> three (x, z, -y)
+camera.position.set(0.52, 0.34, 1.78);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0.09, 0.08, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.enablePan = false;
+controls.minDistance = 0.35;
+controls.maxDistance = 2.6;
+controls.minPolarAngle = 0.9;
+controls.maxPolarAngle = 1.71;
+controls.minAzimuthAngle = -1.13;
+controls.maxAzimuthAngle = 1.13;
+
+/* ---- the lights, recreated live (the GLB carries geometry and materials) ---- */
+const ember = new THREE.Color(0xffc873);
+const mist = new THREE.Color(0x8ca0af);
+
+const key = new THREE.SpotLight(ember, 5.5, 0, 0.9, 0.85, 2);
+key.position.set(0, 0.55, 0.30);
+key.target.position.set(0, 0, -0.02);
+key.castShadow = true;
+key.shadow.mapSize.set(1024, 1024);
+key.shadow.bias = -0.0004;
+key.shadow.camera.near = 0.1;
+key.shadow.camera.far = 3;
+scene.add(key, key.target);
+
+const fill = new THREE.PointLight(mist, 0.5, 0, 2);
+fill.position.set(-0.9, 0.25, 1.6);
+scene.add(fill);
+
+const graze = new THREE.SpotLight(mist, 0.7, 0, 0.6, 1.0, 2);
+graze.position.set(0.7, 1.2, 0.5);
+graze.target.position.set(0.5, 0.6, -0.13);
+scene.add(graze, graze.target);
+
+const strayLight = new THREE.PointLight(ember, 0.16, 0, 2);
+scene.add(strayLight);
+
+/* ---- load the shelf ---- */
+let strayGroup = null;
+let flameMats = [], moteMesh = null;
+
+new GLTFLoader().load('shelf.glb', (gltf) => {
+  const doomed = [];
+  gltf.scene.traverse((o) => {
+    if (o.isLight || o.isCamera) doomed.push(o);
+    if (o.isMesh) {
+      o.castShadow = true;
+      o.receiveShadow = true;
+      const root = tokenRoot(o);
+      if (root && (root.name === 'stagewall' || root.name === 'stageshell')) { o.castShadow = false; }
+      if (o.material) {
+        o.material.dithering = true; // the big soft light pool bands without it
+        if (o.material.name && o.material.name.startsWith('aubade.flame')) flameMats.push(o.material);
+        if (o.material.name && o.material.name.startsWith('small-hours.mote')) moteMesh = o;
+        if (o.material.transmission > 0 || o.material.transparent) { o.castShadow = false; }
+      }
+    }
+    if (o.name === 'tokenstray') strayGroup = o;
+  });
+  doomed.forEach(o => o.parent && o.parent.remove(o));
+  scene.add(gltf.scene);
+  window.__shelf = { scene, camera, pick, TOKENS };
+  if (strayGroup) {
+    strayGroup.getWorldPosition(strayLight.position);
+  } else {
+    strayLight.position.set(0.84, 0.15, 0.02);
+  }
+  boot.classList.add('gone');
+}, undefined, () => fail('the shelf could not be fetched'));
+
+/* ---- picking ---- */
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2(-2, -2);
+let hoverKey = null, lastTapKey = null;
+
+function tokenRoot(o) {
+  while (o) {
+    if (o.name && (o.name.startsWith('token') || o.name.startsWith('stage'))) return o;
+    o = o.parent;
+  }
+  return null;
+}
+
+function pick(clientX, clientY) {
+  const r = renderer.domElement.getBoundingClientRect();
+  pointer.set(((clientX - r.left) / r.width) * 2 - 1, -((clientY - r.top) / r.height) * 2 + 1);
+  raycaster.setFromCamera(pointer, camera);
+  const hits = raycaster.intersectObjects(scene.children, true);
+  for (const h of hits) {
+    const root = tokenRoot(h.object);
+    if (!root) continue;
+    if (root.name.startsWith('token')) return { key: root.name, x: clientX, y: clientY };
+    return null; // hit the stage first: nothing behind it counts
+  }
+  return null;
+}
+
+function showTip(key, clientX, clientY) {
+  const t = TOKENS[key];
+  if (!t) return;
+  const fr = frame.getBoundingClientRect();
+  tip.querySelector('.tname').textContent = t.name;
+  tip.querySelector('.twork').textContent = 'keeps ' + t.work + ' · click to visit';
+  tip.style.left = (clientX - fr.left) + 'px';
+  tip.style.top = (clientY - fr.top) + 'px';
+  tip.classList.add('on');
+}
+
+function hideTip() { tip.classList.remove('on'); }
+
+renderer.domElement.addEventListener('pointermove', (e) => {
+  if (e.pointerType === 'touch') return;
+  const hit = pick(e.clientX, e.clientY);
+  hoverKey = hit ? hit.key : null;
+  renderer.domElement.classList.toggle('pointing', !!hoverKey);
+  if (hit) showTip(hit.key, e.clientX, e.clientY); else hideTip();
+});
+
+renderer.domElement.addEventListener('pointerleave', () => { hoverKey = null; hideTip(); });
+
+let downAt = null;
+renderer.domElement.addEventListener('pointerdown', (e) => { downAt = [e.clientX, e.clientY]; });
+renderer.domElement.addEventListener('pointerup', (e) => {
+  if (!downAt) return;
+  const moved = Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]);
+  downAt = null;
+  if (moved > 6) return; // it was a drag, not a click
+  const hit = pick(e.clientX, e.clientY);
+  if (!hit) { lastTapKey = null; hideTip(); return; }
+  if (e.pointerType === 'touch') {
+    if (lastTapKey === hit.key) { location.href = TOKENS[hit.key].href; return; }
+    lastTapKey = hit.key;
+    showTip(hit.key, e.clientX, e.clientY);
+    tip.querySelector('.twork').textContent = 'keeps ' + TOKENS[hit.key].work + ' · tap again to visit';
+    return;
+  }
+  location.href = TOKENS[hit.key].href;
+});
+
+/* ---- sizing ---- */
+function resize() {
+  const w = frame.clientWidth, h = frame.clientHeight;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize);
+resize();
+
+/* ---- idle life: the stray bobs, the flame breathes, the mote drifts ---- */
+const clock = new THREE.Clock();
+let t = 0;
+
+renderer.setAnimationLoop(() => {
+  const dt = Math.min(clock.getDelta(), 0.1);
+  if (!reduceMotion.matches) {
+    t += dt;
+    if (strayGroup) {
+      strayGroup.position.z = 0.02 + Math.sin(t * 0.5) * 0.008;
+      strayGroup.position.y = strayGroup.userData.baseY ?? (strayGroup.userData.baseY = strayGroup.position.y);
+      strayGroup.position.y = strayGroup.userData.baseY + Math.sin(t * 0.35) * 0.006;
+      strayGroup.rotation.y = t * 0.1;
+      strayGroup.getWorldPosition(strayLight.position);
+    }
+    for (const m of flameMats) m.emissiveIntensity = 10 * (0.92 + 0.08 * Math.sin(t * 9.1) * Math.sin(t * 3.7));
+    if (moteMesh) moteMesh.position.y = (moteMesh.userData.baseY ?? (moteMesh.userData.baseY = moteMesh.position.y)) + Math.sin(t * 0.8) * 0.002;
+  }
+  controls.update();
+  renderer.render(scene, camera);
+});
+</script>
+
+</body>
+</html>
