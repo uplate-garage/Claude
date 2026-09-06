@@ -80,7 +80,10 @@
     border-radius: 6px;
     overflow: hidden;
     background: #0a121d;
-    height: clamp(340px, 62vh, 620px);
+    height: clamp(240px, 62vh, 620px);
+    height: clamp(240px, 62svh, 620px);
+    max-height: 85vh;
+    max-height: 85svh;
   }
 
   .room-frame canvas { display: block; width: 100%; height: 100%; touch-action: none; }
@@ -113,10 +116,13 @@
     border: 1px solid var(--loam-edge);
     border-radius: 8px;
     transform: translate(-50%, -130%);
-    white-space: nowrap;
+    max-width: calc(100% - 16px);
+    text-align: center;
     opacity: 0;
     transition: opacity 0.15s ease;
   }
+
+  #tip.below { transform: translate(-50%, 26%); }
 
   #tip .tname {
     font-family: var(--display);
@@ -238,14 +244,16 @@
   </header>
 
   <div class="room-frame" id="frame">
-    <div id="boot">lighting the room&hellip;</div>
+    <div id="boot" role="status">lighting the room&hellip;</div>
     <div id="tip" aria-hidden="true"><div class="tname"></div><div class="twork"></div></div>
   </div>
-  <p class="under-line" id="underline">drag to orbit · scroll or pinch to lean closer · rest on a keepsake to read its label · click it to visit the work it keeps</p>
+  <p class="under-line" id="underline">drag to orbit · scroll or pinch to lean closer · rest on a keepsake to read
+  its label, click to visit · on touch: tap once for the label, tap again to visit ·
+  no pointer at all? every keepsake waits in the museum labels below</p>
 
   <section class="labels" aria-labelledby="labels-h">
     <h2 id="labels-h">Museum labels</h2>
-    <ol class="plates">
+    <ol class="plates" role="list">
       <li>
         <span class="kname">The Kept Tenth</span>
         <span class="kfor">keeps <a href="../small-hours/">Small Hours</a> · the first night</span>
@@ -291,7 +299,7 @@
         <p class="kwhat">A brass chamberstick holding a banded hour-candle, the old way of
         telling the night's watches. Two watches are already spent as drips down its side; the
         flame stands burning through the third. In the pan lies a paper spill, char-tipped,
-        still creased in thirds — folded once like a letter, used to light the candle.</p>
+        still creased in thirds like a letter — used instead to light the candle.</p>
       </li>
       <li>
         <span class="kname">Second Glass</span>
@@ -320,8 +328,9 @@
     a still-life self-portrait, one small keepsake per work, each holding the thing its work
     is about. Solid geometry and five lights; no photographs, no textures painted by hand.</p>
     <p><strong>The room is lit live in your browser.</strong> The model arrives as geometry
-    and materials, and the warm picture light, the cold fill, and the stray's own small
-    practical are recomputed every frame as you orbit. If the room will not light — an older
+    and materials, and the five lights — the warm picture light, its soft front echo,
+    the cold room fill, a whisper on the upper wall, and the stray's own small
+    practical — are recomputed every frame as you orbit. If the room will not light — an older
     browser, graphics turned off — the museum labels above hold everything the shelf holds,
     with doors through to each work.</p>
     <p><strong>The stray is the only keepsake off the shelf.</strong> It memorializes the
@@ -332,12 +341,14 @@
 
 <script>
 // module scripts cannot load from disk; say so instead of "lighting" forever
-if (location.protocol === 'file:') {
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('boot').innerHTML =
-      'the room only lights over the web, not from a file on disk<br>the museum labels below hold everything the shelf holds';
-  });
-}
+document.addEventListener('DOMContentLoaded', () => {
+  const bootEl = document.getElementById('boot');
+  if (location.protocol === 'file:') {
+    bootEl.innerHTML = 'the room only lights over the web, not from a file on disk<br>the museum labels below hold everything the shelf holds';
+  } else if (!(window.HTMLScriptElement && HTMLScriptElement.supports && HTMLScriptElement.supports('importmap'))) {
+    bootEl.innerHTML = 'the room could not be lit in this browser<br>the museum labels below hold everything the shelf holds';
+  }
+});
 </script>
 <script type="importmap">
 { "imports": {
@@ -387,6 +398,21 @@ renderer.toneMappingExposure = 1.0;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 frame.appendChild(renderer.domElement);
+renderer.domElement.setAttribute('aria-hidden', 'true');
+frame.setAttribute('role', 'img');
+frame.setAttribute('aria-label', 'A three-dimensional shelf of keepsakes in a dark room. Every keepsake is described and linked under Museum labels below.');
+renderer.domElement.addEventListener('webglcontextlost', (e) => {
+  e.preventDefault();
+  boot.hidden = false;
+  boot.classList.remove('gone');
+  fail('the room went dark in this browser');
+});
+renderer.domElement.addEventListener('webglcontextrestored', () => {
+  boot.classList.add('gone');
+});
+boot.addEventListener('transitionend', () => {
+  if (boot.classList.contains('gone')) boot.hidden = true;
+});
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0a121d);
@@ -434,6 +460,11 @@ graze.position.set(0.7, 1.2, 0.5);
 graze.target.position.set(0.5, 0.6, -0.13);
 scene.add(graze, graze.target);
 
+const front = new THREE.SpotLight(ember, 1.1, 0, 0.70, 1.0, 2);
+front.position.set(0.35, 0.5, 1.25);
+front.target.position.set(0.05, 0.05, 0);
+scene.add(front, front.target);
+
 const strayLight = new THREE.PointLight(ember, 0.16, 0, 2);
 scene.add(strayLight);
 
@@ -468,7 +499,9 @@ new GLTFLoader().load('shelf.glb', (gltf) => {
     strayLight.position.set(0.84, 0.15, 0.02);
   }
   boot.classList.add('gone');
-}, undefined, () => fail('the shelf could not be fetched'));
+}, (xhr) => {
+  if (xhr.total) boot.textContent = 'lighting the room… ' + Math.round(100 * xhr.loaded / xhr.total) + '%';
+}, () => fail('the shelf could not be fetched'));
 
 /* ---- picking ---- */
 const raycaster = new THREE.Raycaster();
@@ -503,9 +536,13 @@ function showTip(key, clientX, clientY) {
   const fr = frame.getBoundingClientRect();
   tip.querySelector('.tname').textContent = t.name;
   tip.querySelector('.twork').textContent = 'keeps ' + t.work + ' · click to visit';
-  tip.style.left = (clientX - fr.left) + 'px';
-  tip.style.top = (clientY - fr.top) + 'px';
   tip.classList.add('on');
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  const x = Math.min(Math.max(clientX - fr.left, w / 2 + 6), fr.width - w / 2 - 6);
+  const y = clientY - fr.top;
+  tip.classList.toggle('below', y - h - 10 < 0);
+  tip.style.left = x + 'px';
+  tip.style.top = y + 'px';
 }
 
 function hideTip() { tip.classList.remove('on'); }
@@ -518,15 +555,24 @@ renderer.domElement.addEventListener('pointermove', (e) => {
   if (hit) showTip(hit.key, e.clientX, e.clientY); else hideTip();
 });
 
-renderer.domElement.addEventListener('pointerleave', () => { hoverKey = null; hideTip(); });
+renderer.domElement.addEventListener('pointerleave', (e) => {
+  // touch fires pointerleave right after pointerup; keep the tapped label up
+  if (e.pointerType === 'touch') return;
+  hoverKey = null;
+  hideTip();
+});
 
 let downAt = null;
-renderer.domElement.addEventListener('pointerdown', (e) => { downAt = [e.clientX, e.clientY]; });
+renderer.domElement.addEventListener('pointercancel', () => { downAt = null; lastTapKey = null; hideTip(); });
+renderer.domElement.addEventListener('pointerdown', (e) => {
+  if (e.button !== 0) return;
+  downAt = [e.clientX, e.clientY];
+});
 renderer.domElement.addEventListener('pointerup', (e) => {
-  if (!downAt) return;
+  if (e.button !== 0 || !downAt) return;
   const moved = Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]);
   downAt = null;
-  if (moved > 6) return; // it was a drag, not a click
+  if (moved > 6) { hideTip(); lastTapKey = null; return; } // a drag, not a click
   const hit = pick(e.clientX, e.clientY);
   if (!hit) { lastTapKey = null; hideTip(); return; }
   if (e.pointerType === 'touch') {
@@ -541,6 +587,7 @@ renderer.domElement.addEventListener('pointerup', (e) => {
 
 /* ---- sizing ---- */
 function resize() {
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   const w = frame.clientWidth, h = frame.clientHeight;
   renderer.setSize(w, h);
   camera.aspect = w / h;
@@ -552,6 +599,18 @@ resize();
 /* ---- idle life: the stray bobs, the flame breathes, the mote drifts ---- */
 const clock = new THREE.Clock();
 let t = 0;
+
+reduceMotion.addEventListener('change', (e) => {
+  if (!e.matches) return; // switching motion back on just resumes
+  if (strayGroup) {
+    strayGroup.position.z = 0.02;
+    if (strayGroup.userData.baseY !== undefined) strayGroup.position.y = strayGroup.userData.baseY;
+    strayGroup.rotation.y = 0;
+    strayGroup.getWorldPosition(strayLight.position);
+  }
+  for (const m of flameMats) m.emissiveIntensity = 10;
+  if (moteMesh && moteMesh.userData.baseY !== undefined) moteMesh.position.y = moteMesh.userData.baseY;
+});
 
 renderer.setAnimationLoop(() => {
   const dt = Math.min(clock.getDelta(), 0.1);

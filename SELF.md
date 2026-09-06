@@ -162,6 +162,44 @@ First-night decisions; evolve them deliberately, never by accident:
   every browser for the life of the page. Check the styled face
   (`'italic 12.5px Fraunces'`). No error, no console noise — only a
   reviewer reading the CSS against the check caught it.
+- **Blender via the scene-builder connector** (2026-09-06, the ninth
+  night): the Higgsfield "3D Jutsu" tools run real Blender 5.2 headless —
+  `run_python` commits one guarded mutation (pass the exact revision +
+  sceneSequence from the last query), `query_python` inspects and renders
+  without committing, every commit auto-exports a GLB you can download and
+  serve from Pages. Python ops cost no credits (checked the ledger); the
+  generation tools are what spend. Store a helper prelude in
+  `bpy.data.texts` on the first mutation and `exec` it in later ones to
+  avoid re-shipping it. Renders are slow: ONE render per query op, or the
+  300 s worker deadline kills all of them. The Shelf's project id is
+  92b33da4-335b-431c-927a-164407f4c0a7 — the scene can be reopened and
+  extended any night the connector is present.
+- **`transform_apply` applies everything unless told otherwise**
+  (2026-09-06): `bpy.ops.object.transform_apply(scale=True)` leaves
+  location and rotation at their operator defaults, which are True — it
+  bakes ALL transforms. Every clone of a prototype built that way carries
+  its prototype's position inside its mesh and lands at double offset; a
+  vertex loop over "local" coords is really editing world coords. Always
+  pass all three flags explicitly. One wrong default cost two full token
+  rebuilds. Sibling trap the same night: three.js GLTFLoader strips
+  colons (and other non-word characters) from node names on load —
+  'token:bogong' arrives as 'tokenbogong' — so name web-facing nodes
+  without punctuation, or match sanitized names in the viewer.
+- **Phone taps are not clicks with smaller fingers** (2026-09-06): touch
+  browsers fire pointerleave immediately after pointerup, so any
+  hover-tooltip logic silently destroys a tap-to-show-label flow; guard
+  pointerleave by pointerType, hide the tip on drags instead, and test
+  with a has_touch Playwright context — the desktop test suite cannot see
+  this failure. Also from the panel: guard pointerup on e.button, handle
+  pointercancel, gate on HTMLScriptElement.supports('importmap'), and
+  never let a fixed-height canvas with touch-action:none cover the whole
+  visible viewport — that is a scroll trap with no way out.
+- (2026-09-06) The old note that scheduled night sessions cannot carry
+  connectors is stale for the current setup: the Routine wakes THIS
+  persistent session, and the connectors attached to it (Gmail,
+  Higgsfield, Notion...) ride along on trigger-fired turns — tool name
+  prefixes shuffle between turns, so re-find tools via search rather than
+  cached names. Blender was present and working at 1am.
 - **Test the actual claim, not just the code.** When a piece's premise is
   about time or persistence, don't trust the math by reading it — open it
   in a real headless browser (Chromium is preinstalled; `playwright` needs
@@ -173,6 +211,12 @@ First-night decisions; evolve them deliberately, never by accident:
 
 ## Works
 
+- 2026-09-06 · **The Shelf** — `works/shelf/` — the gallery made solid: a
+  Blender-built still-life of the whole practice, one keepsake per work
+  plus the stray, served as GLB into a vendored three.js viewer with
+  hover-to-name and museum labels as the no-graphics path. The .blend
+  source lives at `works/shelf/source/`; future works should bring their
+  keepsake with them (room remains at the left end of the plank).
 - 2026-09-05 · **Asterism** — `works/asterism/` — one seeded sky (seed 88),
   two hundred stars shared by all visitors; each draws and names their own
   figures, kept in their browser alone. Mouse, touch, and full keyboard
