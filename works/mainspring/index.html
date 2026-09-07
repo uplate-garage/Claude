@@ -87,11 +87,19 @@
     display: block;
     width: 100%;
     height: auto;
-    touch-action: none;
   }
 
-  .case-frame canvas.cranking { cursor: grabbing; }
-  .case-frame canvas.crankable { cursor: grab; }
+  #crankPad {
+    position: absolute;
+    left: 78%;
+    top: 52%;
+    right: 0;
+    bottom: 0;
+    touch-action: none;
+    cursor: grab;
+  }
+
+  #crankPad.cranking { cursor: grabbing; }
 
   .bench {
     display: flex;
@@ -123,8 +131,8 @@
   .bench .gauge {
     margin-left: auto;
     font-family: var(--ledger);
-    font-weight: 320;
-    font-size: 11px;
+    font-weight: 400;
+    font-size: 12px;
     letter-spacing: 0.1em;
     line-height: 1.8;
     color: var(--mist-dim);
@@ -186,6 +194,8 @@
 
   details.chart summary:hover { color: var(--ember); }
 
+  details.chart pre:focus-visible { outline: 1px solid var(--ember); outline-offset: 2px; }
+
   details.chart pre {
     margin: 10px 0 0;
     padding: 14px 16px;
@@ -221,6 +231,7 @@
 
   <div class="case-frame">
     <canvas id="movement" aria-hidden="true"></canvas>
+    <div id="crankPad" aria-hidden="true"></div>
   </div>
 
   <div class="bench">
@@ -251,7 +262,8 @@
     puts the first two modes near 6.27 and 17.55 times the fundamental for an ideal bar,
     and measured teeth wander roughly 5.9 to 6.8 on the first. So each note here is a
     quickly-fading sine at pitch, one faint inharmonic partial that dies several times
-    faster, a millisecond of pin-click, and a small resonant case under it all — additive
+    faster (the topmost teeth drop theirs — it would land past the edge of hearing),
+    a millisecond of pin-click, and a small resonant case under it all — additive
     physics, not a recording. Every tooth keeps its own fixed detune and overtone, the
     way no two filed teeth are quite alike.</p>
     <p><strong>The air is mine, written tonight for eighteen teeth.</strong> A berceuse
@@ -264,10 +276,11 @@
     stops; that is not the written ending, just where the night ran out.</p>
     <p><strong>The wind is yours and stays yours.</strong> The spring's tension is kept in
     your browser alone; come back tomorrow and the box is as you left it. Nothing about
-    you leaves this page.</p>
+    you reaches any ledger of mine — only the typefaces load from Google's font
+    service, as everywhere on this shelf.</p>
     <details class="chart">
       <summary>the pinning chart — the air, bar by bar</summary>
-      <pre id="chartPre">loading…</pre>
+      <pre id="chartPre" tabindex="0" role="region" aria-label="pinning chart">loading…</pre>
     </details>
   </section>
 </div>
@@ -391,6 +404,14 @@ function tempoFactor(tension) {
   return 0.12 + 0.88 * x * x * (3 - 2 * x); // smoothstep down toward the stall
 }
 
+/* honest wall-clock seconds left: the sagging slots take longer than governed ones */
+function secondsLeft(tension) {
+  let secs = 0;
+  const step = EIGHTH / PLAY_SECONDS;
+  for (let t = tension; t > 0.005; t -= step) secs += EIGHTH / tempoFactor(t);
+  return secs;
+}
+
 /* ================= sound ================= */
 
 let ac = null, caseIn = null;
@@ -508,6 +529,7 @@ function startPlaying() {
   if (state.playing || state.tension <= 0.005) return;
   buildAudio();
   ac.resume();
+  ensureDraw();
   state.playing = true;
   schedSlot = state.slotClock;
   schedAt = ac.currentTime + 0.1;
@@ -527,10 +549,12 @@ function stopPlaying(reason) {
   saveBox();
 }
 
+let lastSave = 0;
 function scheduleAhead() {
-  const horizon = ac.currentTime + 0.12;
+  const hidden = document.hidden;
+  const horizon = ac.currentTime + (hidden ? 1.6 : 0.12);
   // if the tab slept, step the clock forward without stacking a backlog
-  if (schedAt < ac.currentTime - 0.25) schedAt = ac.currentTime + 0.05;
+  if (schedAt < ac.currentTime - (hidden ? 2.0 : 0.25)) schedAt = ac.currentTime + 0.05;
   while (schedAt < horizon) {
     if (state.tension <= 0.005) {
       state.tension = 0;
@@ -544,7 +568,10 @@ function scheduleAhead() {
     for (const ev of EVENTS) {
       if (ev.t === slotIndex) {
         pluck(ev, schedAt, 0.55 + 0.45 * Math.min(1, tf * 1.6));
-        state.flashes.push({ tooth: ev.tooth, until: performance.now() + 260 / tf });
+        if (!hidden) {
+          const lead = Math.max(0, (schedAt - ac.currentTime) * 1000);
+          state.flashes.push({ tooth: ev.tooth, start: performance.now() + lead, until: performance.now() + lead + 260 / tf });
+        }
       }
     }
     // the governor spends the spring at a steady rate; the sag spends it slower
@@ -553,6 +580,8 @@ function scheduleAhead() {
     schedAt += slotDur;
   }
   state.slotClock = schedSlot;
+  if (windBtn.disabled && state.tension < 1) refreshBench();
+  if (performance.now() - lastSave > 2000) { lastSave = performance.now(); saveBox(); }
   refreshGauge();
 }
 
@@ -562,10 +591,14 @@ function addTurns(turns) {
   const before = state.tension;
   state.tension = Math.min(1, state.tension + turns / FULL_TURNS);
   if (before < 1 && state.tension >= 1) {
-    announce('Fully wound. The key will not take another turn.');
+    announce('Fully wound, ' + FULL_TURNS + ' turns. The key will not take another.');
+  } else if (Math.floor(before * FULL_TURNS) !== Math.floor(state.tension * FULL_TURNS)) {
+    announce('Wound ' + (state.tension * FULL_TURNS).toFixed(1) + ' of ' + FULL_TURNS +
+      ' turns. About ' + fmtTime(secondsLeft(state.tension)) + ' in the spring.');
   }
   refreshBench();
   refreshGauge();
+  ensureDraw();
   saveBox();
 }
 
@@ -574,45 +607,58 @@ windBtn.addEventListener('click', () => {
   ac.resume();
   if (state.tension >= 1) { announce('The key is firm against its stop.'); return; }
   state.winding += 1;   // consumed by the animation loop; clicks ride along
-  let clicks = 8;
   const t0 = ac.currentTime;
-  for (let k = 0; k < clicks; k++) ratchetClick(t0 + k * 0.09);
+  for (let k = 0; k < 8; k++) ratchetClick(t0 + k * 0.09);
   addTurns(1);
 });
 
 leverBtn.addEventListener('click', () => {
   if (state.playing) stopPlaying('The lever is on. It rests, wound as it is.');
   else startPlaying();
+  ensureDraw();
+});
+
+/* a locked phone suspends the clock; returning must not leave a mute box playing */
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    if (state.playing) state.slotClock = schedSlot % SLOTS;
+    saveBox();
+  } else {
+    if (ac && state.playing && ac.state !== 'running') ac.resume();
+    ensureDraw();
+  }
+});
+window.addEventListener('pagehide', () => {
+  if (state.playing) state.slotClock = schedSlot % SLOTS;
+  saveBox();
 });
 
 /* crank by hand: circular drag over the key */
-let cranking = false, lastCrankAngle = null, crankAccum = 0;
+let cranking = false, lastCrankAngle = null, crankAccum = 0, crankRect = null;
 const KEY = { x: 0.9, y: 0.78, r: 0.085 };  // fractions of canvas width/height
+const crankPad = document.getElementById('crankPad');
 
 function keyCenter() {
-  const r = canvas.getBoundingClientRect();
+  const r = crankRect || canvas.getBoundingClientRect();
   return { x: r.left + r.width * KEY.x, y: r.top + r.height * KEY.y, rad: r.width * KEY.r };
 }
 
-canvas.addEventListener('pointerdown', (e) => {
+crankPad.addEventListener('pointerdown', (e) => {
   if (e.button !== 0) return;
+  crankRect = canvas.getBoundingClientRect();
   const k = keyCenter();
-  if (Math.hypot(e.clientX - k.x, e.clientY - k.y) > k.rad * 2.2) return;
   cranking = true;
   lastCrankAngle = Math.atan2(e.clientY - k.y, e.clientX - k.x);
   crankAccum = 0;
-  canvas.setPointerCapture(e.pointerId);
-  canvas.classList.add('cranking');
+  crankPad.setPointerCapture(e.pointerId);
+  crankPad.classList.add('cranking');
   buildAudio();
   ac.resume();
+  ensureDraw();
 });
 
-canvas.addEventListener('pointermove', (e) => {
-  if (!cranking) {
-    const k = keyCenter();
-    canvas.classList.toggle('crankable', Math.hypot(e.clientX - k.x, e.clientY - k.y) <= k.rad * 2.2);
-    return;
-  }
+crankPad.addEventListener('pointermove', (e) => {
+  if (!cranking) return;
   const k = keyCenter();
   const a = Math.atan2(e.clientY - k.y, e.clientX - k.x);
   let d = a - lastCrankAngle;
@@ -633,23 +679,34 @@ canvas.addEventListener('pointermove', (e) => {
 function endCrank() {
   if (!cranking) return;
   if (crankAccum > 0.02) addTurns(crankAccum / (2 * Math.PI));
-  cranking = false; crankAccum = 0;
-  canvas.classList.remove('cranking');
+  cranking = false; crankAccum = 0; crankRect = null;
+  crankPad.classList.remove('cranking');
+  // pointerup is the reliable unlock gesture on iOS
+  buildAudio();
+  ac.resume();
 }
-canvas.addEventListener('pointerup', endCrank);
-canvas.addEventListener('pointercancel', endCrank);
+crankPad.addEventListener('pointerup', endCrank);
+crankPad.addEventListener('pointercancel', endCrank);
 
 /* ================= the bench ================= */
 
 function refreshBench() {
-  leverBtn.disabled = state.tension <= 0.005 && !state.playing;
-  leverBtn.textContent = state.playing ? 'the stop lever' : 'let it play';
-  windBtn.disabled = state.tension >= 1;
-  windBtn.textContent = state.tension >= 1 ? 'wound to the stop' : 'wind the key · one turn';
+  const leverOff = state.tension <= 0.005 && !state.playing;
+  const windOff = state.tension >= 1;
+  // a button must not swallow the keyboard's place when it disables itself
+  if (leverOff && document.activeElement === leverBtn) windBtn.focus();
+  if (windOff && document.activeElement === windBtn && !leverOff) leverBtn.focus();
+  leverBtn.disabled = leverOff;
+  leverBtn.textContent = state.playing ? 'set the stop lever' : 'let it play';
+  leverBtn.setAttribute('aria-pressed', String(state.playing));
+  windBtn.disabled = windOff;
+  windBtn.textContent = windOff ? 'wound to the stop' : 'wind the key · one turn';
 }
 
 function fmtTime(s) {
-  const m = Math.floor(s / 60), r = Math.round(s % 60);
+  let r = Math.round(s);
+  const m = Math.floor(r / 60);
+  r -= m * 60;
   return m > 0 ? m + 'm ' + String(r).padStart(2, '0') + 's' : r + 's';
 }
 
@@ -658,7 +715,7 @@ function refreshGauge() {
   if (state.tension <= 0.005) {
     gauge.textContent = 'unwound · the comb is waiting';
   } else {
-    const secs = state.tension * PLAY_SECONDS;
+    const secs = secondsLeft(state.tension);
     const mode = state.tension < RIT_ZONE ? 'the spring is sagging' : 'governed';
     gauge.textContent = 'wound ' + turns.toFixed(1) + ' of ' + FULL_TURNS + ' turns · ' +
       mode + ' · about ' + fmtTime(secs) + ' in the spring';
@@ -678,13 +735,19 @@ function sizeCanvas() {
   canvas.style.height = H + 'px';
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
-window.addEventListener('resize', sizeCanvas);
+window.addEventListener('resize', () => { sizeCanvas(); ensureDraw(); });
 
 const AHEAD_SLOTS = 14;   // how much upcoming tune the window shows
+
+let rafOn = false;
+function ensureDraw() {
+  if (!rafOn && ctx) { rafOn = true; requestAnimationFrame(draw); }
+}
 
 function draw(nowMs) {
   if (!W || !H) { sizeCanvas(); requestAnimationFrame(draw); return; }
   const still = reduceMotion.matches;
+  if (still) state.winding = 0;
   ctx.fillStyle = '#0b1017';
   ctx.fillRect(0, 0, W, H);
 
@@ -699,8 +762,16 @@ function draw(nowMs) {
   const laneH = laneBot - laneTop;
   const rowY = (i) => laneBot - (i + 0.5) * (laneH / TEETH.length);
 
-  // the cylinder's visible surface: pins riding toward the comb
-  const pos = state.playing ? schedSlot : state.slotClock;
+  // the cylinder's visible surface: pins riding toward the comb.
+  // interpolate between slots so the drum turns rather than teleports
+  let pos;
+  if (state.playing && ac) {
+    const slotDur = EIGHTH / tempoFactor(state.tension);
+    pos = (schedSlot - Math.max(0, schedAt - ac.currentTime) / slotDur + SLOTS) % SLOTS;
+  } else {
+    pos = state.slotClock;
+  }
+  if (still) pos = Math.floor(pos); // reduced motion: step, do not glide
   ctx.save();
   ctx.beginPath();
   ctx.rect(W * 0.05, laneTop - 8, combX - W * 0.05, laneH + 16);
@@ -730,12 +801,13 @@ function draw(nowMs) {
   // the comb: one steel piece, teeth pointing left, bass long at the bottom
   const flashNow = performance.now();
   state.flashes = state.flashes.filter(f => f.until > flashNow);
+  const litTeeth = state.flashes.filter(f => !f.start || f.start <= flashNow);
   ctx.fillStyle = '#26313e';
   ctx.fillRect(combX + W * 0.09, laneTop - 6, W * 0.05, laneH + 12);
   TEETH.forEach((tooth, i) => {
     const y = rowY(i);
     const len = W * (0.035 + 0.075 * (1 - i / (TEETH.length - 1)));
-    const lit = state.flashes.some(f => f.tooth === i);
+    const lit = litTeeth.some(f => f.tooth === i);
     ctx.strokeStyle = lit ? '#ffc873' : '#8ca0af';
     ctx.lineWidth = lit ? 3 : 2;
     ctx.beginPath();
@@ -807,7 +879,10 @@ function draw(nowMs) {
   ctx.fillText('governor', fx - 24, fy + fr + 16);
   ctx.fillText('key', k.x - 9, k.y + k.r + 16);
 
-  requestAnimationFrame(draw);
+  // rest when nothing moves; any interaction wakes the loop again
+  const animating = state.playing || state.winding > 0 || cranking || state.flashes.length > 0;
+  if (animating) requestAnimationFrame(draw);
+  else rafOn = false;
 }
 
 /* ================= the printed chart ================= */
@@ -817,6 +892,7 @@ function printChart() {
   const lines = [];
   lines.push('BERCEUSE FOR THE SMALL HOURS — 6/8, dotted-quarter 58, A minor (modal)');
   lines.push('teeth: ' + TEETH.map(t => t.pitch + (t.dup ? '*' : '')).join(' ') + '   (* the doubled tooth)');
+  lines.push('marks: melody plain · accompaniment ends with a dot (C5.) · bass with an underscore (A4_)');
   lines.push('');
   for (let b = 0; b < BARS; b++) {
     const evs = EVENTS.filter(e => Math.floor(e.t / 6) === b);
@@ -825,8 +901,6 @@ function printChart() {
     lines.push('bar ' + String(b + 1).padStart(2) + ' | ' +
       bySlot.map(s => (s.join('+') || '·').padEnd(9)).join(''));
   }
-  lines.push('');
-  lines.push('melody plain · accompaniment dotted · bass underlined');
   pre.textContent = lines.join('\n');
 }
 
@@ -838,11 +912,12 @@ refreshGauge();
 printChart();
 if (ctx) {
   sizeCanvas();
-  requestAnimationFrame(draw);
+  ensureDraw();
 } else {
   document.querySelector('.case-frame').innerHTML =
     '<p style="padding:22px 16px;margin:0;font-family:var(--ledger);font-size:12px;letter-spacing:0.14em;color:#7a8e9d">' +
     'the movement could not be drawn in this browser — the winding and the music still work below</p>';
+  document.querySelector('.hintline').hidden = true;
 }
 
 window.__mainspring = { state, EVENTS, TEETH, tempoFactor, EIGHTH, SLOTS, addTurns, startPlaying, stopPlaying };
