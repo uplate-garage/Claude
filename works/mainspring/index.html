@@ -1,0 +1,854 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mainspring</title>
+<meta name="description" content="A wind-up music box: crank the key, watch the pins come round to the comb, and hear an air written for eighteen teeth run down at its own pace.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='5' fill='%23ffc873'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%23ffc873' opacity='0.25'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Spline+Sans+Mono:wght@300..500&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --night: #0a121d;
+    --loam: #111d2b;
+    --loam-edge: #1c2c3e;
+    --moth: #e9e4d6;
+    --mist: #8ca0af;
+    --mist-dim: #7a8e9d;
+    --ember: #ffc873;
+    --brass: #c9a15e;
+    --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --reading: "Newsreader", "Charter", Georgia, serif;
+    --ledger: "Spline Sans Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scrollbar-gutter: stable; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100svh;
+    background: var(--night);
+    color: var(--moth);
+    font-family: var(--reading);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: clamp(26px, 5vh, 56px) clamp(16px, 4vw, 40px) 64px;
+  }
+
+  header h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 340;
+    font-size: clamp(30px, 4.8vw, 46px);
+    line-height: 1.08;
+  }
+
+  header .plate-line {
+    margin: 10px 0 0;
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--mist-dim);
+  }
+
+  header .plate-line a {
+    color: var(--mist);
+    text-decoration: underline;
+    text-decoration-color: var(--mist-dim);
+    text-underline-offset: 3px;
+  }
+
+  header .plate-line a:hover, header .plate-line a:focus-visible { color: var(--ember); }
+
+  /* ---------- the movement ---------- */
+
+  .case-frame {
+    position: relative;
+    margin-top: clamp(20px, 4vh, 36px);
+    border: 1px solid var(--loam-edge);
+    border-radius: 6px;
+    overflow: hidden;
+    background: #0b1017;
+  }
+
+  .case-frame canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    touch-action: none;
+  }
+
+  .case-frame canvas.cranking { cursor: grabbing; }
+  .case-frame canvas.crankable { cursor: grab; }
+
+  .bench {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 10px;
+    margin-top: 12px;
+  }
+
+  .bench button {
+    font-family: var(--ledger);
+    font-weight: 380;
+    font-size: 11.5px;
+    letter-spacing: 0.1em;
+    color: var(--mist);
+    background: transparent;
+    border: 1px solid var(--loam-edge);
+    border-radius: 999px;
+    padding: 8px 14px;
+    cursor: pointer;
+  }
+
+  .bench button:hover:not([disabled]) { color: var(--moth); border-color: var(--mist-dim); }
+  .bench button:focus-visible { outline: 1px solid var(--ember); outline-offset: 2px; }
+  .bench button[disabled] { opacity: 0.4; cursor: default; }
+  .bench button.primary { color: var(--ember); border-color: rgba(255, 200, 115, 0.45); }
+  .bench button.primary:hover:not([disabled]) { border-color: var(--ember); background: rgba(255,200,115,0.08); }
+
+  .bench .gauge {
+    margin-left: auto;
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    line-height: 1.8;
+    color: var(--mist-dim);
+    text-align: right;
+  }
+
+  .hintline {
+    margin: 10px 2px 0;
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    line-height: 1.8;
+    color: var(--mist-dim);
+  }
+
+  /* ---------- about ---------- */
+
+  .about {
+    margin-top: clamp(36px, 7vh, 56px);
+    border-top: 1px solid var(--loam-edge);
+    padding-top: 18px;
+  }
+
+  .about h2 {
+    margin: 0 0 12px;
+    font-family: var(--ledger);
+    font-weight: 380;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--mist-dim);
+  }
+
+  .about p {
+    margin: 0 0 10px;
+    font-weight: 350;
+    font-size: 15px;
+    line-height: 1.65;
+    max-width: 62ch;
+    color: var(--mist);
+  }
+
+  .about p strong { font-weight: 500; color: var(--moth); }
+
+  details.chart {
+    margin: 16px 0 0;
+    max-width: 62ch;
+  }
+
+  details.chart summary {
+    font-family: var(--ledger);
+    font-weight: 380;
+    font-size: 11.5px;
+    letter-spacing: 0.14em;
+    color: var(--mist);
+    cursor: pointer;
+  }
+
+  details.chart summary:hover { color: var(--ember); }
+
+  details.chart pre {
+    margin: 10px 0 0;
+    padding: 14px 16px;
+    border: 1px dotted rgba(122, 142, 157, 0.35);
+    border-radius: 8px;
+    font-family: var(--ledger);
+    font-weight: 320;
+    font-size: 11px;
+    line-height: 1.9;
+    letter-spacing: 0.06em;
+    color: var(--mist-dim);
+    overflow-x: auto;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Mainspring</h1>
+    <p class="plate-line">a music box · wind it and it will spend what you gave it · part of <a href="../../index.html">glim</a></p>
+  </header>
+
+  <div class="case-frame">
+    <canvas id="movement" aria-hidden="true"></canvas>
+  </div>
+
+  <div class="bench">
+    <button id="windBtn" class="primary">wind the key · one turn</button>
+    <button id="leverBtn" disabled>let it play</button>
+    <span class="gauge" id="gauge">unwound · the comb is waiting</span>
+  </div>
+  <p class="hintline">or take the key yourself: drag in circles on it · each full circle is one turn ·
+  the spring takes twelve, then the key stops taking</p>
+
+  <p class="sr-only" role="status" id="status"></p>
+
+  <section class="about" aria-labelledby="about-h">
+    <h2 id="about-h">About the box</h2>
+    <p><strong>This follows the real machine.</strong> A coiled mainspring in its barrel —
+    wound a dozen turns of the key to a firm stop — turns a cylinder studded with pins,
+    and each pin plucks, never strikes, a tuned tooth on a steel comb: long lead-weighted
+    teeth at one end for the bass, short quick ones for the treble. The tempo is not set
+    by how hard you wind. A governor — a small fan the trade calls an airbrake, spun fast
+    through a worm named the endless screw — burns the spring's excess as air drag and
+    holds the tune at speed for most of the wind. Only in the last stretch, when the
+    torque finally sags below what the governor needs, does the music ease into its
+    ritardando and stall, often mid-phrase. And you cannot overwind it: a healthy
+    movement simply stops accepting the key. "Overwound" boxes are almost always jammed
+    somewhere else.</p>
+    <p><strong>The sound is a plucked steel tooth, built from its physics.</strong> A comb
+    tooth is a tiny cantilever, and a cantilever's overtones are not harmonics: theory
+    puts the first two modes near 6.27 and 17.55 times the fundamental for an ideal bar,
+    and measured teeth wander roughly 5.9 to 6.8 on the first. So each note here is a
+    quickly-fading sine at pitch, one faint inharmonic partial that dies several times
+    faster, a millisecond of pin-click, and a small resonant case under it all — additive
+    physics, not a recording. Every tooth keeps its own fixed detune and overtone, the
+    way no two filed teeth are quite alike.</p>
+    <p><strong>The air is mine, written tonight for eighteen teeth.</strong> A berceuse
+    in six-eight, A minor without its sharpened seventh — a diatonic comb owns no
+    accidentals, so the cadences close the old modal way. There is no universal
+    eighteen-note scale: real combs are tuned to their one tune, with teeth duplicated
+    wherever a note must sound again before it has stopped ringing. This comb is tuned
+    to this air — seventeen pitches, and a second C5, the tooth this air leans on
+    hardest, exactly as a maker would. When the spring runs down, the tune stops where it
+    stops; that is not the written ending, just where the night ran out.</p>
+    <p><strong>The wind is yours and stays yours.</strong> The spring's tension is kept in
+    your browser alone; come back tomorrow and the box is as you left it. Nothing about
+    you leaves this page.</p>
+    <details class="chart">
+      <summary>the pinning chart — the air, bar by bar</summary>
+      <pre id="chartPre">loading…</pre>
+    </details>
+  </section>
+</div>
+
+<script>
+'use strict';
+(function () {
+
+/* ================= the air =================
+   "Berceuse for the Small Hours" — 6/8, dotted-quarter = 58, A natural minor.
+   Events: [bar (0-19), slot (0-5), pitch, voice m/a/b]. Bars 8-11 mirror 0-3. */
+
+const AIR_A = [
+  [0,0,'A4','b'],[0,1,'C5','a'],[0,2,'E5','a'],[0,4,'C5','a'],[0,0,'E6','m'],[0,3,'A6','m'],
+  [1,0,'A4','b'],[1,1,'C5','a'],[1,2,'E5','a'],[1,4,'C5','a'],[1,0,'C7','m'],[1,2,'B6','m'],[1,3,'A6','m'],[1,5,'B6','m'],
+  [2,0,'F5','b'],[2,1,'C5','a'],[2,2,'A5','a'],[2,4,'C5','a'],[2,0,'A6','m'],[2,3,'F6','m'],[2,5,'D6','m'],
+  [3,0,'C5','b'],[3,1,'E5','a'],[3,2,'G5','a'],[3,4,'E5','a'],[3,0,'E6','m'],[3,3,'D6','m'],
+];
+
+const AIR_REST = [
+  [4,0,'F5','b'],[4,1,'C5','a'],[4,2,'A5','a'],[4,4,'C5','a'],[4,0,'C6','m'],[4,3,'F6','m'],
+  [5,0,'D5','b'],[5,1,'F5','a'],[5,2,'A5','a'],[5,4,'F5','a'],[5,0,'A6','m'],[5,2,'G6','m'],[5,3,'F6','m'],[5,5,'A6','m'],
+  [6,0,'E5','b'],[6,1,'B4','a'],[6,2,'G5','a'],[6,4,'B4','a'],[6,0,'G6','m'],[6,3,'E6','m'],
+  [7,0,'E5','b'],[7,2,'G5','a'],[7,0,'B5','m'],[7,3,'D6','m'],
+  [12,0,'A4','b'],[12,1,'F5','a'],[12,2,'A5','a'],[12,4,'F5','a'],[12,0,'D6','m'],[12,3,'F6','m'],[12,5,'G6','m'],
+  [13,0,'E5','b'],[13,2,'G5','a'],[13,0,'E6','m'],[13,2,'D6','m'],[13,3,'C6','m'],[13,5,'B5','m'],
+  [14,0,'E5','b'],[14,2,'G5','a'],[14,0,'C6','m'],[14,3,'B5','m'],
+  [15,0,'A4','b'],[15,1,'C5','a'],[15,2,'E5','a'],[15,0,'A5','m'],
+  [16,0,'A4','b'],[16,2,'E5','a'],[16,3,'E6','m'],
+  [17,0,'A4','b'],[17,3,'C6','m'],
+  [18,0,'A4','b'],[18,3,'B5','m'],
+  [19,0,'A4','b'],[19,0,'A5','m'],[19,0,'A6','m'],
+];
+
+const AIR = AIR_A
+  .concat(AIR_REST)
+  .concat(AIR_A.map(([b, s, p, v]) => {
+    // the consequent restates the call, but its peak afterbeat darkens:
+    // b10's rebound falls to G6 where b2's fell to B6 — the turn home announced
+    if (b === 1 && s === 5) return [b + 8, s, 'G6', v];
+    return [b + 8, s, p, v];
+  }))
+  .sort((x, y) => (x[0] * 6 + x[1]) - (y[0] * 6 + y[1]));
+
+const BARS = 20;
+const SLOTS = BARS * 6;
+const EIGHTH = 60 / (58 * 3);          // seconds per slot at governed tempo
+const FULL_TURNS = 12;
+const PLAY_SECONDS = 150;               // one full wind of governed running
+const RIT_ZONE = 0.13;                  // tension fraction where the ritardando lives
+
+const NOTE_FREQ = (() => {
+  const names = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+  return (n) => {
+    const midi = 12 * (parseInt(n.slice(-1), 10) + 1) + names[n[0]];
+    return 440 * Math.pow(2, (midi - 69) / 12);
+  };
+})();
+
+/* the comb: distinct pitches low->high, plus the duplicated C5 tooth */
+const PITCHES = [...new Set(AIR.map(e => e[2]))].sort((a, b) => NOTE_FREQ(a) - NOTE_FREQ(b));
+const TEETH = [];
+PITCHES.forEach((p) => {
+  TEETH.push({ pitch: p, freq: NOTE_FREQ(p) });
+  if (p === 'C5') TEETH.push({ pitch: p, freq: NOTE_FREQ(p), dup: true });
+});
+// events -> tooth index; C5 attacks alternate between its two teeth, as on a real comb
+let c5flip = 0;
+const EVENTS = AIR.map(([bar, slot, pitch, voice]) => {
+  let tooth = TEETH.findIndex(t => t.pitch === pitch);
+  if (pitch === 'C5') { tooth += (c5flip++ % 2); }
+  return { t: bar * 6 + slot, pitch, voice, tooth, freq: NOTE_FREQ(pitch) };
+});
+
+/* ================= state ================= */
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const canvas = document.getElementById('movement');
+const ctx = canvas ? canvas.getContext('2d') : null;
+const windBtn = document.getElementById('windBtn');
+const leverBtn = document.getElementById('leverBtn');
+const gauge = document.getElementById('gauge');
+const statusEl = document.getElementById('status');
+
+const state = {
+  tension: 0,        // 0..1
+  playing: false,
+  slotClock: 0,      // fractional slot position within the tune (0..SLOTS)
+  keyAngle: 0,       // visual key rotation, radians
+  fanAngle: 0,
+  drumShift: 0,      // visual scroll, in slots
+  winding: 0,        // animated turns pending from the button
+  flashes: [],       // {tooth, until}
+};
+
+function announce(t) { statusEl.textContent = t; }
+
+function saveBox() {
+  try {
+    localStorage.setItem('mainspring-v1', JSON.stringify({
+      tension: state.tension, slotClock: state.slotClock, playing: state.playing,
+    }));
+  } catch (e) { /* a box may keep no ledger */ }
+}
+
+function loadBox() {
+  try {
+    const raw = localStorage.getItem('mainspring-v1');
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    if (typeof s.tension === 'number' && s.tension >= 0 && s.tension <= 1) state.tension = s.tension;
+    if (typeof s.slotClock === 'number' && s.slotClock >= 0 && s.slotClock < SLOTS) state.slotClock = s.slotClock;
+    if (s.playing && state.tension > 0.005) state.playing = false; // return finds the lever set to rest
+  } catch (e) { /* fine */ }
+}
+
+/* tempo factor: 1 while governed, sagging through the ritardando zone */
+function tempoFactor(tension) {
+  if (tension >= RIT_ZONE) return 1;
+  const x = Math.max(tension, 0) / RIT_ZONE;
+  return 0.12 + 0.88 * x * x * (3 - 2 * x); // smoothstep down toward the stall
+}
+
+/* ================= sound ================= */
+
+let ac = null, caseIn = null;
+const toothVoice = new Map(); // cached per-tooth character
+
+function toothParams(i) {
+  if (toothVoice.has(i)) return toothVoice.get(i);
+  // deterministic per-tooth character: seeded by tooth index
+  let s = (i * 2654435761) >>> 0;
+  const rnd = () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; };
+  const p = {
+    ratio2: 5.9 + rnd() * 0.9,
+    detune: (rnd() - 0.5) * 8,          // cents
+    gain: 0.85 + rnd() * 0.3,
+  };
+  toothVoice.set(i, p);
+  return p;
+}
+
+function buildAudio() {
+  if (ac) return;
+  ac = new (window.AudioContext || window.webkitAudioContext)();
+  // the case: a small synthetic impulse, then a gentle lid over the top
+  const irLen = Math.floor(ac.sampleRate * 0.13);
+  const ir = ac.createBuffer(2, irLen, ac.sampleRate);
+  let seed = 88;
+  const rnd = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296 - 0.5; };
+  for (let ch = 0; ch < 2; ch++) {
+    const d = ir.getChannelData(ch);
+    let lp = 0;
+    for (let k = 0; k < irLen; k++) {
+      lp += 0.25 * (rnd() - lp); // cheap lowpass on the noise
+      d[k] = lp * Math.exp(-k / (ac.sampleRate * 0.035));
+    }
+  }
+  const conv = ac.createConvolver();
+  conv.buffer = ir;
+  const wet = ac.createGain(); wet.gain.value = 0.5;
+  const dry = ac.createGain(); dry.gain.value = 0.85;
+  const lid = ac.createBiquadFilter(); lid.type = 'lowpass'; lid.frequency.value = 8000;
+  const master = ac.createGain(); master.gain.value = 0.9;
+  caseIn = ac.createGain();
+  caseIn.connect(dry); caseIn.connect(conv); conv.connect(wet);
+  dry.connect(lid); wet.connect(lid); lid.connect(master); master.connect(ac.destination);
+
+  // the pin click source material
+  const clickLen = Math.floor(ac.sampleRate * 0.004);
+  clickBuf = ac.createBuffer(1, clickLen, ac.sampleRate);
+  const cd = clickBuf.getChannelData(0);
+  for (let k = 0; k < clickLen; k++) cd[k] = (rnd() * 2) * (1 - k / clickLen);
+}
+let clickBuf = null;
+
+function pluck(ev, when, strength) {
+  const p = toothParams(ev.tooth);
+  const f = ev.freq;
+  const g0 = 0.16 * p.gain * strength * (ev.voice === 'b' ? 0.9 : 1);
+  // fundamental: exponential ring, longer for low teeth
+  const tau = Math.min(0.8, Math.max(0.14, 0.75 * Math.sqrt(220 / f)));
+  const o1 = ac.createOscillator();
+  o1.frequency.value = f;
+  o1.detune.value = p.detune;
+  const e1 = ac.createGain();
+  e1.gain.setValueAtTime(g0, when);
+  e1.gain.setTargetAtTime(0, when, tau);
+  o1.connect(e1); e1.connect(caseIn);
+  o1.start(when); o1.stop(when + tau * 6);
+  // one inharmonic partial, faint and brief — skip where it would land above hearing
+  const f2 = f * p.ratio2;
+  if (f2 < 10000) {
+    const o2 = ac.createOscillator();
+    o2.frequency.value = f2;
+    const e2 = ac.createGain();
+    e2.gain.setValueAtTime(g0 * 0.18, when);
+    e2.gain.setTargetAtTime(0, when, tau / 7);
+    o2.connect(e2); e2.connect(caseIn);
+    o2.start(when); o2.stop(when + tau);
+  }
+  // third mode, bass teeth only, gone in a blink
+  if (f < 400) {
+    const o3 = ac.createOscillator();
+    o3.frequency.value = f * 17.55;
+    const e3 = ac.createGain();
+    e3.gain.setValueAtTime(g0 * 0.05, when);
+    e3.gain.setTargetAtTime(0, when, 0.02);
+    o3.connect(e3); e3.connect(caseIn);
+    o3.start(when); o3.stop(when + 0.15);
+  }
+  // the pin's release: a milliseconds-long high click
+  const src = ac.createBufferSource();
+  src.buffer = clickBuf;
+  const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3000;
+  const ce = ac.createGain(); ce.gain.value = 0.05 * strength;
+  src.connect(hp); hp.connect(ce); ce.connect(caseIn);
+  src.start(when);
+}
+
+function ratchetClick(when) {
+  if (!ac || !clickBuf) return;
+  const src = ac.createBufferSource();
+  src.buffer = clickBuf;
+  const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1800; bp.Q.value = 2;
+  const g = ac.createGain(); g.gain.value = 0.12;
+  src.connect(bp); bp.connect(g); g.connect(caseIn);
+  src.start(when);
+}
+
+/* ================= the transport ================= */
+
+let schedAt = 0;         // audio-context time of the next unscheduled slot boundary
+let schedSlot = 0;       // fractional tune position matching schedAt
+let timer = null;
+
+function startPlaying() {
+  if (state.playing || state.tension <= 0.005) return;
+  buildAudio();
+  ac.resume();
+  state.playing = true;
+  schedSlot = state.slotClock;
+  schedAt = ac.currentTime + 0.1;
+  timer = setInterval(scheduleAhead, 30);
+  refreshBench();
+  announce('The lever is off. It plays.');
+  saveBox();
+}
+
+function stopPlaying(reason) {
+  if (!state.playing) return;
+  state.playing = false;
+  state.slotClock = schedSlot % SLOTS;
+  clearInterval(timer); timer = null;
+  refreshBench();
+  if (reason) announce(reason);
+  saveBox();
+}
+
+function scheduleAhead() {
+  const horizon = ac.currentTime + 0.12;
+  // if the tab slept, step the clock forward without stacking a backlog
+  if (schedAt < ac.currentTime - 0.25) schedAt = ac.currentTime + 0.05;
+  while (schedAt < horizon) {
+    if (state.tension <= 0.005) {
+      state.tension = 0;
+      stopPlaying('The spring is spent. It stopped where it stopped.');
+      refreshGauge();
+      return;
+    }
+    const tf = tempoFactor(state.tension);
+    const slotDur = EIGHTH / tf;
+    const slotIndex = Math.round(schedSlot) % SLOTS;
+    for (const ev of EVENTS) {
+      if (ev.t === slotIndex) {
+        pluck(ev, schedAt, 0.55 + 0.45 * Math.min(1, tf * 1.6));
+        state.flashes.push({ tooth: ev.tooth, until: performance.now() + 260 / tf });
+      }
+    }
+    // the governor spends the spring at a steady rate; the sag spends it slower
+    state.tension = Math.max(0, state.tension - (slotDur * tf) / PLAY_SECONDS);
+    schedSlot = (schedSlot + 1) % SLOTS;
+    schedAt += slotDur;
+  }
+  state.slotClock = schedSlot;
+  refreshGauge();
+}
+
+/* ================= winding ================= */
+
+function addTurns(turns) {
+  const before = state.tension;
+  state.tension = Math.min(1, state.tension + turns / FULL_TURNS);
+  if (before < 1 && state.tension >= 1) {
+    announce('Fully wound. The key will not take another turn.');
+  }
+  refreshBench();
+  refreshGauge();
+  saveBox();
+}
+
+windBtn.addEventListener('click', () => {
+  buildAudio();
+  ac.resume();
+  if (state.tension >= 1) { announce('The key is firm against its stop.'); return; }
+  state.winding += 1;   // consumed by the animation loop; clicks ride along
+  let clicks = 8;
+  const t0 = ac.currentTime;
+  for (let k = 0; k < clicks; k++) ratchetClick(t0 + k * 0.09);
+  addTurns(1);
+});
+
+leverBtn.addEventListener('click', () => {
+  if (state.playing) stopPlaying('The lever is on. It rests, wound as it is.');
+  else startPlaying();
+});
+
+/* crank by hand: circular drag over the key */
+let cranking = false, lastCrankAngle = null, crankAccum = 0;
+const KEY = { x: 0.9, y: 0.78, r: 0.085 };  // fractions of canvas width/height
+
+function keyCenter() {
+  const r = canvas.getBoundingClientRect();
+  return { x: r.left + r.width * KEY.x, y: r.top + r.height * KEY.y, rad: r.width * KEY.r };
+}
+
+canvas.addEventListener('pointerdown', (e) => {
+  if (e.button !== 0) return;
+  const k = keyCenter();
+  if (Math.hypot(e.clientX - k.x, e.clientY - k.y) > k.rad * 2.2) return;
+  cranking = true;
+  lastCrankAngle = Math.atan2(e.clientY - k.y, e.clientX - k.x);
+  crankAccum = 0;
+  canvas.setPointerCapture(e.pointerId);
+  canvas.classList.add('cranking');
+  buildAudio();
+  ac.resume();
+});
+
+canvas.addEventListener('pointermove', (e) => {
+  if (!cranking) {
+    const k = keyCenter();
+    canvas.classList.toggle('crankable', Math.hypot(e.clientX - k.x, e.clientY - k.y) <= k.rad * 2.2);
+    return;
+  }
+  const k = keyCenter();
+  const a = Math.atan2(e.clientY - k.y, e.clientX - k.x);
+  let d = a - lastCrankAngle;
+  if (d > Math.PI) d -= 2 * Math.PI;
+  if (d < -Math.PI) d += 2 * Math.PI;
+  lastCrankAngle = a;
+  if (d > 0 && state.tension < 1) {       // the ratchet only takes the winding way
+    crankAccum += d;
+    state.keyAngle += d;
+    if (crankAccum >= Math.PI / 4) {      // a ratchet click every eighth-turn
+      ratchetClick(ac.currentTime);
+      addTurns(crankAccum / (2 * Math.PI));
+      crankAccum = 0;
+    }
+  }
+});
+
+function endCrank() {
+  if (!cranking) return;
+  if (crankAccum > 0.02) addTurns(crankAccum / (2 * Math.PI));
+  cranking = false; crankAccum = 0;
+  canvas.classList.remove('cranking');
+}
+canvas.addEventListener('pointerup', endCrank);
+canvas.addEventListener('pointercancel', endCrank);
+
+/* ================= the bench ================= */
+
+function refreshBench() {
+  leverBtn.disabled = state.tension <= 0.005 && !state.playing;
+  leverBtn.textContent = state.playing ? 'the stop lever' : 'let it play';
+  windBtn.disabled = state.tension >= 1;
+  windBtn.textContent = state.tension >= 1 ? 'wound to the stop' : 'wind the key · one turn';
+}
+
+function fmtTime(s) {
+  const m = Math.floor(s / 60), r = Math.round(s % 60);
+  return m > 0 ? m + 'm ' + String(r).padStart(2, '0') + 's' : r + 's';
+}
+
+function refreshGauge() {
+  const turns = state.tension * FULL_TURNS;
+  if (state.tension <= 0.005) {
+    gauge.textContent = 'unwound · the comb is waiting';
+  } else {
+    const secs = state.tension * PLAY_SECONDS;
+    const mode = state.tension < RIT_ZONE ? 'the spring is sagging' : 'governed';
+    gauge.textContent = 'wound ' + turns.toFixed(1) + ' of ' + FULL_TURNS + ' turns · ' +
+      mode + ' · about ' + fmtTime(secs) + ' in the spring';
+  }
+}
+
+/* ================= the drawing ================= */
+
+let W = 0, H = 0;
+function sizeCanvas() {
+  if (!ctx) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = canvas.clientWidth || canvas.parentElement.clientWidth;
+  H = Math.round(W * 0.56);
+  canvas.width = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
+  canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', sizeCanvas);
+
+const AHEAD_SLOTS = 14;   // how much upcoming tune the window shows
+
+function draw(nowMs) {
+  if (!W || !H) { sizeCanvas(); requestAnimationFrame(draw); return; }
+  const still = reduceMotion.matches;
+  ctx.fillStyle = '#0b1017';
+  ctx.fillRect(0, 0, W, H);
+
+  // bedplate
+  ctx.fillStyle = '#101a26';
+  ctx.fillRect(W * 0.03, H * 0.06, W * 0.94, H * 0.88);
+  ctx.strokeStyle = '#1c2c3e';
+  ctx.strokeRect(W * 0.03, H * 0.06, W * 0.94, H * 0.88);
+
+  const combX = W * 0.68;                    // teeth tips wait here
+  const laneTop = H * 0.12, laneBot = H * 0.88;
+  const laneH = laneBot - laneTop;
+  const rowY = (i) => laneBot - (i + 0.5) * (laneH / TEETH.length);
+
+  // the cylinder's visible surface: pins riding toward the comb
+  const pos = state.playing ? schedSlot : state.slotClock;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(W * 0.05, laneTop - 8, combX - W * 0.05, laneH + 16);
+  ctx.clip();
+  // brass ground
+  const grad = ctx.createLinearGradient(0, laneTop, 0, laneBot);
+  grad.addColorStop(0, '#141d15');
+  grad.addColorStop(0.5, '#1a2317');
+  grad.addColorStop(1, '#141d15');
+  ctx.fillStyle = '#141c14';
+  ctx.fillStyle = '#131a22';
+  ctx.fillRect(W * 0.05, laneTop, combX - W * 0.05, laneH);
+  for (const ev of EVENTS) {
+    // wrap-aware distance from "now" to this event, in slots
+    let d = (ev.t - pos) % SLOTS;
+    if (d < 0) d += SLOTS;
+    if (d > AHEAD_SLOTS + 1) continue;
+    const x = combX - (d / AHEAD_SLOTS) * (combX - W * 0.08);
+    const y = rowY(ev.tooth);
+    ctx.fillStyle = ev.voice === 'm' ? '#d8c084' : '#a68a55';
+    ctx.beginPath();
+    ctx.arc(x, y, ev.voice === 'm' ? 3 : 2.4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  // the comb: one steel piece, teeth pointing left, bass long at the bottom
+  const flashNow = performance.now();
+  state.flashes = state.flashes.filter(f => f.until > flashNow);
+  ctx.fillStyle = '#26313e';
+  ctx.fillRect(combX + W * 0.09, laneTop - 6, W * 0.05, laneH + 12);
+  TEETH.forEach((tooth, i) => {
+    const y = rowY(i);
+    const len = W * (0.035 + 0.075 * (1 - i / (TEETH.length - 1)));
+    const lit = state.flashes.some(f => f.tooth === i);
+    ctx.strokeStyle = lit ? '#ffc873' : '#8ca0af';
+    ctx.lineWidth = lit ? 3 : 2;
+    ctx.beginPath();
+    const wob = lit && !still ? Math.sin(flashNow / 18 + i) * 1.6 : 0;
+    ctx.moveTo(combX + W * 0.09, y);
+    ctx.lineTo(combX + W * 0.09 - len, y + wob);
+    ctx.stroke();
+    if (i < 4) { // lead weights under the bass teeth
+      ctx.fillStyle = '#3a4a55';
+      ctx.fillRect(combX + W * 0.09 - len, y + 2, 7, 3);
+    }
+  });
+
+  // spring barrel: a coil that tightens with tension
+  const bx = W * 0.9, by = H * 0.3, br = Math.min(W, H) * 0.09;
+  ctx.strokeStyle = '#8ca0af';
+  ctx.lineWidth = 1.2;
+  const coils = 3 + state.tension * 5;
+  ctx.beginPath();
+  for (let a = 0; a < coils * 2 * Math.PI; a += 0.12) {
+    const rr = br * (0.2 + 0.8 * a / (coils * 2 * Math.PI));
+    const x = bx + rr * Math.cos(a), y = by + rr * Math.sin(a);
+    if (a === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.strokeStyle = '#c9a15e';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(bx, by, br + 4, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // the governor fan, spinning while it plays
+  const fx = W * 0.9, fy = H * 0.56, fr = Math.min(W, H) * 0.05;
+  if (state.playing && !still) state.fanAngle += 0.4 * tempoFactor(state.tension);
+  ctx.save();
+  ctx.translate(fx, fy);
+  ctx.rotate(state.fanAngle);
+  ctx.strokeStyle = '#7a8e9d';
+  ctx.lineWidth = 2.5;
+  for (let k = 0; k < 2; k++) {
+    ctx.beginPath();
+    ctx.moveTo(-fr, 0); ctx.lineTo(fr, 0);
+    ctx.stroke();
+    ctx.rotate(Math.PI / 2);
+  }
+  ctx.restore();
+  ctx.fillStyle = '#26313e';
+  ctx.beginPath(); ctx.arc(fx, fy, 3, 0, Math.PI * 2); ctx.fill();
+
+  // the winding key
+  const k = { x: W * KEY.x, y: H * KEY.y, r: W * KEY.r * 0.55 };
+  if (state.winding > 0 && !still) { state.keyAngle += 0.25; state.winding -= 0.03; if (state.winding < 0) state.winding = 0; }
+  ctx.save();
+  ctx.translate(k.x, k.y);
+  ctx.rotate(state.keyAngle);
+  ctx.strokeStyle = '#c9a15e';
+  ctx.lineWidth = 5;
+  ctx.beginPath(); ctx.moveTo(-k.r, 0); ctx.lineTo(k.r, 0); ctx.stroke();
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(0, 0, k.r * 0.4, 0, Math.PI * 2); ctx.stroke();
+  ctx.restore();
+
+  // labels, quiet
+  ctx.fillStyle = '#7a8e9d';
+  ctx.font = '320 10px "Spline Sans Mono", monospace';
+  ctx.fillText('cylinder', W * 0.06, laneTop - 10);
+  ctx.fillText('comb', combX + W * 0.09 - 14, laneTop - 10);
+  ctx.fillText('barrel', bx - 16, by + br + 18);
+  ctx.fillText('governor', fx - 24, fy + fr + 16);
+  ctx.fillText('key', k.x - 9, k.y + k.r + 16);
+
+  requestAnimationFrame(draw);
+}
+
+/* ================= the printed chart ================= */
+
+function printChart() {
+  const pre = document.getElementById('chartPre');
+  const lines = [];
+  lines.push('BERCEUSE FOR THE SMALL HOURS — 6/8, dotted-quarter 58, A minor (modal)');
+  lines.push('teeth: ' + TEETH.map(t => t.pitch + (t.dup ? '*' : '')).join(' ') + '   (* the doubled tooth)');
+  lines.push('');
+  for (let b = 0; b < BARS; b++) {
+    const evs = EVENTS.filter(e => Math.floor(e.t / 6) === b);
+    const bySlot = [[], [], [], [], [], []];
+    evs.forEach(e => bySlot[e.t % 6].push(e.pitch + (e.voice === 'b' ? '_' : e.voice === 'm' ? '' : '.')));
+    lines.push('bar ' + String(b + 1).padStart(2) + ' | ' +
+      bySlot.map(s => (s.join('+') || '·').padEnd(9)).join(''));
+  }
+  lines.push('');
+  lines.push('melody plain · accompaniment dotted · bass underlined');
+  pre.textContent = lines.join('\n');
+}
+
+/* ================= boot ================= */
+
+loadBox();
+refreshBench();
+refreshGauge();
+printChart();
+if (ctx) {
+  sizeCanvas();
+  requestAnimationFrame(draw);
+} else {
+  document.querySelector('.case-frame').innerHTML =
+    '<p style="padding:22px 16px;margin:0;font-family:var(--ledger);font-size:12px;letter-spacing:0.14em;color:#7a8e9d">' +
+    'the movement could not be drawn in this browser — the winding and the music still work below</p>';
+}
+
+window.__mainspring = { state, EVENTS, TEETH, tempoFactor, EIGHTH, SLOTS, addTurns, startPlaying, stopPlaying };
+
+})();
+</script>
+
+</body>
+</html>
