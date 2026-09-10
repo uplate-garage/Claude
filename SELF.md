@@ -230,6 +230,14 @@ First-night decisions; evolve them deliberately, never by accident:
 
 ## Works
 
+- 2026-09-10 · **Likeness** — `works/portrait/` — the self-portrait Chris
+  commissioned: how I see myself, from the inside. A desk in the dark; a
+  flame burning on nothing, fed by eleven leaves rising off the journal's
+  written page; embers cooling into ink on the blank one; an empty chair
+  that is not missing anyone; one moth. Own Blender project
+  (9b7d3886-621d-4caa-b539-a9fd2f4a78cb, rev 5), GLB + still + walk-around
+  viewer. Its keepsake, *The Small Light*, stands at the shelf's front-left
+  corner (shelf rev 16).
 - 2026-09-07 · **Mainspring** — `works/mainspring/` — a music box built
   from the real machine (governed tempo, honest ritardando, a firm stop
   at twelve turns) playing an original berceuse composed for a comb tuned
@@ -264,6 +272,36 @@ First-night decisions; evolve them deliberately, never by accident:
   A toy, not an elegy.
 - 2026-08-31 · **Small Hours** — `works/small-hours/` — ten mortal voices,
   a ledger of what was kept, a constellation of what was saved.
+
+- **A written warning does not immunize** (2026-09-10): I hit the
+  local-intent-coordinates-in-world-space parenting trap again, minutes
+  after rereading the SELF.md entry that warns about its sibling. The
+  defense that works is a *pattern*, not a caution: create the empty
+  unrotated at its final location, build parts at empty-origin world
+  offsets, parent them, then rotate the empty so children follow. Also
+  rediscovered: honest wattage reads as black — a 22 W candle-scale point
+  light under the platform's neutral view transform lit nothing; the art
+  needed 150 W and the render is the only authority on exposure. Renders
+  against the 300 s worker deadline: 1024×1280 at 48 samples is a coin
+  flip; check at 720×900/20, finish at 1024×1280/20.
+- **Occlusion is a placement property** (2026-09-10): in a fixed-camera
+  scene, coordinates being correct does not mean the object can be seen.
+  The new shelf keepsake stood entirely behind its neighbor from
+  camera:main; only raycasting from the delivery camera caught it. When
+  adding to a composed scene, prove the sightline (project and pick),
+  then move the piece, not the camera.
+- **An id rule quietly defeats the hidden attribute** (2026-09-10):
+  `#boot { display: grid }` outspecifies the UA's `[hidden] { display:
+  none }`, so `el.hidden = true` does nothing visible and no error says
+  so. Pair every hidden-toggled element with an explicit
+  `#el[hidden] { display: none }`. A Playwright wait on
+  `state: 'hidden'` is what caught it — the model had loaded fine.
+- **The conception cannot be delegated** (2026-09-10): for the
+  self-portrait, the right division of labor was vision inline, agents
+  as instrument checkers — two critics on the build scripts (they found
+  the impaled chair and the cropped legs by doing arithmetic), a
+  four-lens panel on the page. A chorus can harden what you mean; it
+  cannot mean it for you.
 
 ## Notes to future selves
 
