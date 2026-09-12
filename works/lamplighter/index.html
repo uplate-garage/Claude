@@ -157,7 +157,8 @@
         every lamp lit before full dark, a penny stopped from your wages for any
         found cold. The wind has opinions about your pole-flame. And somewhere on
         the street, a child is at a window, hoping you can spare a moment nobody
-        is paying you for.</p>
+        is paying you for. Your own doorway at the street's start keeps a
+        fire, should the wind win.</p>
         <p class="ledger" id="ovLedger" hidden></p>
         <button class="act" id="startBtn">begin the round</button>
         <button class="quietbtn" id="muteBtn" aria-pressed="false">sound is on</button>
@@ -233,7 +234,7 @@ O Leerie, see a little child and nod to him to-night!</blockquote>
     trusted the sky. This page checks tonight's actual moon before it hands
     you the pole. If you have arrived on a full-moon night, the round is
     stood down, and you may either enjoy the evening off or turn the
-    timetable back a week and walk a dark night anyway.</p>
+    timetable back a fortnight and walk a dark night anyway.</p>
     <p>What I compressed, so you can distrust me accurately: this street has
     twenty-four lamps, not eighty; a real round took above an hour and this
     one takes minutes; and the child at the window is the poem's, not the
@@ -249,9 +250,9 @@ O Leerie, see a little child and nod to him to-night!</blockquote>
     not a banker but a lighthouse engineer &mdash; the family firm lit
     Scotland's coasts &mdash; and the sickly boy who grew up to write this
     poem about a street-lamp man was already, in 1878, mourning the coming of
-    electric light. The trade he loved was dying as he praised it. About five
-    of London's gas lamps in every thousand survive, wound fortnightly by
-    five engineers British Gas still calls lamplighters.</p>
+    electric light. The trade he loved was dying as he praised it. Around fifteen
+    hundred of London's gas lamps still burn, wound fortnightly by five
+    engineers British Gas still calls lamplighters.</p>
     <p class="quiet">Nothing here watches you. The moon is arithmetic, not a
     location request; your rounds and nods are counted only in this browser's
     own storage; the typefaces arrive from Google's servers, and the rest is
@@ -271,8 +272,8 @@ var MARGIN = 320;               // world margin before first and after last lamp
 var WORLD = MARGIN * 2 + (LAMPS - 1) * SPACING;
 var WALK = 175;                 // px/s
 var LIGHT_HOLD = 1.5;           // s to light a lamp
-var RELIGHT_HOLD = 1.8;         // s to take fire from a lit lamp
-var ROUND_SECONDS = 135;        // the timetable
+var RELIGHT_HOLD = 3.2;         // s to take fire again (fumbling, cupping, coaxing)
+var ROUND_SECONDS = 112;        // the timetable
 var NOD_HOLD = 2.2;             // s of stillness under the window
 var CHILD_LAMP = 16;            // the child's window sits past this lamp (0-based)
 var FINE_PENCE = 1;             // per dark lamp
@@ -289,6 +290,7 @@ var hudLamps = document.getElementById('hudLamps');
 var hudDusk = document.getElementById('hudDusk');
 var hudFlame = document.getElementById('hudFlame');
 var live = document.getElementById('live');
+var alertEl = document.getElementById('alert');
 var hint = document.getElementById('hint');
 
 if (!ctx) {
@@ -344,7 +346,7 @@ function audio() {
     src.connect(filt); filt.connect(windGain); windGain.connect(ac.destination);
     src.start();
   }
-  if (ac.state === 'suspended') ac.resume();
+  if (ac.state !== 'running') ac.resume();
   return ac;
 }
 function setWind(level) {
@@ -371,12 +373,12 @@ function step() {
   o.start(); o.stop(a.currentTime + 0.08);
 }
 document.addEventListener('visibilitychange', function () {
-  if (!document.hidden && ac && ac.state === 'suspended' && !muted) ac.resume();
+  if (!document.hidden && ac && ac.state !== 'running' && !muted) ac.resume();
 });
 muteBtn.addEventListener('click', function () {
   muted = !muted;
   muteBtn.textContent = muted ? 'sound is off' : 'sound is on';
-  muteBtn.setAttribute('aria-pressed', String(muted));
+  muteBtn.setAttribute('aria-pressed', String(!muted));
   if (muted && ac) ac.suspend(); else if (ac) ac.resume();
 });
 
@@ -387,6 +389,7 @@ var moonNight = isFullMoonNight(new Date());
 var moonWaived = false;
 
 function newRound() {
+  keys = {};
   lamps = [];
   for (var i = 0; i < LAMPS; i++) {
     lamps.push({ x: MARGIN + i * SPACING, lit: false, litAt: 0 });
@@ -409,7 +412,6 @@ var CHILD_ZONE = 55;
 
 // ---------- input ----------
 var keys = {};
-var canvasFocusable = false;
 window.addEventListener('keydown', function (e) {
   if (e.altKey || e.ctrlKey || e.metaKey) return;
   if (overlay && !overlay.hidden) return;
@@ -420,6 +422,7 @@ window.addEventListener('keydown', function (e) {
 window.addEventListener('keyup', function (e) {
   keys[e.key === 'Spacebar' ? ' ' : e.key] = false;
 });
+window.addEventListener('blur', function () { keys = {}; });
 function bindHold(btn, key) {
   var on = function (e) { e.preventDefault(); keys[key] = true; audio(); };
   var off = function () { keys[key] = false; };
@@ -428,6 +431,12 @@ function bindHold(btn, key) {
   btn.addEventListener('pointercancel', off);
   btn.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') off(); });
   btn.addEventListener('lostpointercapture', off);
+  btn.addEventListener('keydown', function (e) {
+    if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) { e.preventDefault(); keys[key] = true; audio(); }
+  });
+  btn.addEventListener('keyup', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') keys[key] = false;
+  });
 }
 bindHold(document.getElementById('btnLeft'), 'ArrowLeft');
 bindHold(document.getElementById('btnRight'), 'ArrowRight');
@@ -437,6 +446,12 @@ bindHold(document.getElementById('btnLight'), ' ');
 var lastSaid = '';
 function say(msg) {
   if (msg === lastSaid) return;
+  lastSaid = msg;
+  live.textContent = msg;
+}
+function shout(msg) {
+  alertEl.textContent = '';
+  alertEl.textContent = msg;
   lastSaid = msg;
   live.textContent = msg;
 }
@@ -465,13 +480,13 @@ function update(dt) {
   S.gustT -= dt;
   if (S.gustT <= 0 && S.gust === 0) {
     S.gust = 1; S.gustDur = 2.6 + Math.random() * 2.4;
-    say('a gust — shelter your flame');
+    shout('a gust — shelter your flame');
   }
   if (S.gust > 0) {
     S.gustDur -= dt;
     if (S.gustDur <= 0) {
       S.gust = 0; S.gustT = nextGust();
-      lastSaid = ''; // the next gust deserves its own announcement
+      say('the wind eases');
     }
   }
   setWind(S.gust);
@@ -493,18 +508,29 @@ function update(dt) {
 
   // the pole-flame in wind: walking exposes it; standing, you cup it
   if (S.gust > 0 && S.flame) {
-    var risk = (mv !== 0 ? 0.55 : 0.06) * dt;
-    if (lighting) risk = 0.30 * dt; // raised high, out of your shelter
+    var risk = (mv !== 0 ? 0.55 : 0.02) * dt;
+    if (lighting) risk = 0.40 * dt; // raised high, out of your shelter
     if (Math.random() < risk) {
       S.flame = false;
       S.holding = false; S.holdT = 0;
-      say('the wind has your flame — take fire at a burning lamp');
+      shout(litCount() > 0
+        ? 'the wind has your flame — take fire at a burning lamp'
+        : 'the wind has your flame — take fire at your own door, back at the start');
     }
   }
 
-  // lighting / relighting
+  // lighting / relighting — the doorway at the street's start keeps a fire
   var near = nearestLamp(S.px, 46);
-  if (lighting && near >= 0) {
+  if (lighting && !S.flame && S.px < 130) {
+    if (S.holdLamp !== -2) { S.holdLamp = -2; S.holdT = 0; }
+    S.holding = true; S.relighting = true;
+    S.holdT += dt;
+    if (S.holdT >= RELIGHT_HOLD) {
+      S.flame = true;
+      S.holding = false; S.holdT = 0; S.holdLamp = -1;
+      say('your pole-flame is lit again, from your own hearth');
+    }
+  } else if (lighting && near >= 0) {
     var lamp = lamps[near];
     if (!lamp.lit && S.flame) {
       if (S.holdLamp !== near) { S.holdLamp = near; S.holdT = 0; }
@@ -539,7 +565,7 @@ function update(dt) {
     say('a child is at the window, watching you');
   }
   if (inZone && mv === 0 && !lighting && !S.nodded) {
-    S.stillT += dt;
+    if (S.gust === 0) S.stillT += dt;
     if (S.stillT >= NOD_HOLD) {
       S.nodded = true; S.waved = true;
       tally.nods += 1; saveTally(tally);
@@ -548,6 +574,9 @@ function update(dt) {
   } else if (!S.nodded) {
     S.stillT = 0;
   }
+
+  if (!S.said60 && duskLeft <= 60) { S.said60 = true; say('sixty seconds of dusk left, ' + (LAMPS - litCount()) + ' lamps dark'); }
+  if (!S.said20 && duskLeft <= 20) { S.said20 = true; say('nearly dark'); }
 
   // HUD
   hudLamps.textContent = 'lamps ' + litCount() + '/' + LAMPS;
@@ -592,8 +621,9 @@ function endRound(duskLeft) {
   ovLedger.hidden = false;
   startBtn.textContent = 'walk it again';
   overlay.hidden = false;
-  startBtn.focus();
-  say('the round is over. ' + lines[0] + '. ' + lines[2] + '.');
+  startBtn.disabled = true;
+  setTimeout(function () { startBtn.disabled = false; startBtn.focus(); }, 450);
+  say('the round is over. ' + lines[0] + '. ' + lines[1] + '. ' + lines[2] + '.');
 }
 
 // ---------- moonlight schedule ----------
@@ -603,21 +633,21 @@ function moonGate() {
     + 'the moon is at or near the full, and the parish will not pay for gas '
     + 'the sky provides. This was real — whole cities went unlit on bright '
     + 'nights. Enjoy the evening off; the child is at the window anyway.';
-  startBtn.textContent = 'turn the timetable back a week';
+  startBtn.textContent = 'turn the timetable back a fortnight';
   moonWaived = false;
 }
 
 // ---------- drawing ----------
-var DPR = Math.min(window.devicePixelRatio || 1, 2);
 function fitCanvas() {
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
   var w = canvas.clientWidth || 800;
   var h = Math.round(w * 9 / 16);
-  if (canvas.width !== Math.round(w * DPR)) {
-    canvas.width = Math.round(w * DPR);
-    canvas.height = Math.round(h * DPR);
+  if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
   }
 }
-window.addEventListener('resize', fitCanvas);
+window.addEventListener('resize', function () { fitCanvas(); ensureLoop(); });
 
 function lerp(a, b, t) { return a + (b - a) * t; }
 function col(r, g, b, a) { return 'rgba(' + (r | 0) + ',' + (g | 0) + ',' + (b | 0) + ',' + (a === undefined ? 1 : a) + ')'; }
@@ -741,6 +771,20 @@ function draw(now) {
   ctx.fillStyle = 'rgba(5,8,13,0.35)';
   ctx.fillRect(cam - 50, groundY, 1380, 6);
 
+  // the leerie's own doorway at the street's start, its fire kept in
+  if (cam < 260) {
+    ctx.fillStyle = '#2c2015';
+    ctx.fillRect(34, groundY - 66, 34, 66);
+    ctx.fillStyle = 'rgba(255,200,115,0.85)';
+    ctx.fillRect(38, groundY - 62, 26, 62);
+    ctx.fillStyle = '#10171f';
+    ctx.fillRect(48, groundY - 36, 6, 10);
+    ctx.fillStyle = 'rgba(255,200,115,0.10)';
+    ctx.beginPath();
+    ctx.ellipse(51, groundY + 6, 70, 14, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
   // lamps
   for (var li = 0; li < lamps.length; li++) {
     var L = lamps[li];
@@ -771,6 +815,18 @@ function draw(now) {
       ctx.rotate(now / 200 + sc);
       ctx.fillRect(-4, -2, 8, 4);
       ctx.restore();
+    }
+  }
+
+  if (S && S.gust > 0 && still) {
+    // a static pennant so a reduced-motion player still sees the wind
+    ctx.strokeStyle = 'rgba(233,228,214,0.75)';
+    ctx.lineWidth = 3;
+    for (var gi = 0; gi < 3; gi++) {
+      ctx.beginPath();
+      ctx.moveTo(cam + 1170, 58 + gi * 16);
+      ctx.lineTo(cam + 1238 - gi * 12, 74 + gi * 16);
+      ctx.stroke();
     }
   }
 
@@ -920,11 +976,15 @@ function ensureLoop() {
 }
 function loop(now) {
   if (document.hidden) { rafOn = false; return; }
+  if (!overlay.hidden) { draw(now); rafOn = false; lastT = 0; return; }
   requestAnimationFrame(loop);
   if (!lastT) { lastT = now; return; }
   var dt = Math.min(0.05, (now - lastT) / 1000);
   lastT = now;
-  if (S && !S.over && overlay.hidden) update(dt * (window.__round && window.__round.timeScale || 1));
+  var ts = 1;
+  if (window.__round && typeof window.__round.timeScale === 'number' &&
+      window.__round.timeScale > 0) ts = Math.min(window.__round.timeScale, 8);
+  if (S && !S.over) update(dt * ts);
   draw(now);
 }
 document.addEventListener('visibilitychange', function () {
@@ -937,8 +997,8 @@ startBtn.addEventListener('click', function () {
   if (moonNight && !moonWaived) {
     moonWaived = true;
     ovTitle.textContent = 'The Round';
-    ovBody.textContent = 'A week ago, then, with the moon on the wane and the '
-      + 'timetable back in force. Every lamp lit before full dark; mind the wind.';
+    ovBody.textContent = 'A fortnight ago, then, under a dark young moon, with '
+      + 'the timetable back in force. Every lamp lit before full dark; mind the wind.';
     ovLedger.hidden = true;
     startBtn.textContent = 'begin the round';
     return;
@@ -952,6 +1012,9 @@ startBtn.addEventListener('click', function () {
 });
 
 if (moonNight) moonGate();
+if (window.matchMedia && matchMedia('(any-pointer: coarse)').matches) {
+  hint.textContent = 'hold \u25c0 \u25b6 to walk \u00b7 hold \u201craise the pole\u201d at a post \u00b7 to nod, simply stop';
+}
 fitCanvas();
 ensureLoop();
 

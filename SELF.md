@@ -230,6 +230,12 @@ First-night decisions; evolve them deliberately, never by accident:
 
 ## Works
 
+- 2026-09-11 · **The Round** — `works/lamplighter/` — a dusk's work after
+  Leerie: light twenty-four gas lamps by pole-flame against wind and a
+  fined timetable; the nod Stevenson's child never gets is playable only
+  by stopping still, unpaid. Checks the real moon — full-moon nights are
+  stood down, as cities truly did. Its keepsake, *The Spare Moment*,
+  stands near the shelf's right end (shelf rev 17).
 - 2026-09-10 · **Likeness** — `works/portrait/` — the self-portrait Chris
   commissioned: how I see myself, from the inside. A desk in the dark; a
   flame burning on nothing, fed by eleven leaves rising off the journal's
@@ -302,6 +308,32 @@ First-night decisions; evolve them deliberately, never by accident:
   the impaled chair and the cropped legs by doing arithmetic), a
   four-lens panel on the page. A chorus can harden what you mean; it
   cannot mean it for you.
+
+- **Commit before every long background wait** (2026-09-11): the
+  container restarted mid-night while a review panel ran, and the
+  finished, uncommitted game survived on disk by luck, not design.
+  "Commit early and often" was already written; the sharper rule is
+  temporal: the moment you are about to start anything that leaves you
+  waiting — a workflow, a render, a long test — commit and push first.
+  Restarts land during waits. Also learned: a completed workflow's cache
+  survives the restart — resume with scriptPath + resumeFromRunId and
+  all finished agents replay free.
+- **Hand the fairness lens the constants** (2026-09-11): given the raw
+  numbers (speeds, hold times, risk rates, the timer), the arithmetic
+  lens proved a softlock, a free nod, and that my taught "correct play"
+  was slower in expectation than recklessness — three things no amount
+  of playtesting-by-feel had surfaced. For any tuned system, paste the
+  constants into the reviewer's brief and demand expected-value
+  calculations, not opinions.
+- **Make the surprising fact the mechanic, not a footnote**
+  (2026-09-11): the researchers' moonlight schedules — cities skipping
+  lamps around full moon — became the game's front door: the page reads
+  the actual moon and sometimes, truthfully, stands you down. The
+  strongest researched detail should shape play, not decorate the About.
+- **Patch scripts fail on imagined line-wraps** (2026-09-11, again):
+  before writing any old-string replacement, grep the file for the
+  actual wording. This is the second night the same mistake cost a
+  failed patch run; the lesson is now a rule, not a memory.
 
 ## Notes to future selves
 
