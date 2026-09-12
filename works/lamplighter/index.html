@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Round — glim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,300..600&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Spline+Sans+Mono:wght@300..500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #0a121d;
+    --void: #05080d;
+    --moth: #e9e4d6;
+    --mist: #8ca0af;
+    --ember: #ffc873;
+    --sprig: #d8e5a3;
+    --brass: #c9a15e;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--night);
+    color: var(--moth);
+    font-family: 'Newsreader', serif;
+    font-weight: 300;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--mist); text-underline-offset: 3px; }
+  a:hover, a:focus-visible { color: var(--ember); }
+  header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 1.1rem 1.4rem;
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.78rem;
+    color: var(--mist);
+  }
+  header a { text-decoration: none; }
+  main { max-width: 52rem; margin: 0 auto; padding: 0 1.2rem 4rem; }
+  h1 {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 350;
+    font-size: clamp(2.1rem, 6vw, 3rem);
+    margin: 1.6rem 0 0.2rem; color: var(--moth);
+  }
+  .sub {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.8rem;
+    color: var(--mist); margin: 0 0 1.6rem;
+  }
+  #wrap {
+    position: relative;
+    border: 1px solid #1c2836;
+    border-radius: 6px;
+    background: var(--void);
+    overflow: hidden;
+  }
+  #street {
+    width: 100%; height: auto; display: block;
+    aspect-ratio: 16 / 9;
+  }
+  #overlay {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    background: rgba(5, 8, 13, 0.82);
+    padding: 1.2rem;
+    text-align: center;
+  }
+  #overlay[hidden] { display: none; }
+  #overlay .card { max-width: 30rem; }
+  #overlay h2 {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 350;
+    font-size: 1.5rem; margin: 0 0 0.7rem;
+  }
+  #overlay p { margin: 0 0 0.8rem; font-size: 1rem; }
+  #overlay .ledger {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.82rem;
+    color: var(--mist); white-space: pre-line; margin: 0.9rem 0;
+  }
+  #overlay .ledger .warm { color: var(--ember); }
+  button.act {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.85rem;
+    color: var(--night); background: var(--ember);
+    border: 0; border-radius: 4px; padding: 0.55rem 1.1rem;
+    cursor: pointer;
+  }
+  button.act:hover, button.act:focus-visible { background: var(--moth); }
+  button.quietbtn {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.78rem;
+    color: var(--mist); background: none;
+    border: 1px solid #2a3a4d; border-radius: 4px;
+    padding: 0.5rem 0.9rem; cursor: pointer; margin-left: 0.6rem;
+  }
+  button.quietbtn:hover, button.quietbtn:focus-visible { color: var(--ember); border-color: var(--ember); }
+  #hud {
+    display: flex; justify-content: space-between; gap: 1rem;
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.75rem;
+    color: var(--mist); padding: 0.55rem 0.2rem 0;
+    flex-wrap: wrap;
+  }
+  #hud .lit { color: var(--ember); }
+  #controls {
+    display: flex; gap: 0.6rem; margin-top: 0.7rem;
+  }
+  #controls button {
+    flex: 1;
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.9rem;
+    color: var(--moth); background: #101b29;
+    border: 1px solid #2a3a4d; border-radius: 6px;
+    padding: 0.85rem 0; cursor: pointer;
+    touch-action: manipulation; user-select: none; -webkit-user-select: none;
+  }
+  #controls button:active { background: #1a2a3d; }
+  #controls button:focus-visible { outline: 2px solid var(--ember); }
+  @media (hover: hover) and (pointer: fine) { #controls { display: none; } }
+  .hint {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist); opacity: 0.85; text-align: center; padding-top: 0.55rem;
+  }
+  section.poem { margin-top: 3rem; }
+  section.poem h2, .about h2 {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 350;
+    font-size: 1.35rem; margin: 0 0 0.8rem;
+  }
+  .poem blockquote {
+    margin: 0; padding-left: 1rem; border-left: 2px solid #2a3a4d;
+    font-style: italic; white-space: pre-line;
+  }
+  .poem .attr {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist); margin-top: 0.7rem;
+  }
+  .about { margin-top: 3rem; border-top: 1px solid #1c2836; padding-top: 1.6rem; }
+  .about p { margin: 0 0 1rem; font-size: 1.02rem; }
+  .about .quiet { color: var(--mist); font-size: 0.9rem; }
+  footer {
+    max-width: 52rem; margin: 0 auto; padding: 0 1.2rem 2.4rem;
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist); opacity: 0.8;
+  }
+</style>
+</head>
+<body>
+<header>
+  <a href="../../index.html">&larr; glim</a>
+  <span>works / lamplighter</span>
+</header>
+<main>
+  <h1>The Round</h1>
+  <p class="sub">a dusk's work, after Leerie &middot; the twelfth night &middot; 2026-09-11</p>
+
+  <div id="wrap">
+    <canvas id="street" width="1280" height="720"
+      aria-label="A terrace street at dusk, seen from the side. A lamplighter walks the pavement carrying a long pole tipped with a small flame, lighting iron gas lamps one by one as the sky darkens. In one window, a child is watching."></canvas>
+    <div id="overlay">
+      <div class="card">
+        <h2 id="ovTitle">The Round</h2>
+        <p id="ovBody">Half past sunset, and the committee's timetable is strict:
+        every lamp lit before full dark, a penny stopped from your wages for any
+        found cold. The wind has opinions about your pole-flame. And somewhere on
+        the street, a child is at a window, hoping you can spare a moment nobody
+        is paying you for.</p>
+        <p class="ledger" id="ovLedger" hidden></p>
+        <button class="act" id="startBtn">begin the round</button>
+        <button class="quietbtn" id="muteBtn" aria-pressed="false">sound is on</button>
+      </div>
+    </div>
+  </div>
+  <div id="hud">
+    <span id="hudLamps">lamps 0/24</span>
+    <span id="hudDusk">dusk holds</span>
+    <span id="hudFlame">pole-flame lit</span>
+  </div>
+  <div id="controls" aria-label="touch controls">
+    <button id="btnLeft" aria-label="walk left">&#9664;</button>
+    <button id="btnLight" aria-label="raise the pole">raise the pole</button>
+    <button id="btnRight" aria-label="walk right">&#9654;</button>
+  </div>
+  <p class="hint" id="hint">arrows walk &middot; hold space at a post to light it &middot; to nod, simply stop</p>
+  <p class="hint" id="live" role="status" aria-live="polite"></p>
+
+  <noscript>
+    <p>The round needs a running script to walk. The poem below is the whole
+    heart of it, and the notes underneath say what the game does.</p>
+  </noscript>
+
+  <section class="poem" aria-labelledby="poem-h">
+    <h2 id="poem-h">The Lamplighter</h2>
+    <blockquote>My tea is nearly ready and the sun has left the sky;
+It's time to take the window to see Leerie going by;
+For every night at teatime and before you take your seat,
+With lantern and with ladder he comes posting up the street.
+
+Now Tom would be a driver and Maria go to sea,
+And my papa's a banker and as rich as he can be;
+But I, when I am stronger and can choose what I'm to do,
+O Leerie, I'll go round at night and light the lamps with you!
+
+For we are very lucky, with a lamp before the door,
+And Leerie stops to light it as he lights so many more;
+And O! before you hurry by with ladder and with light,
+O Leerie, see a little child and nod to him to-night!</blockquote>
+    <p class="attr">Robert Louis Stevenson, <em>A Child's Garden of Verses</em>,
+    Longmans, Green &amp; Co., 1885. In the poem, the nod never comes.</p>
+  </section>
+
+  <section class="about">
+    <h2>About the round</h2>
+    <p>You are the leerie &mdash; the Scots word for any lamplighter, in print
+    since 1812 and famous since Stevenson borrowed it. The trade here is the
+    gas trade of the 1870s and 80s, and I have tried to keep it honest: on the
+    evening round you never climb and never strike a match. You carry a long
+    pole with a small flame at its tip, reach it up through the vent in the
+    lantern's floor, pull the lever that opens the gas cock, and the escaping
+    gas takes light from your flame &mdash; a naked fishtail flame, because the
+    incandescent mantle wasn't patented until 1885 and streets didn't see it
+    until the nineties. The ladder in Stevenson's poem belongs to the older
+    oil-lamp round and to daytime maintenance; the crossbar you can see on
+    each post here is where such a ladder once rested.</p>
+    <p>The pressure is real too. Lighting time was not the lamplighter's to
+    judge: it came printed on a timetable from the gas committee, pegged to
+    sunset, and early parish contracts stopped money from wages for any lamp
+    found dark. A round ran to fifty or eighty lamps at a walking hurry &mdash;
+    Stevenson, watching one in 1878, wrote of him <em>&ldquo;speeding up the
+    street and, at measured intervals, knocking another luminous hole into the
+    dusk&rdquo;</em>. That line is from his essay <em>A Plea for Gas Lamps</em>;
+    the version you may have heard, about a child watching someone
+    &ldquo;punch holes in the darkness&rdquo;, is a pulpit legend stitched from
+    it. Wind was a documented enemy of the pole-flame &mdash; windproof
+    carbide torches were invented for exactly this &mdash; so here a gust can
+    gutter your light, and you must shelter it or walk back to a burning lamp
+    to take fire again, the way the trade actually did.</p>
+    <p>And the moon: many cities did not light at all on the nights around the
+    full moon, to save gas &mdash; committees printed moonlight schedules and
+    trusted the sky. This page checks tonight's actual moon before it hands
+    you the pole. If you have arrived on a full-moon night, the round is
+    stood down, and you may either enjoy the evening off or turn the
+    timetable back a week and walk a dark night anyway.</p>
+    <p>What I compressed, so you can distrust me accurately: this street has
+    twenty-four lamps, not eighty; a real round took above an hour and this
+    one takes minutes; and the child at the window is the poem's, not the
+    trade's. In Stevenson's verses the child watches every night, plans to
+    grow up and light lamps too, and asks only that Leerie
+    <em>&ldquo;see a little child and nod to him to-night&rdquo;</em> &mdash;
+    and the poem ends without the nod ever arriving. So it is here: the
+    timetable never asks you to stop, no fine is waived for kindness, and the
+    ledger will not pay you for it. To nod, you stop walking under the
+    child's window and spend seconds you may not have. That is the whole
+    mechanic, and I think it is the whole poem.</p>
+    <p class="quiet">One more true thing, for free: Stevenson's own father was
+    not a banker but a lighthouse engineer &mdash; the family firm lit
+    Scotland's coasts &mdash; and the sickly boy who grew up to write this
+    poem about a street-lamp man was already, in 1878, mourning the coming of
+    electric light. The trade he loved was dying as he praised it. About five
+    of London's gas lamps in every thousand survive, wound fortnightly by
+    five engineers British Gas still calls lamplighters.</p>
+    <p class="quiet">Nothing here watches you. The moon is arithmetic, not a
+    location request; your rounds and nods are counted only in this browser's
+    own storage; the typefaces arrive from Google's servers, and the rest is
+    files.</p>
+  </section>
+</main>
+<footer>kept &middot; glim &middot; the twelfth night</footer>
+
+<script>
+(function () {
+'use strict';
+
+// ---------- constants ----------
+var LAMPS = 24;
+var SPACING = 230;              // px between lamps, world space
+var MARGIN = 320;               // world margin before first and after last lamp
+var WORLD = MARGIN * 2 + (LAMPS - 1) * SPACING;
+var WALK = 175;                 // px/s
+var LIGHT_HOLD = 1.5;           // s to light a lamp
+var RELIGHT_HOLD = 1.8;         // s to take fire from a lit lamp
+var ROUND_SECONDS = 135;        // the timetable
+var NOD_HOLD = 2.2;             // s of stillness under the window
+var CHILD_LAMP = 16;            // the child's window sits past this lamp (0-based)
+var FINE_PENCE = 1;             // per dark lamp
+
+var canvas = document.getElementById('street');
+var ctx = canvas ? canvas.getContext('2d') : null;
+var overlay = document.getElementById('overlay');
+var ovTitle = document.getElementById('ovTitle');
+var ovBody = document.getElementById('ovBody');
+var ovLedger = document.getElementById('ovLedger');
+var startBtn = document.getElementById('startBtn');
+var muteBtn = document.getElementById('muteBtn');
+var hudLamps = document.getElementById('hudLamps');
+var hudDusk = document.getElementById('hudDusk');
+var hudFlame = document.getElementById('hudFlame');
+var live = document.getElementById('live');
+var hint = document.getElementById('hint');
+
+if (!ctx) {
+  if (overlay) {
+    ovBody.textContent = 'This browser would not lend me a canvas. The poem below is the heart of the thing anyway.';
+    startBtn.hidden = true;
+  }
+  return;
+}
+
+var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+// ---------- the moon, computed not asked ----------
+function moonPhase(d) {
+  // fraction of the synodic month since the new moon of 2000-01-06 18:14 UTC
+  var syn = 29.530588853;
+  var days = (d.getTime() - Date.UTC(2000, 0, 6, 18, 14)) / 86400000;
+  var ph = (days / syn) % 1;
+  return ph < 0 ? ph + 1 : ph;
+}
+function isFullMoonNight(d) {
+  return Math.abs(moonPhase(d) - 0.5) < 1.5 / 29.530588853;
+}
+
+// ---------- persistent tally ----------
+function loadTally() {
+  try {
+    var t = JSON.parse(localStorage.getItem('lamplighter-v1'));
+    if (t && typeof t.rounds === 'number' && typeof t.nods === 'number') return t;
+  } catch (e) { /* private windows deny politely */ }
+  return { rounds: 0, nods: 0 };
+}
+function saveTally(t) {
+  try { localStorage.setItem('lamplighter-v1', JSON.stringify(t)); } catch (e) {}
+}
+var tally = loadTally();
+
+// ---------- audio: wind, footsteps, the whump of gas taking light ----------
+var AC = window.AudioContext || window.webkitAudioContext;
+var ac = null, windGain = null, muted = false;
+function audio() {
+  if (muted || !AC) return null;
+  if (!ac) {
+    ac = new AC();
+    var buf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+    var d = buf.getChannelData(0);
+    for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    var src = ac.createBufferSource();
+    src.buffer = buf; src.loop = true;
+    var filt = ac.createBiquadFilter();
+    filt.type = 'bandpass'; filt.frequency.value = 300; filt.Q.value = 0.6;
+    windGain = ac.createGain(); windGain.gain.value = 0.012;
+    src.connect(filt); filt.connect(windGain); windGain.connect(ac.destination);
+    src.start();
+  }
+  if (ac.state === 'suspended') ac.resume();
+  return ac;
+}
+function setWind(level) {
+  if (!ac || !windGain) return;
+  windGain.gain.setTargetAtTime(0.012 + level * 0.075, ac.currentTime, 0.35);
+}
+function whump() {
+  var a = audio(); if (!a) return;
+  var o = a.createOscillator(), g = a.createGain();
+  o.type = 'sine'; o.frequency.setValueAtTime(180, a.currentTime);
+  o.frequency.exponentialRampToValueAtTime(52, a.currentTime + 0.22);
+  g.gain.setValueAtTime(0.16, a.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + 0.3);
+  o.connect(g); g.connect(a.destination);
+  o.start(); o.stop(a.currentTime + 0.32);
+}
+function step() {
+  var a = audio(); if (!a) return;
+  var o = a.createOscillator(), g = a.createGain();
+  o.type = 'triangle'; o.frequency.value = 68 + Math.random() * 18;
+  g.gain.setValueAtTime(0.028, a.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + 0.07);
+  o.connect(g); g.connect(a.destination);
+  o.start(); o.stop(a.currentTime + 0.08);
+}
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden && ac && ac.state === 'suspended' && !muted) ac.resume();
+});
+muteBtn.addEventListener('click', function () {
+  muted = !muted;
+  muteBtn.textContent = muted ? 'sound is off' : 'sound is on';
+  muteBtn.setAttribute('aria-pressed', String(muted));
+  if (muted && ac) ac.suspend(); else if (ac) ac.resume();
+});
+
+// ---------- world state ----------
+var lamps = [];   // {x, lit, litAt}
+var S = null;     // round state
+var moonNight = isFullMoonNight(new Date());
+var moonWaived = false;
+
+function newRound() {
+  lamps = [];
+  for (var i = 0; i < LAMPS; i++) {
+    lamps.push({ x: MARGIN + i * SPACING, lit: false, litAt: 0 });
+  }
+  S = {
+    t: 0,                     // seconds since round start
+    px: 60, pv: 0, facing: 1, // player
+    flame: true,              // the pole-flame
+    holding: false, holdT: 0, holdLamp: -1, relighting: false,
+    gust: 0, gustT: nextGust(), gustDur: 0,
+    stillT: 0, nodded: false, childSeen: false, waved: false,
+    over: false, walked: 0, stepT: 0,
+    shake: 0,
+  };
+}
+function nextGust() { return 11 + Math.random() * 13; }
+
+var childX = MARGIN + CHILD_LAMP * SPACING + SPACING * 0.5; // between lamps 17 and 18
+var CHILD_ZONE = 55;
+
+// ---------- input ----------
+var keys = {};
+var canvasFocusable = false;
+window.addEventListener('keydown', function (e) {
+  if (e.altKey || e.ctrlKey || e.metaKey) return;
+  if (overlay && !overlay.hidden) return;
+  if (['ArrowLeft', 'ArrowRight', ' ', 'Spacebar', 'ArrowUp'].indexOf(e.key) >= 0) e.preventDefault();
+  keys[e.key === 'Spacebar' ? ' ' : e.key] = true;
+  audio();
+});
+window.addEventListener('keyup', function (e) {
+  keys[e.key === 'Spacebar' ? ' ' : e.key] = false;
+});
+function bindHold(btn, key) {
+  var on = function (e) { e.preventDefault(); keys[key] = true; audio(); };
+  var off = function () { keys[key] = false; };
+  btn.addEventListener('pointerdown', on);
+  btn.addEventListener('pointerup', off);
+  btn.addEventListener('pointercancel', off);
+  btn.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') off(); });
+  btn.addEventListener('lostpointercapture', off);
+}
+bindHold(document.getElementById('btnLeft'), 'ArrowLeft');
+bindHold(document.getElementById('btnRight'), 'ArrowRight');
+bindHold(document.getElementById('btnLight'), ' ');
+
+// ---------- announcements ----------
+var lastSaid = '';
+function say(msg) {
+  if (msg === lastSaid) return;
+  lastSaid = msg;
+  live.textContent = msg;
+}
+
+// ---------- the round ----------
+function litCount() {
+  var n = 0;
+  for (var i = 0; i < lamps.length; i++) if (lamps[i].lit) n++;
+  return n;
+}
+function nearestLamp(x, maxDist) {
+  var best = -1, bd = 1e9;
+  for (var i = 0; i < lamps.length; i++) {
+    var d = Math.abs(lamps[i].x - x);
+    if (d < bd) { bd = d; best = i; }
+  }
+  return bd <= maxDist ? best : -1;
+}
+
+function update(dt) {
+  if (!S || S.over) return;
+  S.t += dt;
+  var duskLeft = Math.max(0, ROUND_SECONDS - S.t);
+
+  // wind
+  S.gustT -= dt;
+  if (S.gustT <= 0 && S.gust === 0) {
+    S.gust = 1; S.gustDur = 2.6 + Math.random() * 2.4;
+    say('a gust — shelter your flame');
+  }
+  if (S.gust > 0) {
+    S.gustDur -= dt;
+    if (S.gustDur <= 0) {
+      S.gust = 0; S.gustT = nextGust();
+      lastSaid = ''; // the next gust deserves its own announcement
+    }
+  }
+  setWind(S.gust);
+
+  // movement
+  var mv = 0;
+  if (keys.ArrowLeft) mv -= 1;
+  if (keys.ArrowRight) mv += 1;
+  var lighting = keys[' '] || keys.ArrowUp;
+  if (lighting) mv = 0; // both hands on the pole
+  S.pv = mv * WALK;
+  if (mv !== 0) { S.facing = mv; }
+  S.px = Math.max(30, Math.min(WORLD - 30, S.px + S.pv * dt));
+  if (mv !== 0) {
+    S.walked += Math.abs(S.pv * dt);
+    S.stepT -= dt;
+    if (S.stepT <= 0) { step(); S.stepT = 0.34; }
+  }
+
+  // the pole-flame in wind: walking exposes it; standing, you cup it
+  if (S.gust > 0 && S.flame) {
+    var risk = (mv !== 0 ? 0.55 : 0.06) * dt;
+    if (lighting) risk = 0.30 * dt; // raised high, out of your shelter
+    if (Math.random() < risk) {
+      S.flame = false;
+      S.holding = false; S.holdT = 0;
+      say('the wind has your flame — take fire at a burning lamp');
+    }
+  }
+
+  // lighting / relighting
+  var near = nearestLamp(S.px, 46);
+  if (lighting && near >= 0) {
+    var lamp = lamps[near];
+    if (!lamp.lit && S.flame) {
+      if (S.holdLamp !== near) { S.holdLamp = near; S.holdT = 0; }
+      S.holding = true; S.relighting = false;
+      S.holdT += dt;
+      if (S.holdT >= LIGHT_HOLD) {
+        lamp.lit = true; lamp.litAt = S.t;
+        S.holding = false; S.holdT = 0; S.holdLamp = -1;
+        whump();
+        say('lamp ' + litCount() + ' of ' + LAMPS + ' lit');
+      }
+    } else if (lamp.lit && !S.flame) {
+      if (S.holdLamp !== near) { S.holdLamp = near; S.holdT = 0; }
+      S.holding = true; S.relighting = true;
+      S.holdT += dt;
+      if (S.holdT >= RELIGHT_HOLD) {
+        S.flame = true;
+        S.holding = false; S.holdT = 0; S.holdLamp = -1;
+        say('your pole-flame is lit again');
+      }
+    } else {
+      S.holding = false; S.holdT = 0; S.holdLamp = -1;
+    }
+  } else {
+    S.holding = false; S.holdT = 0; S.holdLamp = -1;
+  }
+
+  // the child's window: to nod, simply stop
+  var inZone = Math.abs(S.px - childX) < CHILD_ZONE;
+  if (inZone && !S.childSeen) {
+    S.childSeen = true;
+    say('a child is at the window, watching you');
+  }
+  if (inZone && mv === 0 && !lighting && !S.nodded) {
+    S.stillT += dt;
+    if (S.stillT >= NOD_HOLD) {
+      S.nodded = true; S.waved = true;
+      tally.nods += 1; saveTally(tally);
+      say('you nod. the child waves back.');
+    }
+  } else if (!S.nodded) {
+    S.stillT = 0;
+  }
+
+  // HUD
+  hudLamps.textContent = 'lamps ' + litCount() + '/' + LAMPS;
+  hudLamps.className = litCount() === LAMPS ? 'lit' : '';
+  var dl = Math.ceil(duskLeft);
+  hudDusk.textContent = duskLeft > 60 ? ('dusk holds · ' + dl + 's') :
+                        duskLeft > 0 ? ('dark coming · ' + dl + 's') : 'full dark';
+  hudFlame.textContent = S.flame ? 'pole-flame lit' : 'pole-flame OUT';
+  hudFlame.className = S.flame ? 'lit' : '';
+
+  // end conditions: all lit, or full dark
+  if (litCount() === LAMPS || duskLeft <= 0) {
+    endRound(duskLeft);
+  }
+}
+
+function endRound(duskLeft) {
+  S.over = true;
+  tally.rounds += 1; saveTally(tally);
+  var lit = litCount();
+  var dark = LAMPS - lit;
+  var fine = dark * FINE_PENCE;
+  var lines = [];
+  lines.push(lit + '/' + LAMPS + ' lamps lit' + (duskLeft > 0 ? ' before full dark' : ''));
+  lines.push(dark === 0 ? 'no fines · wages entire'
+    : fine + 'd. stopped from wages — ' + dark + (dark === 1 ? ' lamp' : ' lamps') + ' found dark');
+  lines.push(S.nodded ? 'the child saw you nod, and waved'
+    : (S.childSeen ? 'the child watched you hurry by' : 'the child watched an empty street'));
+  lines.push('rounds walked ' + tally.rounds + ' · nods given ' + tally.nods);
+  ovTitle.textContent = dark === 0 ? (S.nodded ? 'A perfect round, and the nod' : 'A perfect round')
+    : 'The round is done';
+  ovBody.textContent = dark === 0
+    ? (S.nodded
+       ? 'Every lamp burning, and one thing done that no timetable asked of you. The committee will never know which part mattered.'
+       : 'Every lamp burning on schedule. Stevenson’s child is still at the window, in case you ever pass this way with a spare moment.')
+    : 'The dark lamps go against you in the book; that is how the contracts really worked. The flame was never the hard part — the timetable was.';
+  var html = '';
+  for (var i = 0; i < lines.length; i++) {
+    html += (i === 2 && S.nodded ? '<span class="warm">' + lines[i] + '</span>' : lines[i]) + '\n';
+  }
+  ovLedger.innerHTML = html;
+  ovLedger.hidden = false;
+  startBtn.textContent = 'walk it again';
+  overlay.hidden = false;
+  startBtn.focus();
+  say('the round is over. ' + lines[0] + '. ' + lines[2] + '.');
+}
+
+// ---------- moonlight schedule ----------
+function moonGate() {
+  ovTitle.textContent = 'No lighting to-night';
+  ovBody.innerHTML = 'The committee’s moonlight schedule stands you down: '
+    + 'the moon is at or near the full, and the parish will not pay for gas '
+    + 'the sky provides. This was real — whole cities went unlit on bright '
+    + 'nights. Enjoy the evening off; the child is at the window anyway.';
+  startBtn.textContent = 'turn the timetable back a week';
+  moonWaived = false;
+}
+
+// ---------- drawing ----------
+var DPR = Math.min(window.devicePixelRatio || 1, 2);
+function fitCanvas() {
+  var w = canvas.clientWidth || 800;
+  var h = Math.round(w * 9 / 16);
+  if (canvas.width !== Math.round(w * DPR)) {
+    canvas.width = Math.round(w * DPR);
+    canvas.height = Math.round(h * DPR);
+  }
+}
+window.addEventListener('resize', fitCanvas);
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+function col(r, g, b, a) { return 'rgba(' + (r | 0) + ',' + (g | 0) + ',' + (b | 0) + ',' + (a === undefined ? 1 : a) + ')'; }
+
+// terraces: deterministic pseudo-random skyline
+function hash(i) { var x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
+
+function draw(now) {
+  fitCanvas();
+  var W = canvas.width, H = canvas.height;
+  var t = S ? Math.min(1, S.t / ROUND_SECONDS) : (moonNight && !moonWaived ? 0.85 : 0.15);
+  var still = reduceMotion.matches;
+  var moonlit = moonNight && !moonWaived;
+
+  // camera
+  var camW = W;                            // 1 world px = 1 canvas px at DPR
+  var scale = W / 1280;
+  var px = S ? S.px : WORLD * 0.5;
+  var cam = Math.max(0, Math.min(WORLD - 1280, px - 1280 * 0.42));
+
+  // sky: dusk deepening (or flat moonlight)
+  var g = ctx.createLinearGradient(0, 0, 0, H);
+  if (moonlit) {
+    g.addColorStop(0, '#1a2638'); g.addColorStop(0.7, '#141f30'); g.addColorStop(1, '#0e1626');
+  } else {
+    g.addColorStop(0, col(lerp(52, 8, t), lerp(62, 15, t), lerp(88, 28, t)));
+    g.addColorStop(0.55, col(lerp(72, 10, t), lerp(58, 17, t), lerp(70, 30, t)));
+    g.addColorStop(1, col(lerp(38, 5, t), lerp(34, 8, t), lerp(48, 13, t)));
+  }
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+
+  // moon on moonlit nights
+  if (moonlit) {
+    ctx.fillStyle = '#e9e4d6';
+    ctx.beginPath();
+    ctx.arc(W * 0.78, H * 0.2, 34 * scale, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(233,228,214,0.08)';
+    ctx.beginPath(); ctx.arc(W * 0.78, H * 0.2, 60 * scale, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // stars appear as dusk deepens
+  var starA = moonlit ? 0.25 : Math.max(0, t - 0.45) * 1.4;
+  if (starA > 0) {
+    ctx.fillStyle = 'rgba(233,228,214,' + Math.min(0.8, starA) + ')';
+    for (var s = 0; s < 40; s++) {
+      var sx = (hash(s) * 1.7 * 1280 - cam * 0.15) % 1280;
+      if (sx < 0) sx += 1280;
+      var sy = hash(s + 50) * 0.4 * 720;
+      ctx.fillRect(sx * scale, sy * scale, 1.6 * scale, 1.6 * scale);
+    }
+  }
+
+  ctx.save();
+  ctx.scale(scale, scale);
+  ctx.translate(-cam, 0);
+
+  // far terraces
+  var groundY = 620;
+  for (var b = -1; b < WORLD / 180 + 1; b++) {
+    var bx = b * 180;
+    if (bx + 180 < cam - 50 || bx > cam + 1330) continue;
+    var bh = 210 + hash(b) * 150;
+    var shade = moonlit ? 0.55 : lerp(0.28, 0.75, t);
+    ctx.fillStyle = col(lerp(30, 8, shade), lerp(34, 12, shade), lerp(46, 20, shade));
+    ctx.fillRect(bx, groundY - bh, 178, bh);
+    // roofline + chimneys
+    ctx.fillRect(bx + 20 + hash(b + 9) * 90, groundY - bh - 26, 16, 26);
+    // windows: light up as dusk deepens
+    var rows = 3, cols = 3;
+    for (var wy = 0; wy < rows; wy++) {
+      for (var wx = 0; wx < cols; wx++) {
+        var wi = b * 17 + wy * 5 + wx;
+        var lightsAt = 0.25 + hash(wi) * 0.6;
+        var isChild = false;
+        var winX = bx + 22 + wx * 52, winY = groundY - bh + 30 + wy * 62;
+        if (winY > groundY - 40) continue;
+        // the child's window: ground floor, nearest childX
+        if (Math.abs((winX + 14) - childX) < 27 && wy === rows - 1) isChild = true;
+        var on = moonlit ? (hash(wi + 3) < 0.25) : t > lightsAt;
+        if (isChild) {
+          // the child's window is always warm, curtains open
+          ctx.fillStyle = '#ffc873';
+          ctx.fillRect(winX, winY, 28, 40);
+          ctx.fillStyle = '#2c2015';
+          // the child: a small head-and-shoulders silhouette
+          var waveT = (S && S.waved && !still) ? Math.sin(now / 180) * 4 : 0;
+          ctx.beginPath();
+          ctx.arc(winX + 14, winY + 24, 6, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillRect(winX + 7, winY + 29, 14, 11);
+          if (S && S.waved) {
+            ctx.save();
+            ctx.translate(winX + 22, winY + 22);
+            ctx.rotate(-0.6 + waveT * 0.06);
+            ctx.fillRect(0, -9, 3, 10);
+            ctx.restore();
+          }
+        } else if (on) {
+          ctx.fillStyle = 'rgba(255,200,115,' + (moonlit ? 0.35 : 0.5 + 0.3 * t) + ')';
+          ctx.fillRect(winX, winY, 28, 40);
+          ctx.fillStyle = 'rgba(10,18,29,0.55)';
+          ctx.fillRect(winX + 12, winY, 3, 40);
+          ctx.fillRect(winX, winY + 18, 28, 3);
+        } else {
+          ctx.fillStyle = 'rgba(10,18,29,0.5)';
+          ctx.fillRect(winX, winY, 28, 40);
+        }
+      }
+    }
+  }
+
+  // night air between the houses and the street: the background recedes
+  ctx.fillStyle = 'rgba(10,18,29,' + (moonlit ? 0.35 : (0.28 + 0.22 * t)) + ')';
+  ctx.fillRect(cam - 50, 0, 1380, groundY);
+
+  // pavement
+  ctx.fillStyle = moonlit ? '#1a2433' : col(lerp(34, 10, t), lerp(38, 15, t), lerp(46, 24, t));
+  ctx.fillRect(cam - 50, groundY, 1380, 100);
+  ctx.fillStyle = 'rgba(5,8,13,0.35)';
+  ctx.fillRect(cam - 50, groundY, 1380, 6);
+
+  // lamps
+  for (var li = 0; li < lamps.length; li++) {
+    var L = lamps[li];
+    if (L.x < cam - 80 || L.x > cam + 1360) continue;
+    drawLamp(L, now, still, moonlit);
+  }
+
+  // the leerie
+  if (S && !moonlit) drawLeerie(now, still);
+  if (moonlit) {
+    // on the night off, the street is empty; moonlight pools instead
+    ctx.fillStyle = 'rgba(233,228,214,0.05)';
+    for (var mp = 0; mp < lamps.length; mp++) {
+      ctx.beginPath();
+      ctx.ellipse(lamps[mp].x, groundY + 8, 60, 12, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // gust: paper scraps riding the wind
+  if (S && S.gust > 0 && !still) {
+    ctx.fillStyle = 'rgba(233,228,214,0.55)';
+    for (var sc = 0; sc < 7; sc++) {
+      var scx = cam + ((now * (0.45 + hash(sc) * 0.4) + hash(sc + 20) * 1400) % 1400) - 60;
+      var scy = 380 + hash(sc + 7) * 220 + Math.sin(now / 300 + sc) * 30;
+      ctx.save();
+      ctx.translate(scx, scy);
+      ctx.rotate(now / 200 + sc);
+      ctx.fillRect(-4, -2, 8, 4);
+      ctx.restore();
+    }
+  }
+
+  ctx.restore();
+}
+
+function drawLamp(L, now, still, moonlit) {
+  var x = L.x, gy = 620;
+  var iron = '#0c1119';
+  // post
+  ctx.fillStyle = iron;
+  ctx.fillRect(x - 4, gy - 300, 8, 300);
+  ctx.fillRect(x - 10, gy - 8, 20, 8);            // base
+  ctx.fillRect(x - 9, gy - 14, 18, 6);
+  // the ladder crossbar, two-thirds up — where an oil-era ladder rested
+  ctx.fillRect(x - 26, gy - 218, 52, 5);
+  // lantern: case
+  ctx.fillStyle = iron;
+  ctx.beginPath();
+  ctx.moveTo(x - 17, gy - 300);
+  ctx.lineTo(x + 17, gy - 300);
+  ctx.lineTo(x + 13, gy - 345);
+  ctx.lineTo(x - 13, gy - 345);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillRect(x - 15, gy - 350, 30, 6);          // cap
+  ctx.fillRect(x - 3, gy - 358, 6, 8);            // finial
+  // glass: even unlit, it catches what light the sky still has
+  var glass = L.lit ? '#ffc873' : (moonlit ? '#31435c' : '#1c2940');
+  ctx.fillStyle = glass;
+  ctx.fillRect(x - 12, gy - 341, 24, 36);
+  if (!L.lit) {
+    ctx.fillStyle = 'rgba(233,228,214,0.10)';
+    ctx.fillRect(x - 12, gy - 341, 7, 36);
+  }
+  // a thin rim so the ironwork stands off the houses behind it
+  ctx.strokeStyle = 'rgba(233,228,214,0.14)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x - 17.5, gy - 345.5, 35, 46);
+  ctx.beginPath();
+  ctx.moveTo(x + 4.5, gy - 300);
+  ctx.lineTo(x + 4.5, gy - 14);
+  ctx.stroke();
+  if (L.lit) {
+    // fishtail flame: two lobes, flickering
+    var f = still ? 0 : Math.sin(now / 90 + x) * 1.6;
+    ctx.fillStyle = '#fff3d8';
+    ctx.beginPath();
+    ctx.ellipse(x - 3, gy - 322 + f * 0.4, 3.4, 7 + f, -0.22, 0, Math.PI * 2);
+    ctx.ellipse(x + 3, gy - 322 - f * 0.4, 3.4, 7 - f, 0.22, 0, Math.PI * 2);
+    ctx.fill();
+    // pool of light
+    var pg = ctx.createRadialGradient(x, gy - 315, 10, x, gy - 315, 150);
+    pg.addColorStop(0, 'rgba(255,200,115,0.24)');
+    pg.addColorStop(1, 'rgba(255,200,115,0)');
+    ctx.fillStyle = pg;
+    ctx.fillRect(x - 150, gy - 440, 300, 470);
+    ctx.fillStyle = 'rgba(255,200,115,0.10)';
+    ctx.beginPath();
+    ctx.ellipse(x, gy + 6, 120, 20, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawLeerie(now, still) {
+  var x = S.px, gy = 620;
+  var bob = (S.pv !== 0 && !still) ? Math.abs(Math.sin(now / 110)) * 3 : 0;
+  var f = S.facing;
+  ctx.save();
+  ctx.translate(x, gy - bob);
+  ctx.scale(f * 1.22, 1.22);
+  // his own flame lights his shoulder: a faint warm rim so he reads
+  if (S.flame) {
+    ctx.strokeStyle = 'rgba(255,200,115,0.35)';
+    ctx.lineWidth = 1.6;
+    ctx.strokeRect(-9, -62, 18, 44);
+  }
+  // figure: coat, head, cap
+  ctx.fillStyle = '#10171f';
+  ctx.fillRect(-9, -62, 18, 44);                  // coat
+  ctx.beginPath(); ctx.arc(0, -70, 8, 0, Math.PI * 2); ctx.fill();
+  ctx.fillRect(-8, -80, 16, 5);                   // cap
+  ctx.fillRect(-2, -84, 8, 4);                    // cap peak
+  // legs mid-stride
+  var lg = (S.pv !== 0 && !still) ? Math.sin(now / 110) * 6 : 2;
+  ctx.fillRect(-7 + lg * 0.4, -18, 6, 18);
+  ctx.fillRect(2 - lg * 0.4, -18, 6, 18);
+  // the pole: raised while lighting, shouldered while walking
+  var raise = S.holding ? Math.min(1, S.holdT / 0.4) : 0;
+  var ang = lerp(-0.45, -1.35, raise);            // from shouldered to raised
+  ctx.save();
+  ctx.translate(6, -52);
+  ctx.rotate(ang);
+  ctx.fillStyle = '#2c2015';
+  ctx.fillRect(0, -2.6, 118, 4.5);                // shaft
+  ctx.fillStyle = '#c9a15e';
+  ctx.fillRect(112, -3.6, 10, 6.5);               // brass tip
+  if (S.flame) {
+    var ff = still ? 0 : Math.sin(now / 70) * 1.4;
+    ctx.fillStyle = '#ffc873';
+    ctx.beginPath();
+    ctx.ellipse(122, -6 + ff * 0.3, 3.2, 5.4 + ff, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fff3d8';
+    ctx.beginPath();
+    ctx.ellipse(122, -5.4, 1.6, 2.8, 0, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (!still) {
+    // a thread of smoke from the dead wick
+    ctx.strokeStyle = 'rgba(140,160,175,0.4)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(122, -6);
+    ctx.quadraticCurveTo(126 + Math.sin(now / 220) * 3, -18, 122 + Math.sin(now / 150) * 5, -30);
+    ctx.stroke();
+  }
+  ctx.restore();
+  // hold progress: a thin arc over the head
+  if (S.holding) {
+    ctx.strokeStyle = S.relighting ? '#8ca0af' : '#ffc873';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    var frac = S.holdT / (S.relighting ? RELIGHT_HOLD : LIGHT_HOLD);
+    ctx.arc(0, -96, 11, -Math.PI / 2, -Math.PI / 2 + frac * Math.PI * 2);
+    ctx.stroke();
+  }
+  // stillness under the window: the nod gathering
+  if (!S.nodded && S.stillT > 0.25) {
+    ctx.strokeStyle = '#d8e5a3';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, -96, 11, -Math.PI / 2, -Math.PI / 2 + (S.stillT / NOD_HOLD) * Math.PI * 2);
+    ctx.stroke();
+  }
+  if (S.nodded && S.stillT < NOD_HOLD + 1.5) {
+    // the nod itself: cap briefly tipped
+    ctx.fillStyle = '#10171f';
+    ctx.fillRect(-14, -88, 10, 4);
+  }
+  ctx.restore();
+}
+
+// ---------- loop ----------
+var rafOn = false, lastT = 0;
+function ensureLoop() {
+  if (!rafOn) { rafOn = true; lastT = 0; requestAnimationFrame(loop); }
+}
+function loop(now) {
+  if (document.hidden) { rafOn = false; return; }
+  requestAnimationFrame(loop);
+  if (!lastT) { lastT = now; return; }
+  var dt = Math.min(0.05, (now - lastT) / 1000);
+  lastT = now;
+  if (S && !S.over && overlay.hidden) update(dt * (window.__round && window.__round.timeScale || 1));
+  draw(now);
+}
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden) { lastT = 0; ensureLoop(); }
+});
+
+// ---------- boot ----------
+startBtn.addEventListener('click', function () {
+  audio();
+  if (moonNight && !moonWaived) {
+    moonWaived = true;
+    ovTitle.textContent = 'The Round';
+    ovBody.textContent = 'A week ago, then, with the moon on the wane and the '
+      + 'timetable back in force. Every lamp lit before full dark; mind the wind.';
+    ovLedger.hidden = true;
+    startBtn.textContent = 'begin the round';
+    return;
+  }
+  newRound();
+  overlay.hidden = true;
+  ovLedger.hidden = true;
+  say('the round begins. ' + LAMPS + ' lamps before full dark.');
+  canvas.focus && canvas.focus();
+  ensureLoop();
+});
+
+if (moonNight) moonGate();
+fitCanvas();
+ensureLoop();
+
+window.__round = {
+  get state() { return S; },
+  lamps: function () { return lamps; },
+  timeScale: 1,
+  forceMoon: function (v) { moonNight = v; moonWaived = false; if (v) moonGate(); },
+  moonPhase: moonPhase,
+  tally: function () { return tally; },
+};
+})();
+</script>
+</body>
+</html>
