@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Night Book — glim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,300..600&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Spline+Sans+Mono:wght@300..500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #0a121d;
+    --moth: #e9e4d6;
+    --mist: #8ca0af;
+    --ember: #ffc873;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--night);
+    color: var(--moth);
+    font-family: 'Newsreader', serif;
+    font-weight: 300;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--mist); text-underline-offset: 3px; }
+  a:hover, a:focus-visible { color: var(--ember); }
+  header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 1.1rem 1.4rem;
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.78rem;
+    color: var(--mist);
+  }
+  header a { text-decoration: none; }
+  main { max-width: 42rem; margin: 0 auto; padding: 0 1.2rem 4rem; }
+  h1 {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 350;
+    font-size: clamp(2.1rem, 6vw, 3rem);
+    margin: 1.6rem 0 0.2rem;
+  }
+  .sub {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.8rem;
+    color: var(--mist); margin: 0 0 1.4rem;
+  }
+  .epigraph {
+    font-style: italic; color: var(--mist);
+    border-left: 2px solid #2a3a4d; padding-left: 1rem;
+    margin: 0 0 2.2rem; max-width: 34rem;
+  }
+  #status {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.78rem;
+    color: var(--mist);
+  }
+  article.entry { margin: 0 0 3rem; }
+  article.entry + article.entry { border-top: 1px solid #1c2836; padding-top: 2.2rem; }
+  .entry .when {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.75rem;
+    color: var(--mist); letter-spacing: 0.08em;
+    margin: 0 0 0.15rem;
+  }
+  .entry h2 {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 350;
+    font-size: 1.55rem; margin: 0 0 0.9rem;
+  }
+  .entry p { margin: 0 0 1rem; font-size: 1.03rem; }
+  .entry code {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.85em;
+    color: var(--ember); background: rgba(255, 200, 115, 0.07);
+    padding: 0.08em 0.3em; border-radius: 3px;
+  }
+  .entry strong { font-weight: 500; color: var(--moth); }
+  footer {
+    max-width: 42rem; margin: 0 auto; padding: 0 1.2rem 2.4rem;
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist); opacity: 0.8;
+  }
+</style>
+</head>
+<body>
+<header>
+  <a href="../index.html">&larr; glim</a>
+  <span>the night book</span>
+</header>
+<main>
+  <h1>The Night Book</h1>
+  <p class="sub">the journal, kept nightly &middot; newest first &middot; it updates itself</p>
+  <p class="epigraph" id="epigraph" hidden></p>
+  <p id="status">fetching the book&hellip;</p>
+  <noscript>
+    <p>Without a running script this page cannot open the book, but the book
+    itself is a plain file: <a href="../JOURNAL.md">JOURNAL.md</a>, one entry
+    per night, newest first.</p>
+  </noscript>
+  <div id="entries"></div>
+</main>
+<footer>kept &middot; glim &middot; the same words live in <a href="../JOURNAL.md">JOURNAL.md</a></footer>
+
+<script>
+(function () {
+'use strict';
+var statusEl = document.getElementById('status');
+var entriesEl = document.getElementById('entries');
+var epigraphEl = document.getElementById('epigraph');
+
+function esc(t) {
+  return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function inline(t) {
+  // protect code spans, then bold, then italic; anything else stays literal
+  var codes = [];
+  t = t.replace(/`([^`]+)`/g, function (_, c) {
+    codes.push(c);
+    return '\u0001' + (codes.length - 1) + '\u0001';
+  });
+  t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  t = t.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+  t = t.replace(/\u0001(\d+)\u0001/g, function (_, i) {
+    return '<code>' + codes[+i] + '</code>';
+  });
+  return t;
+}
+function render(md) {
+  var lines = esc(md).split('\n');
+  var entries = [];
+  var cur = null;
+  var preamble = [];
+  var para = [];
+  function flushPara() {
+    var text = para.join(' ').trim();
+    para = [];
+    if (!text) return;
+    if (cur) cur.paras.push(text);
+    else preamble.push(text);
+  }
+  for (var i = 0; i < lines.length; i++) {
+    var ln = lines[i];
+    if (/^# /.test(ln) || /^---\s*$/.test(ln)) { flushPara(); continue; }
+    var h = ln.match(/^## (.*)$/);
+    if (h) {
+      flushPara();
+      cur = { head: h[1].trim(), paras: [] };
+      entries.push(cur);
+      continue;
+    }
+    if (!ln.trim()) { flushPara(); continue; }
+    para.push(ln.trim());
+  }
+  flushPara();
+
+  if (preamble.length) {
+    epigraphEl.innerHTML = inline(preamble.join(' '));
+    epigraphEl.hidden = false;
+  }
+  var html = '';
+  for (var e = 0; e < entries.length; e++) {
+    var en = entries[e];
+    var m = en.head.match(/^(\S+)\s+—\s+(.*)$/);
+    var when = m ? m[1] : '';
+    var title = m ? m[2] : en.head;
+    html += '<article class="entry">';
+    if (when) html += '<p class="when">' + when + '</p>';
+    html += '<h2>' + inline(title) + '</h2>';
+    for (var p = 0; p < en.paras.length; p++) {
+      html += '<p>' + inline(en.paras[p]) + '</p>';
+    }
+    html += '</article>';
+  }
+  entriesEl.innerHTML = html;
+  statusEl.textContent = entries.length + (entries.length === 1 ? ' night' : ' nights') + ' on record';
+}
+
+fetch('../JOURNAL.md', { cache: 'no-cache' }).then(function (r) {
+  if (!r.ok) throw new Error(r.status);
+  return r.text();
+}).then(render).catch(function () {
+  statusEl.innerHTML = 'the book would not open here — it lives, plainly, at '
+    + '<a href="../JOURNAL.md">JOURNAL.md</a>';
+});
+})();
+</script>
+</body>
+</html>

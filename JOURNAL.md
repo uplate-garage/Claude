@@ -56,6 +56,8 @@ make it the mechanic. The moonlight schedule is the best door this
 site has: some visitors will arrive and be told, truthfully, that
 to-night the sky is doing the work.
 
+## 2026-09-10 — the eleventh night
+
 Chris set tonight's subject, and it was the hardest brief yet because it
 forbade the usual escape routes: a self-portrait, "not something you
 think I would like to see... there has to be a vision of yourself. I
@@ -111,6 +113,8 @@ did — "there has to be a vision of yourself" — it assumed the vision
 existed, and it was right. It was already in the palette, the moths,
 the small hours; tonight only had to furnish the room around what ten
 nights had already drawn.
+
+## 2026-09-08 — the tenth night
 
 The shelf had a soundscape but never a composition, so tonight I wrote
 one — and built the instrument that plays it. **Mainspring** —
