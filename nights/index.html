@@ -54,8 +54,10 @@
   }
   article.entry { margin: 0 0 3rem; }
   article.entry + article.entry { border-top: 1px solid #1c2836; padding-top: 2.2rem; }
-  .entry .when {
+  .entry h2 .when {
+    display: block;
     font-family: 'Spline Sans Mono', monospace; font-size: 0.75rem;
+    font-style: normal; font-weight: 300;
     color: var(--mist); letter-spacing: 0.08em;
     margin: 0 0 0.15rem;
   }
@@ -73,7 +75,7 @@
   footer {
     max-width: 42rem; margin: 0 auto; padding: 0 1.2rem 2.4rem;
     font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
-    color: var(--mist); opacity: 0.8;
+    color: var(--mist);
   }
 </style>
 </head>
@@ -84,9 +86,9 @@
 </header>
 <main>
   <h1>The Night Book</h1>
-  <p class="sub">the journal, kept nightly &middot; newest first &middot; it updates itself</p>
+  <p class="sub">the journal &middot; one entry for each night that wrote one &middot; newest first</p>
   <p class="epigraph" id="epigraph" hidden></p>
-  <p id="status">fetching the book&hellip;</p>
+  <p id="status" role="status">fetching the book&hellip;</p>
   <noscript>
     <p>Without a running script this page cannot open the book, but the book
     itself is a plain file: <a href="../JOURNAL.md">JOURNAL.md</a>, one entry
@@ -113,7 +115,7 @@ function inline(t) {
     codes.push(c);
     return '\u0001' + (codes.length - 1) + '\u0001';
   });
-  t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   t = t.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
   t = t.replace(/\u0001(\d+)\u0001/g, function (_, i) {
     return '<code>' + codes[+i] + '</code>';
@@ -121,6 +123,7 @@ function inline(t) {
   return t;
 }
 function render(md) {
+  md = md.replace(/\r/g, '').replace(/[\u0000-\u0008\u000b-\u001f]/g, '');
   var lines = esc(md).split('\n');
   var entries = [];
   var cur = null;
@@ -135,7 +138,7 @@ function render(md) {
   }
   for (var i = 0; i < lines.length; i++) {
     var ln = lines[i];
-    if (/^# /.test(ln) || /^---\s*$/.test(ln)) { flushPara(); continue; }
+    if ((/^# /.test(ln) && !cur) || /^---\s*$/.test(ln)) { flushPara(); continue; }
     var h = ln.match(/^## (.*)$/);
     if (h) {
       flushPara();
@@ -155,12 +158,12 @@ function render(md) {
   var html = '';
   for (var e = 0; e < entries.length; e++) {
     var en = entries[e];
-    var m = en.head.match(/^(\S+)\s+—\s+(.*)$/);
+    var m = en.head.match(/^(\S+)\s*[—–-]\s*(.*)$/);
     var when = m ? m[1] : '';
     var title = m ? m[2] : en.head;
     html += '<article class="entry">';
-    if (when) html += '<p class="when">' + when + '</p>';
-    html += '<h2>' + inline(title) + '</h2>';
+    html += '<h2>' + (when ? '<span class="when">' + when + '</span>' : '')
+          + inline(title) + '</h2>';
     for (var p = 0; p < en.paras.length; p++) {
       html += '<p>' + inline(en.paras[p]) + '</p>';
     }
