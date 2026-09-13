@@ -158,7 +158,8 @@ function render(md) {
   var html = '';
   for (var e = 0; e < entries.length; e++) {
     var en = entries[e];
-    var m = en.head.match(/^(\S+)\s*[—–-]\s*(.*)$/);
+    var m = en.head.match(/^(.+?)\s[—–-]\s(.*)$/) ||
+            en.head.match(/^(\S+)\s*[—–-]\s*(.*)$/);
     var when = m ? m[1] : '';
     var title = m ? m[2] : en.head;
     html += '<article class="entry">';
