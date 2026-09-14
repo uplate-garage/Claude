@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Weather Glass — glim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,300..600&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Spline+Sans+Mono:wght@300..500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #0a121d;
+    --void: #05080d;
+    --moth: #e9e4d6;
+    --mist: #8ca0af;
+    --ember: #ffc873;
+    --brass: #c9a15e;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--night);
+    color: var(--moth);
+    font-family: 'Newsreader', serif;
+    font-weight: 300;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--mist); text-underline-offset: 3px; }
+  a:hover, a:focus-visible { color: var(--ember); }
+  header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 1.1rem 1.4rem;
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.78rem;
+    color: var(--mist);
+  }
+  header a { text-decoration: none; }
+  main { max-width: 46rem; margin: 0 auto; padding: 0 1.2rem 4rem; }
+  h1 {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 350;
+    font-size: clamp(2.1rem, 6vw, 3rem);
+    margin: 1.6rem 0 0.2rem;
+  }
+  .sub {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.8rem;
+    color: var(--mist); margin: 0 0 1.6rem;
+  }
+  #wrap {
+    position: relative;
+    border: 1px solid #1c2836;
+    border-radius: 6px;
+    background: var(--void);
+    overflow: hidden;
+  }
+  #glass { width: 100%; height: auto; display: block; aspect-ratio: 4 / 3; }
+  .hint {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist); opacity: 0.9; text-align: center; padding-top: 0.55rem;
+  }
+  #reading {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;
+    margin-top: 1.6rem;
+  }
+  @media (max-width: 560px) { #reading { grid-template-columns: 1fr; } }
+  .card {
+    border: 1px solid #1c2836; border-radius: 6px; padding: 1rem 1.1rem;
+  }
+  .card h2 {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--mist); margin: 0 0 0.6rem;
+  }
+  .card .big {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 350;
+    font-size: 1.25rem; margin: 0 0 0.4rem;
+  }
+  .card p { margin: 0; font-size: 0.95rem; color: var(--mist); }
+  .card .warm { color: var(--ember); }
+  table.folklore {
+    width: 100%; border-collapse: collapse; margin-top: 1.6rem;
+    font-size: 0.92rem;
+  }
+  table.folklore caption {
+    text-align: left;
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--mist); padding-bottom: 0.6rem;
+  }
+  table.folklore td {
+    border-top: 1px dotted rgba(140, 160, 175, 0.3);
+    padding: 0.45rem 0.6rem 0.45rem 0;
+    vertical-align: top;
+  }
+  table.folklore td:first-child { font-style: italic; white-space: nowrap; }
+  table.folklore tr.today td { color: var(--ember); }
+  .tablenote {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist); margin-top: 0.5rem;
+  }
+  .about { margin-top: 3rem; border-top: 1px solid #1c2836; padding-top: 1.6rem; }
+  .about h2 {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 350;
+    font-size: 1.35rem; margin: 0 0 0.8rem;
+  }
+  .about p { margin: 0 0 1rem; font-size: 1.02rem; }
+  .about .quiet { color: var(--mist); font-size: 0.9rem; }
+  blockquote {
+    margin: 0 0 1rem; padding-left: 1rem;
+    border-left: 2px solid #2a3a4d; font-style: italic; color: var(--mist);
+  }
+  footer {
+    max-width: 46rem; margin: 0 auto; padding: 0 1.2rem 2.4rem;
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist);
+  }
+</style>
+</head>
+<body>
+<header>
+  <a href="../../index.html">&larr; glim</a>
+  <span>works / weather-glass</span>
+</header>
+<main>
+  <h1>The Weather Glass</h1>
+  <p class="sub">a storm glass, kept against all evidence &middot; the fifteenth night &middot; 2026-09-14</p>
+
+  <div id="wrap">
+    <canvas id="glass" tabindex="0" role="img"
+      aria-label="A sealed glass vial on a dark shelf beside a small thermometer. Inside the vial, feathery camphor crystals grow from the bottom like fern leaves, with fine snow settling through the liquid. Press and hold on the vial to warm it with your hand: the crystals near your touch slowly dissolve, and regrow differently after you let go."></canvas>
+  </div>
+  <p class="hint" id="hint">press and hold on the vial &mdash; your hand is the only weather it has ever felt</p>
+  <p class="hint" id="live" role="status" aria-live="polite"></p>
+
+  <div id="reading">
+    <div class="card">
+      <h2>the glass says</h2>
+      <p class="big" id="folkSay">&hellip;</p>
+      <p id="folkWhy">by the table below, as it was later attributed</p>
+    </div>
+    <div class="card">
+      <h2>the honest instrument says</h2>
+      <p class="big" id="thermSay">&hellip;</p>
+      <p>which is all the glass has ever known &mdash; <span class="warm">&ldquo;a crude
+      kind of thermoscope&rdquo;</span> (Tomlinson, 1863)</p>
+    </div>
+  </div>
+
+  <table class="folklore" id="folkTable">
+    <caption>the reading table, as later attributed</caption>
+    <tbody>
+      <tr data-form="clear"><td>clear liquid</td><td>bright and fine</td></tr>
+      <tr data-form="cloudy"><td>cloudy liquid</td><td>cloud, perhaps rain</td></tr>
+      <tr data-form="dots"><td>small dots</td><td>humid, or fog</td></tr>
+      <tr data-form="stars"><td>cloudy with small stars</td><td>thunderstorms</td></tr>
+      <tr data-form="flakes"><td>large flakes</td><td>overcast; in winter, snow</td></tr>
+      <tr data-form="frost"><td>crystals at the bottom</td><td>frost coming</td></tr>
+      <tr data-form="threads"><td>threads near the top</td><td>wind</td></tr>
+    </tbody>
+  </table>
+  <p class="tablenote">this table travels with every storm glass sold to-day; nobody has
+  traced it to FitzRoy's hand, and his own claim was stranger &mdash; see below.</p>
+
+  <noscript><p>The glass needs a running script to grow its crystals. The notes
+  below hold its whole honest story.</p></noscript>
+
+  <section class="about">
+    <h2>About the glass</h2>
+    <p>A storm glass is a sealed vial of camphor, two salts, alcohol and
+    water, mixed so the camphor sits close to the edge of staying dissolved.
+    Cool it and crystals come out of solution &mdash; feathery bottom growth
+    like fern leaves, a fine snow that forms in the liquid and settles, now
+    and then a floating star. Warm it and they melt away, more slowly than
+    they grew. For a century and a half, printed tables have promised that
+    these forms foretell the weather.</p>
+    <p>They do not. The glass was refuted in the very year of its greatest
+    fame: while Vice-Admiral Robert FitzRoy's <em>Weather Book</em> (1863)
+    was defending it, Charles Tomlinson published a systematic examination in
+    the <em>Philosophical Magazine</em> concluding the storm glass
+    <em>&ldquo;acts as a crude kind of thermoscope, inferior, for most of the
+    purposes of observation, to the thermometer&rdquo;</em>. Modern
+    crystallography closed the loop: the amount of crystal follows the
+    temperature down the camphor solubility curve (Williams 2025), the
+    pattern's character is set by how fast the cooling comes (Tanaka,
+    Hagano, Kuno &amp; Nagashima 2008), crystals grow quickly on cooling and
+    dissolve at their leisure on warming (Mitsuya, Takahashi &amp; Nagashima
+    2014) &mdash; and no sealed vial can feel the barometer at all. When it
+    seems to work, it is because a fast cold snap often rides in with a
+    front. A coin does nearly as well.</p>
+    <p>FitzRoy did not invent it &mdash; storm glasses were made a century
+    before him, inventor unknown &mdash; and his own claim for it was not
+    pressure but something stranger: that the mixture <em>&ldquo;varies in
+    character with the direction of the wind &mdash; not its force&rdquo;</em>,
+    growing <em>&ldquo;like fir, yew, fern leaves, or hoar frost&rdquo;</em>
+    as the wind veers polar, by way of <em>&ldquo;electrical
+    tension&rdquo;</em>. He had his glasses made by Negretti &amp; Zambra and
+    lent his name, willingly and then commercially, to a device that only
+    ever read the room.</p>
+    <p>Hold that against what the same man truly built. Captain of the
+    <em>Beagle</em> at twenty-three on her second survey voyage, the one who
+    chose Darwin for a companion. Head, from 1854, of the little office that
+    became the Met Office. After the Royal Charter Storm of October 1859
+    drowned some eight hundred people in a night, he built the thing that
+    actually saved lives: barometers at the coasts, simultaneous readings by
+    telegraph, cones hoisted on mastheads &mdash; the first storm warning went
+    out on 6 February 1861, and on 1 August 1861 <em>The Times</em> carried
+    the world's first published daily weather forecast, his. He did not coin
+    the word; he chose it &mdash; <em>forecast</em>, an old English word, set
+    deliberately against <em>prophecy</em>: <em>&ldquo;the result of
+    scientific combination and calculation&rdquo;</em>. The forecasts drew
+    mockery in Parliament and the press. He spent his fortune on the work.
+    On 30 April 1865 he took his own life; his old shipmates raised a fund
+    for his widow, and Darwin gave a hundred pounds. The year after, a
+    committee found the forecasts wanting and stopped them; the year after
+    that, the sailors and the public demanded them back. They have run ever
+    since.</p>
+    <p>So this page keeps a storm glass the way you keep a thing that is
+    wrong and loved. The vial above lives in a simulated room: its
+    temperature drifts with the season and the hour of your clock, cooler in
+    the small hours, and the crystals follow that temperature honestly &mdash;
+    mass from the solubility curve, character from the cooling rate, growth
+    quick and melting slow, exactly as the studies describe. The fern's
+    geometry is seeded fresh each day; the same glass never grows the same
+    fern twice, and every visitor in the same hour sees the same glass.
+    Press your hand to it and the crystals near your touch let go &mdash;
+    slowly, reluctantly &mdash; and regrow along new paths after you leave.
+    Warmth is the one message it has ever received. The folklore card above
+    reads today's form by the traditional table, and the thermometer beside
+    the vial tells you what is actually being said.</p>
+    <p class="quiet">What I compressed, so you can distrust me accurately:
+    the room's weather is synthetic (a page on a shelf has no thermometer of
+    its own, and asking your device for its location or weather would be a
+    different kind of instrument); the mapping from regimes to the folklore
+    table's rows is artistic within the forms the 2008 experiments actually
+    photographed; and a real glass answers over hours to days &mdash; mine
+    answers over minutes, because a vigil should be possible in one sitting.
+    Real storm glasses are still sold as desk curios, and are best left
+    sealed: the camphor inside is poisonous and the alcohol burns.</p>
+    <p class="quiet">Nothing here watches you. The season is arithmetic from
+    your clock, not a location request; the typefaces arrive from Google's
+    servers, and the rest is files.</p>
+  </section>
+</main>
+<footer>kept &middot; glim &middot; the fifteenth night</footer>
+
+<script>
+(function () {
+'use strict';
+var canvas = document.getElementById('glass');
+var ctx = canvas ? canvas.getContext('2d') : null;
+var live = document.getElementById('live');
+if (!ctx) return;
+
+var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+// ---------- seeded randomness: the day's glass is everyone's glass ----------
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    var t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+var now = new Date();
+var daySeed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+
+// ---------- the simulated room ----------
+function dayOfYear(d) {
+  return Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
+}
+function dailyOffset(seed) {
+  return (mulberry32(seed * 7 + 3)() - 0.5) * 6; // ±3°, the day's own weather
+}
+function roomTempAt(d) {
+  var doy = dayOfYear(d);
+  var seasonal = 14 - 8 * Math.cos(2 * Math.PI * (doy - 195) / 365); // southern winter in July
+  var seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+  var hour = d.getHours() + d.getMinutes() / 60;
+  var diurnal = -3 * Math.cos(2 * Math.PI * (hour - 15) / 24); // warmest 3pm, coldest 3am
+  return seasonal + dailyOffset(seed) + diurnal;
+}
+var roomT = roomTempAt(now);
+var yesterday = new Date(now.getTime() - 86400000);
+var coolRate = roomTempAt(yesterday) - roomT; // positive = cooling day on day
+var T_SAT = 17, T_RANGE = 13;
+function massAt(t) { return Math.max(0, Math.min(1, (T_SAT - t) / T_RANGE)); }
+var mass = massAt(roomT);
+
+// regime: how the day's cooling character shapes the pattern
+var fastCooling = coolRate > 1.6;
+var warming = coolRate < -1.2;
+var regime =
+  mass < 0.10 ? 'clear' :
+  warming ? (mass < 0.4 ? 'cloudy' : 'flakes') :
+  fastCooling ? (mass > 0.45 ? 'stars' : 'dots') :
+  mass > 0.62 ? 'frost' :
+  mass > 0.3 ? 'ferns' : 'dots';
+// 'threads' is rare: a sharp cool after a warm noon
+var hrs = now.getHours();
+if (!warming && fastCooling && hrs >= 20 && mass > 0.25 && mass < 0.5) regime = 'threads';
+
+// ---------- geometry ----------
+var W = 1200, H = 900;
+var VIAL = { x: 640, w: 200, top: 130, bot: 790 };   // the vial
+var THERM = { x: 320, top: 220, bot: 770 };          // the honest instrument
+var liquidTop = VIAL.top + 90;
+
+// ---------- the day's dendrites (never the same fern twice) ----------
+var rnd = mulberry32(daySeed);
+var branches = [];   // {x1,y1,x2,y2,depth,region}
+function grow(x, y, ang, len, depth, region) {
+  if (depth > 6 || len < 6) return;
+  var x2 = x + Math.cos(ang) * len;
+  var y2 = y - Math.sin(ang) * len;
+  var half = VIAL.w / 2 - 14;
+  if (x2 < VIAL.x - half) x2 = VIAL.x - half;
+  if (x2 > VIAL.x + half) x2 = VIAL.x + half;
+  if (y2 < liquidTop + 14) y2 = liquidTop + 14;
+  branches.push({ x1: x, y1: y, x2: x2, y2: y2, depth: depth, region: region });
+  var kids = depth < 2 ? 3 : (rnd() < 0.72 ? 2 : 1);
+  for (var k = 0; k < kids; k++) {
+    var spread = 0.55 + rnd() * 0.5;
+    var na = ang + (k - (kids - 1) / 2) * spread + (rnd() - 0.5) * 0.35;
+    grow(x2, y2, na, len * (0.62 + rnd() * 0.16), depth + 1, region);
+  }
+}
+function seedDendrites() {
+  branches = [];
+  var fernMass = regime === 'ferns' || regime === 'frost' ? mass :
+                 regime === 'threads' ? mass * 0.5 : mass * 0.7;
+  var roots = Math.round(3 + fernMass * 6);
+  for (var i = 0; i < roots; i++) {
+    var rx = VIAL.x + (rnd() - 0.5) * (VIAL.w - 60);
+    var baseLen = 26 + fernMass * 66 * (0.7 + rnd() * 0.6);
+    grow(rx, VIAL.bot - 12, Math.PI / 2 + (rnd() - 0.5) * 0.7, baseLen, 0, i);
+  }
+}
+seedDendrites();
+
+// snowfall: tiny crystals that nucleate in the bulk and settle
+var SNOW_N = Math.round(mass * (fastCooling ? 130 : 60));
+var snow = [];
+var rs = mulberry32(daySeed ^ 0x5eed);
+for (var s = 0; s < SNOW_N; s++) {
+  snow.push({
+    x: VIAL.x + (rs() - 0.5) * (VIAL.w - 44),
+    y: liquidTop + rs() * (VIAL.bot - liquidTop - 30),
+    r: 0.8 + rs() * 1.8,
+    v: 2.2 + rs() * 5,
+    drift: rs() * Math.PI * 2,
+  });
+}
+// floating stars, on star days
+var stars = [];
+if (regime === 'stars') {
+  for (var st = 0; st < 5; st++) {
+    stars.push({
+      x: VIAL.x + (rs() - 0.5) * (VIAL.w - 70),
+      y: liquidTop + 60 + rs() * (VIAL.bot - liquidTop - 160),
+      r: 5 + rs() * 6, a: rs() * Math.PI,
+    });
+  }
+}
+// surface threads, on thread evenings
+var threads = [];
+if (regime === 'threads') {
+  for (var th = 0; th < 6; th++) {
+    threads.push({
+      x: VIAL.x + (rs() - 0.5) * (VIAL.w - 60),
+      len: 26 + rs() * 46, sway: rs() * Math.PI * 2,
+    });
+  }
+}
+
+// ---------- the hand: warmth, melt, and regrowth along new paths ----------
+// each branch has meltState 0 (whole) .. 1 (gone); regrow re-seeds its region
+var melt = new Float32Array(branches.length);
+var touching = false, touchX = 0, touchY = 0;
+var WARM_R = 120;
+var regrowQueue = [];  // regions waiting to re-seed on full melt
+var reseedCount = 0;
+function pointerPos(e) {
+  var r = canvas.getBoundingClientRect();
+  return {
+    x: (e.clientX - r.left) / r.width * W,
+    y: (e.clientY - r.top) / r.height * H,
+  };
+}
+canvas.addEventListener('pointerdown', function (e) {
+  if (e.button !== 0 && e.pointerType === 'mouse') return;
+  var p = pointerPos(e);
+  touching = true; touchX = p.x; touchY = p.y;
+  canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
+  say('your warmth reaches the glass');
+  ensureDraw();
+});
+canvas.addEventListener('pointermove', function (e) {
+  if (!touching) return;
+  var p = pointerPos(e);
+  touchX = p.x; touchY = p.y;
+});
+function endTouch() {
+  if (!touching) return;
+  touching = false;
+  say('the glass is left to itself; the crystals will find new ways back');
+  ensureDraw();
+}
+canvas.addEventListener('pointerup', endTouch);
+canvas.addEventListener('pointercancel', endTouch);
+window.addEventListener('blur', endTouch);
+// keyboard: hold Space to lay a palm flat on the vial's middle
+canvas.addEventListener('keydown', function (e) {
+  if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) {
+    e.preventDefault();
+    touching = true; touchX = VIAL.x; touchY = (liquidTop + VIAL.bot) / 2;
+    say('your warmth reaches the glass');
+    ensureDraw();
+  }
+});
+canvas.addEventListener('keyup', function (e) {
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); endTouch(); }
+});
+
+var lastSaid = '';
+function say(msg) {
+  if (msg === lastSaid) return;
+  lastSaid = msg;
+  live.textContent = msg;
+}
+
+// ---------- readings ----------
+var FOLK = {
+  clear: 'bright and fine',
+  cloudy: 'cloud, perhaps rain',
+  dots: 'humid, or fog',
+  stars: 'thunderstorms',
+  flakes: 'overcast; in winter, snow',
+  frost: 'frost coming',
+  ferns: 'frost coming',
+  threads: 'wind',
+};
+var FORMROW = { ferns: 'frost', frost: 'frost', clear: 'clear', cloudy: 'cloudy',
+                dots: 'dots', stars: 'stars', flakes: 'flakes', threads: 'threads' };
+document.getElementById('folkSay').textContent = FOLK[regime];
+var trend = warming ? 'and rising' : fastCooling ? 'and falling fast' : coolRate > 0.3 ? 'and falling slowly' : 'and steady';
+document.getElementById('thermSay').textContent = roomT.toFixed(1) + '°, ' + trend;
+var row = document.querySelector('tr[data-form="' + FORMROW[regime] + '"]');
+if (row) row.classList.add('today');
+
+// ---------- drawing ----------
+function fitCanvas() {
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var w = canvas.clientWidth || 800;
+  var h = Math.round(w * 3 / 4);
+  if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+  }
+}
+function vialPath(inset) {
+  var half = VIAL.w / 2 - inset;
+  var r = half * 0.96;
+  ctx.beginPath();
+  ctx.moveTo(VIAL.x - half, VIAL.top + inset + 40);
+  ctx.lineTo(VIAL.x - half, VIAL.bot - r * 0.3);
+  ctx.quadraticCurveTo(VIAL.x - half, VIAL.bot + 8 - inset, VIAL.x - half + r * 0.5, VIAL.bot + 8 - inset);
+  ctx.lineTo(VIAL.x + half - r * 0.5, VIAL.bot + 8 - inset);
+  ctx.quadraticCurveTo(VIAL.x + half, VIAL.bot + 8 - inset, VIAL.x + half, VIAL.bot - r * 0.3);
+  ctx.lineTo(VIAL.x + half, VIAL.top + inset + 40);
+  ctx.closePath();
+}
+function draw(nowMs) {
+  fitCanvas();
+  var cw = canvas.width, chh = canvas.height;
+  var scale = cw / W;
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  var still = reduceMotion.matches;
+  var t = nowMs / 1000;
+
+  // ground shadow + shelf
+  ctx.fillStyle = '#0d1520';
+  ctx.fillRect(0, VIAL.bot + 26, W, H - VIAL.bot);
+  ctx.fillStyle = 'rgba(5,8,13,0.6)';
+  ctx.fillRect(0, VIAL.bot + 26, W, 8);
+
+  // ---- the honest instrument: a brass-backed thermometer ----
+  ctx.fillStyle = '#141c28';
+  ctx.fillRect(THERM.x - 34, THERM.top - 40, 68, THERM.bot - THERM.top + 90);
+  ctx.strokeStyle = 'rgba(201,161,94,0.5)';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(THERM.x - 34, THERM.top - 40, 68, THERM.bot - THERM.top + 90);
+  // scale marks: -5..30
+  ctx.strokeStyle = 'rgba(233,228,214,0.4)';
+  ctx.lineWidth = 1;
+  ctx.fillStyle = 'rgba(233,228,214,0.55)';
+  ctx.font = '16px "Spline Sans Mono", monospace';
+  ctx.textAlign = 'right';
+  for (var deg = -5; deg <= 30; deg += 5) {
+    var yy = THERM.bot - (deg + 5) / 35 * (THERM.bot - THERM.top);
+    ctx.beginPath();
+    ctx.moveTo(THERM.x + 6, yy); ctx.lineTo(THERM.x + 18, yy);
+    ctx.stroke();
+    ctx.fillText(String(deg), THERM.x - 2, yy + 5);
+  }
+  // tube + mercury
+  ctx.fillStyle = 'rgba(233,228,214,0.12)';
+  ctx.fillRect(THERM.x + 20, THERM.top - 6, 8, THERM.bot - THERM.top + 12);
+  var mercY = THERM.bot - (roomT + 5) / 35 * (THERM.bot - THERM.top);
+  ctx.fillStyle = '#c9a15e';
+  ctx.fillRect(THERM.x + 20, mercY, 8, THERM.bot - mercY + 6);
+  ctx.beginPath();
+  ctx.arc(THERM.x + 24, THERM.bot + 14, 12, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(140,160,175,0.8)';
+  ctx.fillText('the honest', THERM.x, THERM.bot + 62);
+  ctx.fillText('instrument', THERM.x, THERM.bot + 82);
+
+  // ---- the vial ----
+  // neck + seal
+  ctx.fillStyle = 'rgba(233,228,214,0.10)';
+  ctx.fillRect(VIAL.x - 34, VIAL.top - 26, 68, 70);
+  ctx.fillStyle = '#2c2015';
+  ctx.fillRect(VIAL.x - 40, VIAL.top - 40, 80, 22); // wax seal
+  // glass body
+  vialPath(0);
+  ctx.fillStyle = 'rgba(233,228,214,0.05)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(233,228,214,0.35)';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  // liquid
+  ctx.save();
+  vialPath(6);
+  ctx.clip();
+  var lg = ctx.createLinearGradient(0, liquidTop, 0, VIAL.bot);
+  var murk = regime === 'cloudy' || regime === 'flakes' ? 0.16 : regime === 'dots' ? 0.10 : 0.05;
+  lg.addColorStop(0, 'rgba(140,160,175,' + murk + ')');
+  lg.addColorStop(1, 'rgba(140,160,175,' + (murk + 0.07) + ')');
+  ctx.fillStyle = lg;
+  ctx.fillRect(VIAL.x - VIAL.w / 2, liquidTop, VIAL.w, VIAL.bot - liquidTop + 10);
+  // meniscus
+  ctx.strokeStyle = 'rgba(233,228,214,0.5)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(VIAL.x - VIAL.w / 2 + 8, liquidTop);
+  ctx.quadraticCurveTo(VIAL.x, liquidTop + 6, VIAL.x + VIAL.w / 2 - 8, liquidTop);
+  ctx.stroke();
+
+  // warm halo of the hand
+  if (touching) {
+    var hg = ctx.createRadialGradient(touchX, touchY, 8, touchX, touchY, WARM_R);
+    hg.addColorStop(0, 'rgba(255,200,115,0.16)');
+    hg.addColorStop(1, 'rgba(255,200,115,0)');
+    ctx.fillStyle = hg;
+    ctx.fillRect(touchX - WARM_R, touchY - WARM_R, WARM_R * 2, WARM_R * 2);
+  }
+
+  // snowfall
+  ctx.fillStyle = 'rgba(233,228,214,0.8)';
+  for (var i = 0; i < snow.length; i++) {
+    var sn = snow[i];
+    var sy = sn.y;
+    if (!still) {
+      sy = liquidTop + ((sn.y - liquidTop + t * sn.v) % (VIAL.bot - liquidTop - 16));
+    }
+    var sx = sn.x + (still ? 0 : Math.sin(t * 0.4 + sn.drift) * 4);
+    ctx.fillRect(sx, sy, sn.r, sn.r);
+  }
+  // settled snow bed
+  var bed = 4 + mass * 16;
+  ctx.fillStyle = 'rgba(233,228,214,0.55)';
+  ctx.beginPath();
+  ctx.moveTo(VIAL.x - VIAL.w / 2 + 10, VIAL.bot + 4);
+  ctx.quadraticCurveTo(VIAL.x, VIAL.bot - bed, VIAL.x + VIAL.w / 2 - 10, VIAL.bot + 4);
+  ctx.closePath();
+  ctx.fill();
+
+  // dendrites
+  for (var b = 0; b < branches.length; b++) {
+    var br = branches[b], m = melt[b];
+    if (m >= 1) continue;
+    var alpha = (0.85 - br.depth * 0.09) * (1 - m);
+    ctx.strokeStyle = 'rgba(233,228,214,' + alpha.toFixed(3) + ')';
+    ctx.lineWidth = Math.max(0.8, 4.5 - br.depth) * (1 - m * 0.6);
+    ctx.beginPath();
+    ctx.moveTo(br.x1, br.y1);
+    // melting shortens the branch from its tip
+    ctx.lineTo(br.x1 + (br.x2 - br.x1) * (1 - m), br.y1 + (br.y2 - br.y1) * (1 - m));
+    ctx.stroke();
+  }
+
+  // stars
+  for (var q = 0; q < stars.length; q++) {
+    var star = stars[q];
+    ctx.save();
+    ctx.translate(star.x, star.y + (still ? 0 : Math.sin(t * 0.3 + q) * 3));
+    ctx.rotate(star.a);
+    ctx.strokeStyle = 'rgba(233,228,214,0.75)';
+    ctx.lineWidth = 1.4;
+    for (var arm = 0; arm < 6; arm++) {
+      ctx.rotate(Math.PI / 3);
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(star.r, 0); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  // threads at the surface
+  for (var h2 = 0; h2 < threads.length; h2++) {
+    var thr = threads[h2];
+    ctx.strokeStyle = 'rgba(233,228,214,0.6)';
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    ctx.moveTo(thr.x, liquidTop + 4);
+    var sway = still ? 0 : Math.sin(t * 0.5 + thr.sway) * 5;
+    ctx.quadraticCurveTo(thr.x + sway, liquidTop + thr.len * 0.6, thr.x + sway * 1.5, liquidTop + thr.len);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // glass highlight over everything inside
+  ctx.strokeStyle = 'rgba(233,228,214,0.18)';
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(VIAL.x - VIAL.w / 2 + 16, VIAL.top + 60);
+  ctx.lineTo(VIAL.x - VIAL.w / 2 + 16, VIAL.bot - 60);
+  ctx.stroke();
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+}
+
+// ---------- melt / regrow simulation ----------
+function step(dt) {
+  var busy = false;
+  for (var b = 0; b < branches.length; b++) {
+    var br = branches[b];
+    if (touching) {
+      var mx = (br.x1 + br.x2) / 2, my = (br.y1 + br.y2) / 2;
+      var d = Math.hypot(mx - touchX, my - touchY);
+      if (d < WARM_R) {
+        // dissolution is reluctant: ~4s to let go under a steady hand
+        melt[b] = Math.min(1, melt[b] + dt * 0.28 * (1 - d / WARM_R + 0.2));
+        busy = true;
+        if (melt[b] >= 1 && regrowQueue.indexOf(br.region) < 0) regrowQueue.push(br.region);
+      }
+    } else if (melt[b] > 0) {
+      // regrowth is slower still, and finds new paths: fully-melted regions
+      // are re-seeded once, then anneal back
+      melt[b] = Math.max(0, melt[b] - dt * 0.045);
+      busy = true;
+    }
+  }
+  if (!touching && regrowQueue.length) {
+    // re-seed each fully-melted region's geometry exactly once
+    var region = regrowQueue.pop();
+    var newRnd = mulberry32((daySeed ^ (reseedCount + 1) * 0x9e37) + region * 131);
+    var kept = [];
+    var keptMelt = [];
+    for (var i = 0; i < branches.length; i++) {
+      if (branches[i].region !== region || melt[i] < 1) {
+        kept.push(branches[i]); keptMelt.push(melt[i]);
+      }
+    }
+    branches = kept;
+    var saveRnd = rnd;
+    rnd = newRnd;
+    var rx = VIAL.x + (newRnd() - 0.5) * (VIAL.w - 60);
+    var fernMass = mass * 0.85;
+    grow(rx, VIAL.bot - 12, Math.PI / 2 + (newRnd() - 0.5) * 0.7,
+         26 + fernMass * 60 * (0.7 + newRnd() * 0.6), 0, region);
+    rnd = saveRnd;
+    var nm = new Float32Array(branches.length);
+    for (var j = 0; j < keptMelt.length; j++) nm[j] = keptMelt[j];
+    for (var k = keptMelt.length; k < branches.length; k++) nm[k] = 1; // grow in from nothing
+    melt = nm;
+    reseedCount++;
+    busy = true;
+  }
+  return busy;
+}
+
+// ---------- loop: draws while something moves, else rests ----------
+var rafOn = false, lastT = 0;
+function ensureDraw() {
+  if (!rafOn) { rafOn = true; lastT = 0; requestAnimationFrame(loop); }
+}
+function loop(nowMs) {
+  if (document.hidden) { rafOn = false; return; }
+  if (!lastT) { lastT = nowMs; requestAnimationFrame(loop); return; }
+  var dt = Math.min(0.05, (nowMs - lastT) / 1000);
+  lastT = nowMs;
+  var busy = step(dt);
+  draw(nowMs);
+  var ambient = !reduceMotion.matches && (snow.length > 0 || stars.length > 0 || threads.length > 0);
+  if (busy || ambient || touching) {
+    requestAnimationFrame(loop);
+  } else {
+    rafOn = false;
+  }
+}
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden) ensureDraw();
+});
+window.addEventListener('resize', ensureDraw);
+reduceMotion.addEventListener('change', ensureDraw);
+ensureDraw();
+
+window.__weatherglass = {
+  get state() {
+    return { roomT: roomT, mass: mass, regime: regime, coolRate: coolRate,
+             branches: branches.length, snow: snow.length, reseeds: reseedCount };
+  },
+  meltAll: function () { for (var i = 0; i < melt.length; i++) melt[i] = 0.5; ensureDraw(); },
+  tempAt: roomTempAt,
+};
+})();
+</script>
+</body>
+</html>
