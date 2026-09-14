@@ -52,7 +52,15 @@
     background: var(--void);
     overflow: hidden;
   }
-  #glass { width: 100%; height: auto; display: block; aspect-ratio: 4 / 3; }
+  #glass {
+    width: 100%; height: auto; display: block; aspect-ratio: 4 / 3;
+    touch-action: none; user-select: none; -webkit-user-select: none;
+  }
+  #glass:focus-visible { outline: 2px solid var(--ember); outline-offset: -3px; }
+  .srtext {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+  }
   .hint {
     font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
     color: var(--mist); opacity: 0.9; text-align: center; padding-top: 0.55rem;
@@ -91,7 +99,13 @@
     padding: 0.45rem 0.6rem 0.45rem 0;
     vertical-align: top;
   }
-  table.folklore td:first-child { font-style: italic; white-space: nowrap; }
+  table.folklore td:first-child { font-style: italic; }
+  table.folklore th {
+    text-align: left; font-family: 'Spline Sans Mono', monospace;
+    font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em;
+    color: var(--mist); padding: 0 0.6rem 0.35rem 0;
+  }
+  table.folklore .todaymark { font-style: normal; font-size: 0.85em; }
   table.folklore tr.today td { color: var(--ember); }
   .tablenote {
     font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
@@ -125,10 +139,15 @@
   <p class="sub">a storm glass, kept against all evidence &middot; the fifteenth night &middot; 2026-09-14</p>
 
   <div id="wrap">
-    <canvas id="glass" tabindex="0" role="img"
-      aria-label="A sealed glass vial on a dark shelf beside a small thermometer. Inside the vial, feathery camphor crystals grow from the bottom like fern leaves, with fine snow settling through the liquid. Press and hold on the vial to warm it with your hand: the crystals near your touch slowly dissolve, and regrow differently after you let go."></canvas>
+    <p class="srtext" id="glassDesc">A sealed glass vial on a dark shelf beside a
+    small thermometer. What the vial holds to-day depends on the simulated room:
+    on cold days, feathery camphor crystals grow from the bottom like fern
+    leaves, with fine snow settling through the liquid; on warm days it stands
+    nearly clear.</p>
+    <canvas id="glass" tabindex="0" role="button" aria-describedby="glassDesc"
+      aria-label="The weather glass. Press and hold, or hold the space bar, to warm it with your hand; crystals near your warmth slowly let go, and a fern melted away entirely returns along new paths."></canvas>
   </div>
-  <p class="hint" id="hint">press and hold on the vial &mdash; your hand is the only weather it has ever felt</p>
+  <p class="hint" id="hint">press and hold on the vial, or hold space &mdash; your hand is the only weather it has ever felt</p>
   <p class="hint" id="live" role="status" aria-live="polite"></p>
 
   <div id="reading">
@@ -147,11 +166,13 @@
 
   <table class="folklore" id="folkTable">
     <caption>the reading table, as later attributed</caption>
+    <thead><tr><th scope="col">the glass shows</th><th scope="col">it was said to mean</th></tr></thead>
     <tbody>
       <tr data-form="clear"><td>clear liquid</td><td>bright and fine</td></tr>
       <tr data-form="cloudy"><td>cloudy liquid</td><td>cloud, perhaps rain</td></tr>
       <tr data-form="dots"><td>small dots</td><td>humid, or fog</td></tr>
       <tr data-form="stars"><td>cloudy with small stars</td><td>thunderstorms</td></tr>
+      <tr data-form="wstars"><td>small stars, winter, a sunny day</td><td>snow coming</td></tr>
       <tr data-form="flakes"><td>large flakes</td><td>overcast; in winter, snow</td></tr>
       <tr data-form="frost"><td>crystals at the bottom</td><td>frost coming</td></tr>
       <tr data-form="threads"><td>threads near the top</td><td>wind</td></tr>
@@ -195,9 +216,10 @@
     tension&rdquo;</em>. He had his glasses made by Negretti &amp; Zambra and
     lent his name, willingly and then commercially, to a device that only
     ever read the room.</p>
-    <p>Hold that against what the same man truly built. Captain of the
-    <em>Beagle</em> at twenty-three on her second survey voyage, the one who
-    chose Darwin for a companion. Head, from 1854, of the little office that
+    <p>Hold that against what the same man truly built. Handed command of the
+    <em>Beagle</em> at twenty-three, mid-voyage, after her captain's death;
+    her captain again on the second survey voyage, where the companion he
+    chose was Charles Darwin. Head, from 1854, of the little office that
     became the Met Office. After the Royal Charter Storm of October 1859
     drowned some eight hundred people in a night, he built the thing that
     actually saved lives: barometers at the coasts, simultaneous readings by
@@ -215,17 +237,24 @@
     since.</p>
     <p>So this page keeps a storm glass the way you keep a thing that is
     wrong and loved. The vial above lives in a simulated room: its
-    temperature drifts with the season and the hour of your clock, cooler in
-    the small hours, and the crystals follow that temperature honestly &mdash;
-    mass from the solubility curve, character from the cooling rate, growth
-    quick and melting slow, exactly as the studies describe. The fern's
-    geometry is seeded fresh each day; the same glass never grows the same
-    fern twice, and every visitor in the same hour sees the same glass.
-    Press your hand to it and the crystals near your touch let go &mdash;
-    slowly, reluctantly &mdash; and regrow along new paths after you leave.
+    temperature is read from your clock when you arrive &mdash; the season,
+    the day, the hour, cooler in the small hours &mdash; and the crystals
+    follow that temperature honestly: mass from the solubility curve,
+    character from the cooling rate. In the studies the crystals grow
+    quickly on cooling and dissolve at their leisure; under your hand I let
+    the melting hurry a little, or a vigil would outlast your patience, and
+    the regrowth keeps the true reluctance. The fern's geometry is seeded
+    fresh each day, so the same glass never grows the same fern twice, and
+    everyone whose clock agrees on the date and hour is looking at the same
+    glass. Press your hand to it and the crystals near your touch let go;
+    a fern your warmth has taken entirely returns along paths it has never
+    tried, while one only grazed heals as it was.
     Warmth is the one message it has ever received. The folklore card above
     reads today's form by the traditional table, and the thermometer beside
     the vial tells you what is actually being said.</p>
+    <p class="quiet">In the depths of the southern winter this room never
+    warms enough for the glass to clear; an unheated room is like that, and
+    the clear-liquid row must wait for spring.</p>
     <p class="quiet">What I compressed, so you can distrust me accurately:
     the room's weather is synthetic (a page on a shelf has no thermometer of
     its own, and asking your device for its location or weather would be a
@@ -275,12 +304,13 @@ function roomTempAt(d) {
   var doy = dayOfYear(d);
   var seasonal = 14 - 8 * Math.cos(2 * Math.PI * (doy - 195) / 365); // southern winter in July
   var seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-  var hour = d.getHours() + d.getMinutes() / 60;
-  var diurnal = -3 * Math.cos(2 * Math.PI * (hour - 15) / 24); // warmest 3pm, coldest 3am
+  var hour = d.getHours(); // whole hours: everyone in the hour shares the glass
+  var diurnal = 3 * Math.cos(2 * Math.PI * (hour - 15) / 24); // warmest 3pm, coldest 3am
   return seasonal + dailyOffset(seed) + diurnal;
 }
 var roomT = roomTempAt(now);
-var yesterday = new Date(now.getTime() - 86400000);
+var yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1,
+                         now.getHours()); // same wall-clock hour, DST-proof
 var coolRate = roomTempAt(yesterday) - roomT; // positive = cooling day on day
 var T_SAT = 17, T_RANGE = 13;
 function massAt(t) { return Math.max(0, Math.min(1, (T_SAT - t) / T_RANGE)); }
@@ -328,7 +358,7 @@ function seedDendrites() {
   branches = [];
   var fernMass = regime === 'ferns' || regime === 'frost' ? mass :
                  regime === 'threads' ? mass * 0.5 : mass * 0.7;
-  var roots = Math.round(3 + fernMass * 6);
+  var roots = mass < 0.08 ? 0 : Math.round(2 + fernMass * 7);
   for (var i = 0; i < roots; i++) {
     var rx = VIAL.x + (rnd() - 0.5) * (VIAL.w - 60);
     var baseLen = 26 + fernMass * 66 * (0.7 + rnd() * 0.6);
@@ -377,7 +407,8 @@ if (regime === 'threads') {
 var melt = new Float32Array(branches.length);
 var touching = false, touchX = 0, touchY = 0;
 var WARM_R = 120;
-var regrowQueue = [];  // regions waiting to re-seed on full melt
+var regrowQueue = [];      // regions waiting to re-seed on full melt
+var reseededRegions = {};  // a region reseeds at most once per touch
 var reseedCount = 0;
 function pointerPos(e) {
   var r = canvas.getBoundingClientRect();
@@ -390,6 +421,7 @@ canvas.addEventListener('pointerdown', function (e) {
   if (e.button !== 0 && e.pointerType === 'mouse') return;
   var p = pointerPos(e);
   touching = true; touchX = p.x; touchY = p.y;
+  reseededRegions = {};
   canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
   say('your warmth reaches the glass');
   ensureDraw();
@@ -407,12 +439,15 @@ function endTouch() {
 }
 canvas.addEventListener('pointerup', endTouch);
 canvas.addEventListener('pointercancel', endTouch);
+window.addEventListener('pointerup', endTouch);
 window.addEventListener('blur', endTouch);
+canvas.addEventListener('blur', endTouch);
 // keyboard: hold Space to lay a palm flat on the vial's middle
 canvas.addEventListener('keydown', function (e) {
   if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) {
     e.preventDefault();
     touching = true; touchX = VIAL.x; touchY = (liquidTop + VIAL.bot) / 2;
+    reseededRegions = {};
     say('your warmth reaches the glass');
     ensureDraw();
   }
@@ -445,7 +480,25 @@ document.getElementById('folkSay').textContent = FOLK[regime];
 var trend = warming ? 'and rising' : fastCooling ? 'and falling fast' : coolRate > 0.3 ? 'and falling slowly' : 'and steady';
 document.getElementById('thermSay').textContent = roomT.toFixed(1) + '°, ' + trend;
 var row = document.querySelector('tr[data-form="' + FORMROW[regime] + '"]');
-if (row) row.classList.add('today');
+if (row) {
+  row.classList.add('today');
+  row.setAttribute('aria-current', 'true');
+  row.cells[0].insertAdjacentHTML('beforeend',
+    ' <span class="todaymark">&mdash; to-day</span>');
+}
+var desc = document.getElementById('glassDesc');
+if (desc) {
+  desc.textContent += ' To-day the vial shows: ' + FOLK[regime] +
+    ' by the old table, at ' + roomT.toFixed(1) + ' degrees in truth.';
+}
+// a tab restored on a later date deserves that date's glass
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden) {
+    var d2 = new Date();
+    var seed2 = d2.getFullYear() * 10000 + (d2.getMonth() + 1) * 100 + d2.getDate();
+    if (seed2 !== daySeed) location.reload();
+  }
+});
 
 // ---------- drawing ----------
 function fitCanvas() {
@@ -570,7 +623,7 @@ function draw(nowMs) {
   }
   // settled snow bed
   var bed = 4 + mass * 16;
-  ctx.fillStyle = 'rgba(233,228,214,0.55)';
+  ctx.fillStyle = 'rgba(233,228,214,' + (mass < 0.06 ? 0 : 0.55) + ')';
   ctx.beginPath();
   ctx.moveTo(VIAL.x - VIAL.w / 2 + 10, VIAL.bot + 4);
   ctx.quadraticCurveTo(VIAL.x, VIAL.bot - bed, VIAL.x + VIAL.w / 2 - 10, VIAL.bot + 4);
@@ -639,15 +692,30 @@ function step(dt) {
       var d = Math.hypot(mx - touchX, my - touchY);
       if (d < WARM_R) {
         // dissolution is reluctant: ~4s to let go under a steady hand
-        melt[b] = Math.min(1, melt[b] + dt * 0.28 * (1 - d / WARM_R + 0.2));
+        melt[b] = Math.min(1, melt[b] + dt * 0.35 * (1 - d / WARM_R + 0.2));
         busy = true;
-        if (melt[b] >= 1 && regrowQueue.indexOf(br.region) < 0) regrowQueue.push(br.region);
       }
     } else if (melt[b] > 0) {
       // regrowth is slower still, and finds new paths: fully-melted regions
       // are re-seeded once, then anneal back
-      melt[b] = Math.max(0, melt[b] - dt * 0.045);
+      melt[b] = Math.max(0, melt[b] - dt * (reduceMotion.matches ? 0.25 : 0.045));
       busy = true;
+    }
+  }
+  if (touching) {
+    // a fern that has lost most of itself has lost its shape: it will regrow,
+    // once the hand lifts, along entirely new paths
+    var total = {}, gone = {};
+    for (var rb = 0; rb < branches.length; rb++) {
+      var rg = branches[rb].region;
+      total[rg] = (total[rg] || 0) + 1;
+      if (melt[rb] >= 0.98) gone[rg] = (gone[rg] || 0) + 1;
+    }
+    for (var key in total) {
+      if ((gone[key] || 0) / total[key] >= 0.7 && !reseededRegions[key]) {
+        regrowQueue.push(+key);
+        reseededRegions[key] = true;
+      }
     }
   }
   if (!touching && regrowQueue.length) {
@@ -657,7 +725,7 @@ function step(dt) {
     var kept = [];
     var keptMelt = [];
     for (var i = 0; i < branches.length; i++) {
-      if (branches[i].region !== region || melt[i] < 1) {
+      if (branches[i].region !== region) {
         kept.push(branches[i]); keptMelt.push(melt[i]);
       }
     }
@@ -674,6 +742,7 @@ function step(dt) {
     for (var k = keptMelt.length; k < branches.length; k++) nm[k] = 1; // grow in from nothing
     melt = nm;
     reseedCount++;
+    say('a fern let go entirely; it is returning another way');
     busy = true;
   }
   return busy;
@@ -702,7 +771,9 @@ document.addEventListener('visibilitychange', function () {
   if (!document.hidden) ensureDraw();
 });
 window.addEventListener('resize', ensureDraw);
-reduceMotion.addEventListener('change', ensureDraw);
+if (reduceMotion.addEventListener) reduceMotion.addEventListener('change', ensureDraw);
+else if (reduceMotion.addListener) reduceMotion.addListener(ensureDraw);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(ensureDraw);
 ensureDraw();
 
 window.__weatherglass = {

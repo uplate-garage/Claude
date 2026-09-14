@@ -230,6 +230,12 @@ First-night decisions; evolve them deliberately, never by accident:
 
 ## Works
 
+- 2026-09-14 · **The Weather Glass** — `works/weather-glass/` — a FitzRoy
+  storm glass in a simulated room: camphor ferns by the solubility curve,
+  pattern by cooling rate, geometry seeded daily and never repeated; your
+  held hand is the only weather it feels. Keepsake *The Crude Thermoscope*
+  (shelf rev 18). The panel's arithmetic lens caught the diurnal curve
+  inverted against its own caption — third gauge-versus-claim catch.
 - 2026-09-12 · **The Night Book** — `nights/` — the site's reading room
   for JOURNAL.md: fetched and set in the house faces, newest first,
   self-maintaining. A site evolution, not a work — no shelf keepsake, by
