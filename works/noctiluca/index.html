@@ -244,12 +244,16 @@ var grid = [];                    // grid[i] -> array of org indices
 var RECHARGE = 1 / 240;           // full charge back in ~4 minutes
 var FLASH_COST = 0.22;
 var COOLDOWN = 0.22;              // s between flashes of one cell
-var STIR_R = 22;                  // px reach of the hand
+var STIR_R = 27;                  // px reach of the hand
 var SPEED_MIN = 60;               // px/s of shear needed to trigger
 
 // ---------- flashes: brief, discrete, additive ----------
 var flashes = [];                 // {x, y, t, peak}
 var MAX_FLASH = 420;
+// the wake: a hand leaves turbulence, and eddies go on shearing cells
+// for a second or two after it has passed
+var wake = [];                    // {x, y, energy}
+var MAX_WAKE = 260;
 var sparksTonight = 0;
 function igniteAt(x, y, speed, tNow) {
   var gx0 = Math.max(0, Math.floor((x - STIR_R) / CELL));
@@ -321,11 +325,16 @@ canvas.addEventListener('pointermove', function (e) {
     hand.vx = vx; hand.vy = vy;
     var sp = Math.hypot(vx, vy);
     if (sp > SPEED_MIN) {
-      // stimulate along the segment so fast strokes leave no gaps
+      // stimulate along the segment so fast strokes leave no gaps,
+      // and seed the trailing turbulence
       var steps = Math.max(1, Math.ceil(Math.hypot(p.x - lastPt.x, p.y - lastPt.y) / (STIR_R * 0.8)));
       for (var s = 1; s <= steps; s++) {
-        igniteAt(lastPt.x + (p.x - lastPt.x) * s / steps,
-                 lastPt.y + (p.y - lastPt.y) * s / steps, sp, simT);
+        var sx = lastPt.x + (p.x - lastPt.x) * s / steps;
+        var sy = lastPt.y + (p.y - lastPt.y) * s / steps;
+        igniteAt(sx, sy, sp, simT);
+        if (wake.length < MAX_WAKE) {
+          wake.push({ x: sx, y: sy, energy: Math.min(1, sp / 900) });
+        }
       }
     }
   }
@@ -414,7 +423,17 @@ function loop(nowMs) {
   }
   for (var f = flashes.length - 1; f >= 0; f--) {
     flashes[f].t += dt;
-    if (flashes[f].t > 0.16) flashes.splice(f, 1);
+    if (flashes[f].t > 0.24) flashes.splice(f, 1);
+  }
+  // eddies decay, and while they live they keep striking sparks
+  for (var wv = wake.length - 1; wv >= 0; wv--) {
+    var wp = wake[wv];
+    wp.energy *= Math.exp(-dt / 0.85);
+    if (wp.energy < 0.08) { wake.splice(wv, 1); continue; }
+    if (Math.random() < wp.energy * dt * 9) {
+      igniteAt(wp.x + (Math.random() - 0.5) * 16,
+               wp.y + (Math.random() - 0.5) * 16, 200, simT);
+    }
   }
 
   // the crest
@@ -449,7 +468,7 @@ function loop(nowMs) {
       '<span class="blue">' + sparksTonight + '</span> sparks to-night');
   }
 
-  var anyFlash = flashes.length > 0;
+  var anyFlash = flashes.length > 0 || wake.length > 0;
   var anyKb = hand.kb && (keys.ArrowLeft || keys.ArrowRight || keys.ArrowUp || keys.ArrowDown || keys[' ']);
   var crestLive = crestX >= 0 && !still;
   if (anyFlash || anyKb || hand.on || crestLive) {
@@ -495,15 +514,19 @@ function draw(still) {
   for (var i = 0; i < flashes.length; i++) {
     var fl = flashes[i];
     if (fl.t < 0) continue;                     // staggered drip, not yet lit
-    var env = fl.t < 0.018 ? fl.t / 0.018 : Math.exp(-(fl.t - 0.018) / 0.045);
-    var a = fl.peak * env;
+    var env = fl.t < 0.016 ? fl.t / 0.016 : Math.exp(-(fl.t - 0.016) / 0.062);
+    var a = Math.min(1, fl.peak * 1.35) * env;
     if (a <= 0.01) continue;
-    var g = ctx.createRadialGradient(fl.x, fl.y, 0, fl.x, fl.y, 9);
-    g.addColorStop(0, 'rgba(220,245,255,' + (a * 0.95).toFixed(3) + ')');
-    g.addColorStop(0.3, 'rgba(120,205,255,' + (a * 0.55).toFixed(3) + ')');
+    var g = ctx.createRadialGradient(fl.x, fl.y, 0, fl.x, fl.y, 15);
+    g.addColorStop(0, 'rgba(235,250,255,' + a.toFixed(3) + ')');
+    g.addColorStop(0.22, 'rgba(140,215,255,' + (a * 0.75).toFixed(3) + ')');
+    g.addColorStop(0.6, 'rgba(90,175,240,' + (a * 0.28).toFixed(3) + ')');
     g.addColorStop(1, 'rgba(60,140,220,0)');
     ctx.fillStyle = g;
-    ctx.fillRect(fl.x - 9, fl.y - 9, 18, 18);
+    ctx.fillRect(fl.x - 15, fl.y - 15, 30, 30);
+    // the hot pinpoint of the cell itself
+    ctx.fillStyle = 'rgba(255,255,255,' + (a * 0.9).toFixed(3) + ')';
+    ctx.fillRect(fl.x - 1.2, fl.y - 1.2, 2.4, 2.4);
   }
   ctx.globalCompositeOperation = 'source-over';
 
