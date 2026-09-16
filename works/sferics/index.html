@@ -556,7 +556,7 @@ function scheduleAll() {
 }
 
 // ---------- ledger and status ----------
-var lastLedger = '', lastSpoken = '', lastSpokeAt = 0, eventNote = '', eventNoteT = 0;
+var lastLedger = '', lastSpoken = '', lastSpokeAt = -1e9, eventNote = '', eventNoteT = 0;
 function setLedger(msg) {
   if (msg === lastLedger) return;
   lastLedger = msg;
