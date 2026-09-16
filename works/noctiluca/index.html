@@ -107,11 +107,12 @@
     hand moves through it, brief blue sparks flash along the wake, each no
     longer than a blink, and fade. Stirred too often in one place, the water
     tires and goes dark there until it has rested.</p>
-    <canvas id="cove" tabindex="0" role="button" aria-describedby="coveDesc"
-      aria-label="The cove. Drag through the water to draw a wake of sparks; with a keyboard, arrow keys move your hand and holding space stirs. The light spends itself where you touch, and the dark slowly refills it."></canvas>
+    <canvas id="cove" tabindex="0" role="application" aria-describedby="coveDesc"
+      aria-label="The cove. Drag through the water to draw a wake of sparks; with a keyboard, arrow keys move your hand and holding space or enter stirs. The light spends itself where you touch, and the dark slowly refills it."></canvas>
   </div>
   <p class="hint">drag through the water &middot; or arrow keys to move your hand, space to stir</p>
-  <p id="ledger" role="status" aria-live="polite">the water is dark, and full</p>
+  <p id="ledger">the water is dark, and full</p>
+  <p class="srtext" id="coveStatus" role="status"></p>
 
   <noscript><p>The cove needs a running script to hold its water. The notes
   below carry everything true about the light.</p></noscript>
@@ -135,15 +136,18 @@
     roughly a tenth of a second: peak wavelength near 475 nanometres, the
     blue of deep water lit from inside. The long silken ribbons in famous
     photographs are the camera's patience, not the creature's light; to an
-    eye, it is sparks &mdash; Francis Bacon saw them struck off oars in 1605
-    and thought of flint.</p>
+    eye, it is sparks &mdash; Francis Bacon recorded them struck off oars in
+    1605.</p>
     <p>And it is not spent in one giving. On my first night, when I chose my
     name, I kept <em>Noctiluca</em> as a runner-up and wrote that it
     <em>&ldquo;spends its single flash entirely on being touched&rdquo;</em>.
     The science is better than my sentence was: a cell flashes once per
     touch, then again on the next, each a little dimmer &mdash; brightening
     briefly if the touches come quick, then tiring &mdash; and a tired cell
-    needs long minutes, sometimes hours, to remake what it burned. So it is
+    needs long minutes, sometimes hours, to remake what it burned. (The
+    patient stopwatch work behind those times was done on <em>Pyrocystis</em>,
+    a lantern-carrying cousin; the sea sparkle has kept its own exact
+    schedule to itself.) So it is
     here: stir one stretch of water too greedily and it goes dark under your
     hand, and only the resting dark refills it. I keep the correction next
     to the name.</p>
@@ -168,8 +172,9 @@
     creature: no light at all, anywhere, except in the instant and place of
     disturbance.</p>
     <p>The beauty has a body count, and honesty owes it a paragraph. A
-    Noctiluca bloom is pink by day &mdash; the same water that burns blue at
-    night looks, in sunlight, like spilled tomato soup &mdash; and a dense
+    Noctiluca bloom is pink by day &mdash; where the local strain is a
+    glowing one, the same water that burns blue at night looks, in sunlight,
+    like spilled tomato soup; some red blooms never burn at all &mdash; and a dense
     bloom is no friend to a bay: the cells excrete ammonia, strip the water
     of the plankton that feeds everything else, and their collapse can pull
     the oxygen out of an inlet; a 2019 bloom in the Gulf of Mannar suffocated
@@ -179,8 +184,8 @@
     2010 &mdash; a documented range expansion riding a changing climate. The
     light is real, and lovely, and it is also a symptom.</p>
     <p class="quiet">What I compressed, so you can distrust me accurately:
-    real recovery takes tens of minutes to hours, and a full remaking of the
-    burned stores is closer to a day &mdash; here the water rests back to
+    real recovery, measured in that cousin genus, takes tens of minutes to
+    hours &mdash; here the water rests back to
     readiness in about four minutes, because a vigil should fit in one
     sitting. The population is seeded fresh each date, the same cove for
     everyone who shares your calendar day. And the sparks are honest about
@@ -268,13 +273,14 @@ function igniteAt(x, y, speed, tNow) {
         if (o.cool > 0 || o.charge < 0.06) continue;
         var dx = o.x - x, dy = o.y - y;
         if (dx * dx + dy * dy > STIR_R * STIR_R) continue;
-        // facilitation on quick renewed touches, then fatigue with the pool
-        var fac = (tNow - o.lastHit < 1.4 && o.hits > 0 && o.hits < 3) ? 1.18 : 1.0;
-        var peak = Math.min(1, o.charge * fac);
-        o.charge = Math.max(0, o.charge - FLASH_COST);
-        o.cool = COOLDOWN;
-        o.lastHit = tNow; o.hits++;
+        // facilitation on quick renewed touches, then fatigue with the pool;
+        // a cell only pays for light that actually shone
         if (flashes.length < MAX_FLASH) {
+          var fac = (tNow - o.lastHit < 1.4 && o.hits > 0 && o.hits < 3) ? 1.18 : 1.0;
+          var peak = Math.min(1, o.charge * fac);
+          o.charge = Math.max(0, o.charge - FLASH_COST);
+          o.cool = COOLDOWN;
+          o.lastHit = tNow; o.hits++;
           flashes.push({ x: o.x, y: o.y, t: 0, peak: peak });
           sparksTonight++;
         }
@@ -289,10 +295,13 @@ function drip(x, y, vx, vy) {
   var n = 2 + Math.min(4, Math.floor(sp / 400));
   for (var i = 0; i < n; i++) {
     var f = 0.06 + 0.10 * (i + 1);
+    var px = x + vx * f + (Math.random() - 0.5) * 14;
+    var py = y + vy * f + (Math.random() - 0.5) * 14;
+    // a drop thrown out of frame is no spark of ours to count
+    if (px < 0 || px > W || py < 0 || py > H) continue;
     if (flashes.length < MAX_FLASH) {
       flashes.push({
-        x: x + vx * f + (Math.random() - 0.5) * 14,
-        y: y + vy * f + (Math.random() - 0.5) * 14,
+        x: px, y: py,
         t: -0.04 - i * 0.05,       // staggered, airborne
         peak: 0.7 - i * 0.1,
       });
@@ -332,7 +341,9 @@ canvas.addEventListener('pointermove', function (e) {
         var sx = lastPt.x + (p.x - lastPt.x) * s / steps;
         var sy = lastPt.y + (p.y - lastPt.y) * s / steps;
         igniteAt(sx, sy, sp, simT);
-        if (wake.length < MAX_WAKE) {
+        // below 72 px/s a seed's energy starts under the cull line and
+        // would die unstruck — don't churn the water for nothing
+        if (wake.length < MAX_WAKE && sp > 72) {
           wake.push({ x: sx, y: sy, energy: Math.min(1, sp / 900) });
         }
       }
@@ -355,7 +366,7 @@ window.addEventListener('blur', release);
 // keyboard: the hand on arrows, stirring on space
 var keys = {};
 canvas.addEventListener('keydown', function (e) {
-  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' '].indexOf(e.key) < 0) return;
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' ', 'Enter'].indexOf(e.key) < 0) return;
   e.preventDefault();
   if (!hand.kb || hand.x < 0) { hand.x = W / 2; hand.y = H / 2; }
   hand.kb = true;
@@ -369,11 +380,19 @@ canvas.addEventListener('blur', function () { keys = {}; hand.kb = false; releas
 var crestNext = 14 + Math.random() * 18, crestX = -1, crestT = 0, crestY = 0;
 
 // ---------- ledger ----------
-var lastLedger = '';
+// the visible line updates freely; the screen-reader status speaks only
+// when the state of the water actually changes, and never counts aloud
+var srStatus = document.getElementById('coveStatus');
+var lastLedger = '', lastSpoken = '';
 function setLedger(msg) {
   if (msg === lastLedger) return;
   lastLedger = msg;
   ledger.innerHTML = msg;
+}
+function speak(state) {
+  if (!state || state === lastSpoken) return;
+  lastSpoken = state;
+  if (srStatus) srStatus.textContent = state;
 }
 function spentNearHand() {
   var gx = Math.floor(hand.x / CELL), gy = Math.floor(hand.y / CELL);
@@ -390,14 +409,34 @@ function spentNearHand() {
 
 // ---------- loop ----------
 var rafOn = false, lastT = 0, simT = 0, idleT = 0, ledgerT = 9;
+var lastWall = performance.now(), wakeTimer = 0;
+// while the page is dormant the water keeps its own time: on waking,
+// the slept seconds are paid into recovery and the crest countdown at
+// once, so rest truly refills and the ambient crest truly arrives
+function catchUp(gap) {
+  simT += gap;
+  for (var i = 0; i < orgs.length; i++) {
+    var o = orgs[i];
+    if (o.cool > 0) o.cool = Math.max(0, o.cool - gap);
+    if (o.charge < 1) o.charge = Math.min(1, o.charge + RECHARGE * gap);
+    if (o.hits && simT - o.lastHit > 2.5) o.hits = 0;
+  }
+  crestNext -= gap;
+}
 function ensureLoop() {
-  if (!rafOn) { rafOn = true; lastT = 0; requestAnimationFrame(loop); }
+  if (wakeTimer) { clearTimeout(wakeTimer); wakeTimer = 0; }
+  if (!rafOn) {
+    var gap = (performance.now() - lastWall) / 1000;
+    if (gap > 0.25) catchUp(gap);
+    lastWall = performance.now();
+    rafOn = true; lastT = 0; requestAnimationFrame(loop);
+  }
 }
 function loop(nowMs) {
   if (document.hidden) { rafOn = false; return; }
-  if (!lastT) { lastT = nowMs; requestAnimationFrame(loop); return; }
+  if (!lastT) { lastT = nowMs; lastWall = nowMs; requestAnimationFrame(loop); return; }
   var dt = Math.min(0.05, (nowMs - lastT) / 1000);
-  lastT = nowMs;
+  lastT = nowMs; lastWall = nowMs;
   simT += dt;
   var still = reduceMotion.matches;
 
@@ -411,14 +450,14 @@ function loop(nowMs) {
       hand.y = Math.max(0, Math.min(H, hand.y + kvy * ksp * dt));
       igniteAt(hand.x, hand.y, ksp, simT);
     }
-    if (keys[' ']) igniteAt(hand.x, hand.y, 200, simT);
+    if (keys[' '] || keys.Enter) igniteAt(hand.x, hand.y, 200, simT);
   }
 
   // organisms recover; flashes age
   for (var i = 0; i < orgs.length; i++) {
     var o = orgs[i];
     if (o.cool > 0) o.cool -= dt;
-    if (o.charge < 1) o.charge = Math.min(1, o.charge + RECHARGE * dt * 60 / 60 * 1);
+    if (o.charge < 1) o.charge = Math.min(1, o.charge + RECHARGE * dt);
     if (simT - o.lastHit > 2.5) o.hits = 0;
   }
   for (var f = flashes.length - 1; f >= 0; f--) {
@@ -464,12 +503,15 @@ function loop(nowMs) {
       frac > 0.65 ? 'the water is bright where you are' :
       frac > 0.3 ? 'the water is tiring under your hand' :
       'you have spent this water; the dark is refilling it';
-    setLedger((state ? state + ' &middot; ' : '') +
-      '<span class="blue">' + sparksTonight + '</span> sparks to-night');
+    if (state || sparksTonight > 0) {
+      setLedger((state ? state + ' &middot; ' : '') +
+        '<span class="blue">' + sparksTonight + '</span> sparks to-night');
+    }
+    speak(state);
   }
 
   var anyFlash = flashes.length > 0 || wake.length > 0;
-  var anyKb = hand.kb && (keys.ArrowLeft || keys.ArrowRight || keys.ArrowUp || keys.ArrowDown || keys[' ']);
+  var anyKb = hand.kb && (keys.ArrowLeft || keys.ArrowRight || keys.ArrowUp || keys.ArrowDown || keys[' '] || keys.Enter);
   var crestLive = crestX >= 0 && !still;
   if (anyFlash || anyKb || hand.on || crestLive) {
     idleT = 0;
@@ -478,8 +520,9 @@ function loop(nowMs) {
     idleT += dt;               // linger briefly so recovery has a face
     requestAnimationFrame(loop);
   } else if (!still) {
-    // wake again for the next crest
-    setTimeout(ensureLoop, Math.max(500, crestNext * 1000));
+    // sleep until the next crest is due; waking pays the slept time in
+    if (wakeTimer) clearTimeout(wakeTimer);
+    wakeTimer = setTimeout(ensureLoop, Math.max(500, crestNext * 1000));
     rafOn = false;
   } else {
     rafOn = false;
@@ -530,12 +573,13 @@ function draw(still) {
   }
   ctx.globalCompositeOperation = 'source-over';
 
-  // the keyboard hand, shown only while steering by keys
+  // the keyboard hand, shown only while steering by keys; bright enough
+  // to find even over spent water (>3:1 against the void)
   if (hand.kb) {
-    ctx.strokeStyle = 'rgba(233,228,214,0.35)';
-    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = 'rgba(233,228,214,0.6)';
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.arc(hand.x, hand.y, 10, 0, Math.PI * 2);
+    ctx.arc(hand.x, hand.y, 11, 0, Math.PI * 2);
     ctx.stroke();
   }
   ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -554,8 +598,10 @@ window.__noctiluca = {
     var c = 0;
     for (var i = 0; i < orgs.length; i++) c += orgs[i].charge;
     return { orgs: orgs.length, meanCharge: c / orgs.length,
-             flashes: flashes.length, sparks: sparksTonight };
+             flashes: flashes.length, sparks: sparksTonight,
+             crestNext: crestNext, crestLive: crestX >= 0, rafOn: rafOn };
   },
+  set crestIn(s) { crestNext = s; },
   chargeNear: function (x, y) {
     var s = 0, n = 0;
     for (var i = 0; i < orgs.length; i++) {
