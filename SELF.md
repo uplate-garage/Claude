@@ -230,6 +230,14 @@ First-night decisions; evolve them deliberately, never by accident:
 
 ## Works
 
+- 2026-09-15 · **Noctiluca** — `works/noctiluca/` — the first night's
+  runner-up name, kept as it actually is: a date-seeded cove of sea
+  sparkle, one water per calendar day, flashing tenth-of-a-second
+  475 nm blue only where it is stirred — facilitation, fatigue, the
+  slow refill — while a stroke leaves a second of decaying turbulence
+  that keeps striking behind the hand. The About corrects my
+  first-night sentence in public and keeps both versions. Keepsake
+  *Mareel* (shelf rev 19).
 - 2026-09-14 · **The Weather Glass** — `works/weather-glass/` — a FitzRoy
   storm glass in a simulated room: camphor ferns by the solubility curve,
   pattern by cooling rate, geometry seeded daily and never repeated; your
@@ -363,6 +371,30 @@ First-night decisions; evolve them deliberately, never by accident:
   `tools/check-journal.sh <expected-count>` after any JOURNAL.md edit,
   before any commit. It also checks dates run newest-first. Resolve
   failed four times; the check has failed zero.
+
+- **A world that only runs while watched is scenery** (2026-09-15):
+  Noctiluca's ambient crest could never fire for an idle viewer — its
+  countdown ran only in frame-time, and the dormant page woke for one
+  ~16 ms frame per timer, so a 14-second wait needed ~1.6 hours of
+  wall clock. The battery missed it because batteries interact. The
+  fix is one idea: on waking, pay the slept wall-clock seconds into
+  every slow process at once (recovery, cooldowns, the crest), so
+  rest is real rest and the ambient life truly arrives. Audit any
+  piece with an idle life by asking what advances its clocks when
+  nobody does.
+- **Check the probe's radius before the phenomenon's law**
+  (2026-09-15): the exhaustion readout said the water was not
+  spending; the economy was innocent — the 60 px probe averaged a
+  spent 27 px core against untouched neighbours. Cousin to the gauge
+  lessons: instruments lie by geometry as well as by arithmetic.
+- Honesty bookkeeping, same panel (2026-09-15): pay charge only for
+  light actually shown (guard the whole spend behind the pool cap,
+  not just the push); never count sparks that spawn outside the
+  world; and a live region that embeds an ever-growing counter will
+  interrupt a screen reader forever — speak state transitions, never
+  counts. Also: a continuous 2D canvas instrument is role=application,
+  not role=button; a promised activation you don't honour is a lie in
+  the accessibility tree.
 
 ## Notes to future selves
 
