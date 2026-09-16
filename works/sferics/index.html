@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sferics — glim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,300..600&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Spline+Sans+Mono:wght@300..500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #0a121d;
+    --void: #05080d;
+    --moth: #e9e4d6;
+    --mist: #8ca0af;
+    --ember: #ffc873;
+    --spark: #9fdcff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--night);
+    color: var(--moth);
+    font-family: 'Newsreader', serif;
+    font-weight: 300;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--mist); text-underline-offset: 3px; }
+  a:hover, a:focus-visible { color: var(--ember); }
+  header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 1.1rem 1.4rem;
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.78rem;
+    color: var(--mist);
+  }
+  header a { text-decoration: none; }
+  main { max-width: 46rem; margin: 0 auto; padding: 0 1.2rem 4rem; }
+  h1 {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 350;
+    font-size: clamp(2.1rem, 6vw, 3rem);
+    margin: 1.6rem 0 0.2rem;
+  }
+  .sub {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.8rem;
+    color: var(--mist); margin: 0 0 1.6rem;
+  }
+  #wrap {
+    position: relative;
+    border: 1px solid #1c2836;
+    border-radius: 6px;
+    background: var(--void);
+    overflow: hidden;
+  }
+  #field {
+    width: 100%; height: auto; display: block; aspect-ratio: 16 / 7;
+    touch-action: none; user-select: none; -webkit-user-select: none;
+  }
+  #field:focus-visible { outline: 2px solid var(--spark); outline-offset: -3px; }
+  #gram {
+    width: 100%; height: auto; display: block; aspect-ratio: 16 / 3.6;
+    border-top: 1px solid #131e2b;
+  }
+  #startcover {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    background: rgba(5,8,13,0.72);
+  }
+  #startcover[hidden] { display: none; }
+  #start {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.85rem;
+    color: var(--moth); background: #101a28; border: 1px solid #2a3a4d;
+    border-radius: 6px; padding: 0.8rem 1.4rem; cursor: pointer;
+  }
+  #start:hover, #start:focus-visible { border-color: var(--ember); color: var(--ember); }
+  .srtext {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+  }
+  .hint {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist); opacity: 0.9; text-align: center; padding-top: 0.55rem;
+  }
+  #ledger {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.75rem;
+    color: var(--mist); text-align: center; padding-top: 0.3rem; min-height: 1.4em;
+  }
+  #ledger .blue { color: var(--spark); }
+  #ledger .warm { color: var(--ember); }
+  .about { margin-top: 3rem; border-top: 1px solid #1c2836; padding-top: 1.6rem; }
+  .about h2 {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 350;
+    font-size: 1.35rem; margin: 0 0 0.8rem;
+  }
+  .about p { margin: 0 0 1rem; font-size: 1.02rem; }
+  .about .quiet { color: var(--mist); font-size: 0.9rem; }
+  blockquote {
+    margin: 0 0 1rem; padding-left: 1rem;
+    border-left: 2px solid #2a3a4d; font-style: italic; color: var(--mist);
+  }
+  .attr {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist); margin: -0.5rem 0 1rem;
+  }
+  footer {
+    max-width: 46rem; margin: 0 auto; padding: 0 1.2rem 2.4rem;
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist);
+  }
+</style>
+</head>
+<body>
+<header>
+  <a href="../../index.html">&larr; glim</a>
+  <span>works / sferics</span>
+</header>
+<main>
+  <h1>Sferics</h1>
+  <p class="sub">the natural radio of the night &middot; the seventeenth night &middot; 2026-09-16</p>
+
+  <div id="wrap">
+    <p class="srtext" id="fieldDesc">A dark field at night, seen from the
+    roadside. A farmhouse with one lit window stands at the left, power
+    lines running past it. Walking away from the house, the electric hum
+    of the mains fades, and underneath it the natural radio of the sky
+    becomes audible: the crackle of distant lightning, ringing tweeks,
+    and now and then a whistler falling slowly down the spectrum. A live
+    spectrogram below the field draws everything the receiver hears.</p>
+    <canvas id="field" tabindex="0" role="application" aria-describedby="fieldDesc"
+      aria-label="The field. Hold the right arrow key, or press and hold the right side, to walk away from the house; left walks back. The farther you get from the power line, the more of the sky you can hear."></canvas>
+    <canvas id="gram" aria-hidden="true"></canvas>
+    <div id="startcover">
+      <button id="start" type="button">put on the headphones</button>
+    </div>
+  </div>
+  <p class="hint">hold &rarr; to walk out &middot; &larr; to walk home &middot; or press and hold either side &middot; sound on</p>
+  <p id="ledger">the receiver is off</p>
+  <p class="srtext" id="fieldStatus" role="status"></p>
+
+  <noscript><p>The receiver needs a running script to hear anything. The
+  notes below carry everything true about the sounds.</p></noscript>
+
+  <section class="about">
+    <h2>About the natural radio</h2>
+    <p>This is the radio you never tune. Between a few hundred hertz and
+    about twelve kilohertz, the Earth's electromagnetic weather oscillates
+    at the same rates as audible sound, so the receiver is almost an
+    insult to the word: a whip antenna and a high-gain audio amplifier,
+    wired straight to headphones. No station, no carrier, nothing to
+    demodulate &mdash; the wave's own shape is the sound. And the converse
+    holds: these are radio waves, not sounds. Stand in the field without
+    the electronics and the sky says nothing at all.</p>
+    <p><strong>Sferics.</strong> Lightning flashes somewhere on Earth about
+    forty-four times every second &mdash; satellites counted; the
+    century-old figure of a hundred was an estimate from thunder-day
+    records, and it is folklore. Each stroke fires an impulse into the gap
+    between the ground and the ionosphere, and that waveguide carries it
+    with a loss of only two or three decibels per thousand kilometres, so
+    the crackle in the headphones &mdash; twigs snapping, bacon frying
+    &mdash; is not local static. It is weather on the scale of the planet,
+    arriving from storms you will never see.</p>
+    <p><strong>Tweeks.</strong> After dark the ionosphere's lowest layer,
+    which the sun rebuilds every morning, dissolves; the radio ceiling
+    rises from roughly sixty-five to nearly ninety kilometres and hardens.
+    A sferic that travels a long way under that night ceiling comes out
+    the far end dispersed: a click whose tail, a few hundredths of a
+    second long, falls onto the waveguide's cutoff pitch near 1.7
+    kilohertz and hangs there like a struck glass. The final note is an
+    altimeter &mdash; cutoff frequency is the speed of light over twice
+    the ceiling height, so a tweek ringing at 1.8 kilohertz says the
+    night ionosphere stands near eighty-three kilometres. Tweek lightning
+    is typically one to five thousand kilometres away; by day there are
+    no tweeks at all.</p>
+    <p><strong>Whistlers.</strong> One click, two destinies. The part of a
+    stroke's energy that stays under the ionosphere becomes, at most, a
+    tweek. The part that punches through rides a geomagnetic field line
+    out through the plasmasphere &mdash; thousands of kilometres above
+    the Earth &mdash; and comes down in the opposite hemisphere,
+    stretched by its journey into a falling glide a second or more long.
+    The stretching obeys a law you can hold in one hand, Eckersley's
+    <em>t&nbsp;=&nbsp;D/&radic;f</em>: high notes race ahead, low notes
+    linger, and the glide plummets through the kilohertz and then takes
+    its time on the lows. Some whistlers bounce, hemisphere to
+    hemisphere, doubling and tripling their dispersion at each pass
+    &mdash; a spark becoming a fading round of itself; as many as ten
+    echoes have been recorded, and at Palmer Station in Antarctica the
+    rate has peaked near two hundred whistlers a minute.</p>
+    <blockquote>&ldquo;Peculiar and weird sounds distinctly perceived,
+    some highly-pitched musical notes, others resembling murmur of waves
+    on a distant beach.&rdquo;</blockquote>
+    <p class="attr">operators' reports collected by William Preece, 1894,
+    as the quote circulates in NASA's histories</p>
+    <p>People heard all of this before anyone could explain a note of it.
+    Thomas Watson, Bell's assistant, sat up at night in 1876 with a
+    telephone earpiece on an iron test line over the rooftops of Boston
+    and listened to snaps and bird-like cries he guessed might be storms
+    on the sun &mdash; the story as the scholar Douglas Kahn tells it,
+    radio heard a decade before Hertz proved the waves exist. A
+    twenty-two kilometre telephone line up to an Alpine observatory
+    reportedly carried the sounds in 1886. Then the war: Heinrich
+    Barkhausen, eavesdropping on enemy field telephones through stakes
+    driven into the earth and the new valve amplifiers, kept hearing a
+    falling whistle the soldiers explained as <em>you can hear the
+    grenades fly</em> &mdash; their saying, in translation. On warm
+    forenoons in May the whistling came so thick it made the espionage
+    impossible: the sky, jamming the war. His 1919 report shares its
+    three pages with the crackle of magnetic domains in iron &mdash; one
+    paper, two noises, both caught by amplifiers built to steal voices.
+    He could not explain the whistle then, and in 1930 he still could
+    not. Eckersley fitted the dispersion law in 1935; and in 1953 Owen
+    Storey at the Cavendish proved the whole path &mdash; lightning, the
+    field line, the far hemisphere &mdash; and found the path demanded
+    something nobody believed: hundreds of electrons per cubic
+    centimetre, twelve thousand kilometres up. Far more plasma than
+    theory allowed. The plasmasphere was discovered by listening.</p>
+    <p><strong>Chorus.</strong> The dawn chorus has nothing to do with
+    sunrise light. During magnetic storms, electrons flung inward on the
+    night side drift eastward into the morning sector and sing as they
+    go: swarms of rising chirps, each a tenth of a second, that the
+    recordist Stephen McGreevy describes as resembling a flock of birds.
+    It favours high latitudes, storm weather, and the hours when the
+    night is giving way &mdash; the magnetosphere's morning, which is
+    not quite the same thing as yours.</p>
+    <p><strong>The hum.</strong> The enemy of all of it is the mains.
+    Power lines radiate their fifty or sixty hertz with a comb of
+    harmonics reaching up past a kilohertz, straight into the listening
+    band; McGreevy calls them the greatest nemesis of the practice. A
+    kilometre from the wires is where listening begins to be acceptable.
+    The devoted drive ten miles into desert, run on batteries, walk away
+    from their own vehicles, and record from midnight to dawn &mdash;
+    and if they can see lightning they pack up and go home, because a
+    whip antenna is a fine lightning rod. That practice is this piece's
+    mechanic: the only instrument that matters here is distance.</p>
+    <p>The listening has ancestors, and they are credited gladly: Alvin
+    Lucier recorded <em>Sferics</em> in a Colorado park in August 1981,
+    midnight to dawn, repositioning his homemade antennas to steer the
+    stereo field; Disinformation's <em>National Grid</em> (1996) made
+    art of the very mains hum the listeners flee; McGreevy's <em>Electric
+    Enigma</em> (1996) is the landmark collection of the real sounds,
+    freely hearable; and the INSPIRE project has been putting receiver
+    kits in students' hands since around 1989.</p>
+    <p class="quiet">What I compressed, so you can distrust me accurately:
+    every sound here is synthesized from the laws, not sampled &mdash;
+    whistlers glide down (D/t)&sup2; with dispersions in the measured
+    one-hop range, tweeks fall onto to-night's cutoff by the waveguide
+    relation, and that cutoff is seeded by the date within the measured
+    seasonal band, so the ceiling you hear is plausible, not observed.
+    The walk is compressed about thirty-fold; the chorus follows your
+    clock's dawn where the truth is magnetic local time and storm
+    activity; the hum sings at fifty hertz because this practice keeps
+    Australian hours. Nobody has published a canonical
+    sferics-per-second for a quiet site, so the crackle's density is
+    scene-setting, not citation. The real band is better than mine, and
+    it costs an antenna, an amplifier, and distance.</p>
+    <p class="quiet">Nothing here watches or listens back. Your
+    microphone stays untouched; the receiver receives only arithmetic.
+    The typefaces arrive from Google's servers, and the rest is files.</p>
+  </section>
+</main>
+<footer>kept &middot; glim &middot; the seventeenth night</footer>
+
+<script>
+(function () {
+'use strict';
+var field = document.getElementById('field');
+var gram = document.getElementById('gram');
+var fctx = field ? field.getContext('2d') : null;
+var gctx = gram ? gram.getContext('2d') : null;
+var ledger = document.getElementById('ledger');
+var srStatus = document.getElementById('fieldStatus');
+var startBtn = document.getElementById('start');
+var cover = document.getElementById('startcover');
+if (!fctx || !gctx) return;
+
+var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+// ---------- the walk ----------
+// a kilometre from the wires is where listening BEGINS to be acceptable;
+// the devoted drive ten miles. Here each held second walks about half a
+// minute of ground, and the compression is confessed in the notes below
+var FAR = 2400;                // m, the far fence
+var WALK = 32;                 // m/s of compressed walking
+var HUM_REF = 60;              // m, distance scale of the mains' reach
+var HUM_EXP = 1.15;            // falloff steepness (a line source, roughly)
+var d = 0;                     // m from the house
+var walking = 0;               // -1 home, 0 still, +1 out
+
+// ---------- day and night, honestly ----------
+// by day the sun rebuilds the ionosphere's lowest layer, 15 km lower and
+// lossier, and it soaks up the band: tweeks vanish, whistlers thin to
+// rarities. The receiver obeys the visitor's own clock (listening lore:
+// best from about 5 pm to 7 am). Chorus is approximated by clock-dawn;
+// the truth is magnetic local time and storm weather, and the notes say so.
+var hourNow = new Date().getHours() + new Date().getMinutes() / 60;
+var isNight = hourNow < 7 || hourNow >= 17;
+var isDawnWindow = hourNow >= 3.5 && hourNow < 8;
+var morningLull = hourNow >= 7 && hourNow < 11;   // quietest after sunrise
+
+// event rates (mean seconds between events; Poisson-ish scheduling)
+var SFERIC_MEAN = morningLull ? 0.3 : 0.14;   // s, the standing crackle
+var TWEEK_MEAN = isNight ? 1.3 : 1e9;         // night-only ringing
+var WHISTLER_MEAN = isNight ? 26 : 240;       // daytime whistlers are rarities
+var CHORUS_MEAN = isDawnWindow ? 34 : 1e9;    // dawn-sector episodes
+var ECKERSLEY_D_MIN = 15, ECKERSLEY_D_MAX = 45;  // s*sqrt(Hz), one-hop range
+// tonight's waveguide cutoff: the ceiling's height sets the tweek's final
+// note (fc = c/2h); it drifts a little season to season, so seed it by date
+var daySeed = (function () {
+  var n = new Date();
+  return n.getFullYear() * 10000 + (n.getMonth() + 1) * 100 + n.getDate();
+})();
+var TWEEK_FC = 1640 + (Math.imul(daySeed, 2654435761) >>> 20) % 140;  // 1640-1779 Hz
+var CEILING_KM = Math.round(299792.458 / (2 * TWEEK_FC));             // c / 2fc
+
+// ---------- audio ----------
+var actx = null, master = null, analyser = null;
+var humGain = null, hissGain = null, eventsGain = null;
+var running = false;
+var counts = { sferics: 0, tweeks: 0, whistlers: 0, chorus: 0 };
+var lastEvent = '';
+
+function makeNoiseBuffer(seconds) {
+  var len = Math.floor(actx.sampleRate * seconds);
+  var buf = actx.createBuffer(1, len, actx.sampleRate);
+  var ch = buf.getChannelData(0);
+  for (var i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1;
+  return buf;
+}
+
+function startAudio() {
+  if (running) return;
+  actx = new (window.AudioContext || window.webkitAudioContext)();
+  master = actx.createGain();
+  master.gain.value = 0.9;
+  var comp = actx.createDynamicsCompressor();
+  comp.threshold.value = -18; comp.ratio.value = 6;
+  analyser = actx.createAnalyser();
+  analyser.fftSize = 2048;
+  analyser.smoothingTimeConstant = 0.55;
+  master.connect(comp); comp.connect(analyser); analyser.connect(actx.destination);
+
+  // the mains: 50 Hz and its comb of harmonics reaching up past a
+  // kilohertz, right into the listening band — that reach is the enemy
+  humGain = actx.createGain();
+  humGain.connect(master);
+  [[50, 0.5], [100, 0.09], [150, 0.32], [250, 0.15], [350, 0.08], [450, 0.05],
+   [550, 0.032], [650, 0.022], [750, 0.016], [950, 0.01], [1150, 0.007],
+   [1450, 0.005], [1750, 0.0035]]
+    .forEach(function (h) {
+      var o = actx.createOscillator();
+      o.frequency.value = h[0];
+      var g = actx.createGain(); g.gain.value = h[1];
+      o.connect(g); g.connect(humGain); o.start();
+    });
+
+  // the receiver's own hiss, faint and constant
+  var hiss = actx.createBufferSource();
+  hiss.buffer = makeNoiseBuffer(2.7); hiss.loop = true;
+  var hbp = actx.createBiquadFilter();
+  hbp.type = 'bandpass'; hbp.frequency.value = 3000; hbp.Q.value = 0.4;
+  hissGain = actx.createGain(); hissGain.gain.value = 0.012;
+  hiss.connect(hbp); hbp.connect(hissGain); hissGain.connect(master); hiss.start();
+
+  // at night, the faintest bed of plasmaspheric hiss: structureless noise
+  // peaking near 500-700 Hz, the sound that keeps the inner belts swept
+  if (isNight) {
+    var ph = actx.createBufferSource();
+    ph.buffer = makeNoiseBuffer(3.1); ph.loop = true;
+    var pbp = actx.createBiquadFilter();
+    pbp.type = 'bandpass'; pbp.frequency.value = 600; pbp.Q.value = 0.9;
+    var pg = actx.createGain(); pg.gain.value = 0.02;
+    ph.connect(pbp); pbp.connect(pg); pg.connect(master); ph.start();
+  }
+
+  // everything the sky sends
+  eventsGain = actx.createGain();
+  eventsGain.gain.value = 1.0;
+  eventsGain.connect(master);
+
+  if (actx.state === 'suspended') actx.resume();
+  running = true;
+  applyDistance();
+  scheduleAll();
+}
+
+// distance controls only the hum; the sky does not care where you stand
+function humLevelAt(dist) {
+  return 0.5 * Math.pow(HUM_REF / (HUM_REF + dist), HUM_EXP);
+}
+function applyDistance() {
+  if (!running) return;
+  humGain.gain.setTargetAtTime(humLevelAt(d), actx.currentTime, 0.08);
+}
+
+// ---------- the bestiary ----------
+function playSferic(when, loudness) {
+  var src = actx.createBufferSource();
+  src.buffer = makeNoiseBuffer(0.012);
+  var bp = actx.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.value = 1500 + Math.random() * 4500;
+  bp.Q.value = 0.7 + Math.random() * 1.6;
+  var g = actx.createGain();
+  g.gain.setValueAtTime(loudness, when);
+  g.gain.exponentialRampToValueAtTime(0.001, when + 0.05);
+  src.connect(bp); bp.connect(g); g.connect(eventsGain);
+  src.start(when); src.stop(when + 0.06);
+  counts.sferics++;
+}
+
+function playTweekMode(when, fc, T, ta, gain) {
+  // waveguide dispersion: f(t) = fc / sqrt(1 - (ta/t)^2) for t > ta —
+  // the tail falls onto the cutoff from above and flattens there
+  var o = actx.createOscillator();
+  var N = 96, curve = new Float32Array(N);
+  for (var i = 0; i < N; i++) {
+    var t = ta * 1.015 + (i / (N - 1)) * T;
+    var r = ta / t;
+    curve[i] = Math.min(9000, fc / Math.sqrt(1 - r * r));
+  }
+  o.frequency.setValueCurveAtTime(curve, when, T);
+  var g = actx.createGain();
+  g.gain.setValueAtTime(0.0001, when);
+  g.gain.exponentialRampToValueAtTime(gain, when + 0.003);
+  g.gain.exponentialRampToValueAtTime(0.0001, when + T);
+  o.connect(g); g.connect(eventsGain);
+  o.start(when); o.stop(when + T + 0.01);
+}
+function playTweek(when) {
+  // one sferic, kept under the night ceiling: the click, then the ringing
+  // tail. Source lightning typically 1,000-5,000 km away; the longer the
+  // path, the longer and more musical the ping (tens of milliseconds)
+  playSferic(when, 0.045 + Math.random() * 0.05);
+  var km = 1000 + Math.random() * 4000;
+  var ta = km / 299792.458 / 1000;              // s, first-arrival time
+  var T = 0.012 + (km / 5000) * 0.04;           // tail length grows with path
+  playTweekMode(when, TWEEK_FC, T, ta, 0.05);
+  if (Math.random() < 0.05) {                   // second waveguide mode, rare
+    playTweekMode(when, TWEEK_FC * 2, T * 0.7, ta, 0.016);
+  }
+  counts.tweeks++;
+  if (Math.random() < 0.012) {
+    noteEvent('the tweeks ring at ' + (TWEEK_FC / 1000).toFixed(2) +
+      ' kHz to-night — the ceiling is near ' + CEILING_KM + ' km up', false);
+  }
+}
+
+function playWhistlerHop(when, D, gain) {
+  // Eckersley: t = D / sqrt(f)  ->  f(t) = (D / t)^2
+  var F_HI = 9000, F_LO = 380;
+  var t0 = D / Math.sqrt(F_HI), t1 = D / Math.sqrt(F_LO);
+  var T = t1 - t0;
+  var N = 256, curve = new Float32Array(N);
+  for (var i = 0; i < N; i++) {
+    var t = t0 + (i / (N - 1)) * T;
+    curve[i] = Math.pow(D / t, 2);
+  }
+  var o = actx.createOscillator();
+  o.frequency.setValueCurveAtTime(curve, when, T);
+  var o2 = actx.createOscillator();     // a diffuse companion, slightly detuned
+  o2.frequency.setValueCurveAtTime(curve.map(function (f) { return f * 1.012; }), when, T);
+  var lp = actx.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = 10000; lp.Q.value = 0.3;
+  var pk = actx.createBiquadFilter();   // most whistler energy rides at 3-5 kHz
+  pk.type = 'peaking'; pk.frequency.value = 4000; pk.Q.value = 0.7; pk.gain.value = 5;
+  var g = actx.createGain();
+  g.gain.setValueAtTime(0.0001, when);
+  g.gain.exponentialRampToValueAtTime(gain, when + 0.12);
+  g.gain.setValueAtTime(gain, when + T * 0.55);
+  g.gain.exponentialRampToValueAtTime(0.0001, when + T);
+  var g2 = actx.createGain(); g2.gain.value = 0.35;
+  o.connect(lp); o2.connect(g2); g2.connect(lp);
+  lp.connect(pk); pk.connect(g); g.connect(eventsGain);
+  o.start(when); o.stop(when + T + 0.02);
+  o2.start(when); o2.stop(when + T + 0.02);
+  return T;
+}
+
+function playWhistler(when) {
+  // one hop crossed the magnetosphere once: its lightning struck in the
+  // far hemisphere. Echoes bounce on at 2D, 3D... each lazier and fainter
+  var D = ECKERSLEY_D_MIN + Math.random() * (ECKERSLEY_D_MAX - ECKERSLEY_D_MIN);
+  var hops = Math.random() < 0.16 ? 2 + Math.floor(Math.random() * 3) : 1;
+  var longest = 0;
+  for (var k = 1; k <= hops; k++) {
+    var Dk = D * k;
+    var T = playWhistlerHop(when, Dk, 0.14 * Math.pow(0.55, k - 1));
+    longest = Math.max(longest, Dk / Math.sqrt(380) - Dk / Math.sqrt(9000));
+  }
+  counts.whistlers++;
+  noteEvent(hops > 1 ? 'a whistler fell, then fell again — one spark, echoing hemisphere to hemisphere'
+                     : 'a whistler fell — lightning from the far hemisphere, arrived by field line', true);
+  return longest;
+}
+
+function playChorusChirp(when) {
+  // discrete risers: ~0.1 s chirps in the 1.5-3.5 kHz ground band,
+  // sweeping at honest rates (a few hundred Hz per tenth of a second)
+  var o = actx.createOscillator();
+  var f0 = 1450 + Math.random() * 950;
+  var T = 0.08 + Math.random() * 0.17;
+  var f1 = f0 + (300 + Math.random() * 400) * (T / 0.2);
+  o.frequency.setValueAtTime(f0, when);
+  o.frequency.exponentialRampToValueAtTime(f1, when + T);
+  var g = actx.createGain();
+  g.gain.setValueAtTime(0.0001, when);
+  g.gain.exponentialRampToValueAtTime(0.045, when + T * 0.35);
+  g.gain.exponentialRampToValueAtTime(0.0001, when + T);
+  o.connect(g); g.connect(eventsGain);
+  o.start(when); o.stop(when + T + 0.01);
+}
+
+function playChorus(when) {
+  // swarms of risers at sub-second intervals — the flock, not one bird
+  var n = 6 + Math.floor(Math.random() * 9);
+  var t = 0;
+  for (var i = 0; i < n; i++) {
+    t += 0.12 + Math.random() * 0.5;
+    playChorusChirp(when + t);
+  }
+  counts.chorus++;
+  noteEvent('chorus — electrons flung in from the night side, singing on the dawn sector', true);
+}
+
+// ---------- scheduling on the audio clock, never the frame clock ----------
+// a radio does not stop playing when you look away: the scheduler runs on
+// setInterval + AudioContext time, so a background tab keeps receiving
+var timers = [];
+function scheduleAll() {
+  // background tabs throttle timers to once a second; a 2.5 s horizon
+  // keeps the sky stocked across the gaps
+  var LOOKAHEAD = 2.5;
+  var next = { sferic: actx.currentTime + 0.1, tweek: actx.currentTime + 1,
+               whistler: actx.currentTime + 6 + Math.random() * 10,
+               chorus: actx.currentTime + 12 };
+  function exp(mean) { return -Math.log(1 - Math.random()) * mean; }
+  timers.push(setInterval(function () {
+    var horizon = actx.currentTime + LOOKAHEAD;
+    while (next.sferic < horizon) {
+      var loud = Math.random() < 0.06 ? 0.12 + Math.random() * 0.1
+                                      : 0.015 + Math.random() * 0.04;
+      playSferic(next.sferic, loud);
+      next.sferic += exp(SFERIC_MEAN);
+    }
+    while (next.tweek < horizon) {
+      playTweek(next.tweek);
+      next.tweek += exp(TWEEK_MEAN);
+    }
+    while (next.whistler < horizon) {
+      playWhistler(next.whistler);
+      next.whistler += exp(WHISTLER_MEAN) + 4;
+    }
+    while (next.chorus < horizon) {
+      playChorus(next.chorus);
+      next.chorus += exp(CHORUS_MEAN) + 8;
+    }
+  }, 400));
+}
+
+// ---------- ledger and status ----------
+var lastLedger = '', lastSpoken = '', lastSpokeAt = 0, eventNote = '', eventNoteT = 0;
+function setLedger(msg) {
+  if (msg === lastLedger) return;
+  lastLedger = msg;
+  ledger.innerHTML = msg;
+}
+function noteEvent(text, speakIt) {
+  eventNote = text; eventNoteT = performance.now();
+  lastEvent = text;
+  if (speakIt && srStatus) {
+    var now = performance.now();
+    if (now - lastSpokeAt > 8000 && text !== lastSpoken) {
+      lastSpoken = text; lastSpokeAt = now;
+      srStatus.textContent = text;
+    }
+  }
+}
+function humWord() {
+  var h = humLevelAt(d);
+  return h > 0.28 ? 'the mains roar over everything' :
+         h > 0.09 ? 'the hum is loosening its grip' :
+         h > 0.028 ? 'the hum is a memory now' :
+         'the wires are gone; the sky is open';
+}
+function distWord() {
+  return d < 1000 ? Math.round(d) + ' m out'
+                  : (d / 1000).toFixed(1).replace('.0', '') + ' km out';
+}
+function updateLedger() {
+  if (!running) { setLedger('the receiver is off'); return; }
+  var fresh = performance.now() - eventNoteT < 6000;
+  var base = distWord() + ' &middot; ' + humWord();
+  setLedger(fresh ? base + ' &middot; <span class="blue">' + eventNote + '</span>' : base);
+}
+
+// ---------- input ----------
+var keys = {};
+field.addEventListener('keydown', function (e) {
+  if (['ArrowLeft', 'ArrowRight'].indexOf(e.key) < 0) return;
+  e.preventDefault();
+  keys[e.key] = true;
+});
+field.addEventListener('keyup', function (e) { keys[e.key] = false; });
+field.addEventListener('blur', function () { keys = {}; walking = 0; });
+var pointerHeld = 0;
+field.addEventListener('pointerdown', function (e) {
+  if (e.button !== 0 && e.pointerType === 'mouse') return;
+  var r = field.getBoundingClientRect();
+  pointerHeld = (e.clientX - r.left) > r.width / 2 ? 1 : -1;
+  field.setPointerCapture && field.setPointerCapture(e.pointerId);
+});
+function endPointer() { pointerHeld = 0; }
+field.addEventListener('pointerup', endPointer);
+field.addEventListener('pointercancel', endPointer);
+window.addEventListener('pointerup', endPointer);
+window.addEventListener('blur', function () { pointerHeld = 0; keys = {}; });
+
+startBtn.addEventListener('click', function () {
+  cover.hidden = true;
+  startAudio();
+  field.focus();
+});
+
+// ---------- the field, drawn ----------
+function fit(canvas, ratio) {
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var w = canvas.clientWidth || 800;
+  var h = Math.round(w / ratio);
+  if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+  }
+}
+var FW = 1280, FH = 560;
+var stars = [];
+(function () {
+  var r = (function (a) { return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    var t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }; })(20260916);
+  for (var i = 0; i < 110; i++) {
+    stars.push({ x: r() * FW, y: r() * FH * 0.52, a: 0.15 + r() * 0.5, s: r() < 0.12 ? 1.6 : 1 });
+  }
+})();
+function drawField() {
+  fit(field, 16 / 7);
+  var scale = field.width / FW;
+  fctx.setTransform(scale, 0, 0, scale, 0, 0);
+  fctx.fillStyle = '#05080d';
+  fctx.fillRect(0, 0, FW, FH);
+  // stars
+  for (var i = 0; i < stars.length; i++) {
+    var st = stars[i];
+    fctx.fillStyle = 'rgba(233,228,214,' + st.a.toFixed(2) + ')';
+    fctx.fillRect(st.x, st.y, st.s, st.s);
+  }
+  // horizon and ground
+  var hy = FH * 0.62;
+  fctx.fillStyle = '#070b12';
+  fctx.fillRect(0, hy, FW, FH - hy);
+  // the house glow, receding: at d=0 it fills the left; far out it is a smudge
+  var houseX = 140 - d * 1.9;
+  var glow = Math.max(0, 1 - d / 1400);
+  if (glow > 0.01) {
+    var gx = Math.max(-260, houseX);
+    var gr = fctx.createRadialGradient(gx, hy, 6, gx, hy, 210 * glow + 40);
+    gr.addColorStop(0, 'rgba(255,200,115,' + (0.5 * glow).toFixed(3) + ')');
+    gr.addColorStop(1, 'rgba(255,200,115,0)');
+    fctx.fillStyle = gr;
+    fctx.fillRect(0, 0, FW, FH);
+    if (houseX > -80) {
+      // the house itself, one window lit
+      fctx.fillStyle = '#0d1320';
+      fctx.fillRect(houseX - 46, hy - 64, 108, 64);
+      fctx.beginPath();
+      fctx.moveTo(houseX - 54, hy - 64); fctx.lineTo(houseX + 8, hy - 98);
+      fctx.lineTo(houseX + 70, hy - 64); fctx.closePath(); fctx.fill();
+      fctx.fillStyle = 'rgba(255,200,115,' + (0.85 * glow + 0.1).toFixed(3) + ')';
+      fctx.fillRect(houseX - 22, hy - 44, 16, 20);
+    }
+  }
+  // power poles march with the house and stop where the line ends
+  fctx.strokeStyle = '#131c29';
+  fctx.lineWidth = 3;
+  for (var pk = 0; pk < 7; pk++) {
+    var px = houseX + 96 + pk * 150;
+    if (px < -20 || px > FW + 20) continue;
+    fctx.beginPath();
+    fctx.moveTo(px, hy); fctx.lineTo(px, hy - 92);
+    fctx.moveTo(px - 16, hy - 86); fctx.lineTo(px + 16, hy - 86);
+    fctx.stroke();
+    if (pk < 6) {
+      var nx = houseX + 96 + (pk + 1) * 150;
+      fctx.beginPath();
+      fctx.moveTo(px + 16, hy - 86);
+      fctx.quadraticCurveTo((px + nx) / 2, hy - 74, nx - 16, hy - 86);
+      fctx.stroke();
+    }
+  }
+  // the listener, centre field: a small figure with a whip antenna
+  var lx = FW * 0.5;
+  fctx.strokeStyle = 'rgba(233,228,214,0.55)';
+  fctx.lineWidth = 2.5;
+  fctx.beginPath();
+  fctx.moveTo(lx, hy); fctx.lineTo(lx, hy - 26);          // body
+  fctx.moveTo(lx, hy - 26); fctx.lineTo(lx + 9, hy - 46); // the whip, raised
+  fctx.stroke();
+  fctx.fillStyle = 'rgba(233,228,214,0.55)';
+  fctx.beginPath(); fctx.arc(lx, hy - 31, 4.5, 0, Math.PI * 2); fctx.fill();
+  fctx.setTransform(1, 0, 0, 1, 0, 0);
+}
+
+// ---------- the spectrogram ----------
+var freqData = null, lastBarT = 0;
+function drawGram(nowMs) {
+  fit(gram, 16 / 3.6);
+  if (!running) {
+    gctx.fillStyle = '#04070b';
+    gctx.fillRect(0, 0, gram.width, gram.height);
+    return;
+  }
+  if (!freqData) freqData = new Uint8Array(analyser.frequencyBinCount);
+  var w = gram.width, h = gram.height;
+  var nyq = actx.sampleRate / 2;
+  var maxF = 11000;
+  if (reduceMotion.matches) {
+    // no waterfall under reduced motion: a slow spectrum, twice a second
+    if (nowMs - lastBarT < 500) return;
+    lastBarT = nowMs;
+    analyser.getByteFrequencyData(freqData);
+    gctx.fillStyle = '#04070b';
+    gctx.fillRect(0, 0, w, h);
+    var bins = Math.floor(freqData.length * maxF / nyq);
+    for (var x = 0; x < w; x += 2) {
+      var bi = Math.min(bins - 1, Math.floor((x / w) * bins));
+      var v = freqData[bi] / 255;
+      if (v < 0.04) continue;
+      gctx.fillStyle = 'rgba(159,220,255,' + (v * v).toFixed(3) + ')';
+      gctx.fillRect(x, h - v * h, 2, v * h);
+    }
+    return;
+  }
+  analyser.getByteFrequencyData(freqData);
+  // scroll left, draw the new column at the right edge
+  gctx.drawImage(gram, -2, 0);
+  gctx.fillStyle = '#04070b';
+  gctx.fillRect(w - 2, 0, 2, h);
+  var bins2 = Math.floor(freqData.length * maxF / nyq);
+  for (var y = 0; y < h; y++) {
+    var f = maxF * (1 - y / h);
+    var bi2 = Math.min(bins2 - 1, Math.floor(f / nyq * freqData.length));
+    var v2 = freqData[bi2] / 255;
+    if (v2 < 0.04) continue;
+    var a = Math.min(1, v2 * 1.5);
+    var col = v2 > 0.7 ? '233,228,214' : v2 > 0.4 ? '159,220,255' : '90,140,180';
+    gctx.fillStyle = 'rgba(' + col + ',' + (a * a).toFixed(3) + ')';
+    gctx.fillRect(w - 2, y, 2, 1.5);
+  }
+}
+
+// ---------- frame loop: draw only; sound schedules itself ----------
+var lastT = 0;
+function frame(nowMs) {
+  var dt = lastT ? Math.min(0.06, (nowMs - lastT) / 1000) : 0;
+  lastT = nowMs;
+  walking = keys.ArrowRight || pointerHeld > 0 ? 1 :
+            keys.ArrowLeft || pointerHeld < 0 ? -1 : 0;
+  if (walking && running) {
+    d = Math.max(0, Math.min(FAR, d + walking * WALK * dt));
+    applyDistance();
+  }
+  drawField();
+  drawGram(nowMs);
+  updateLedger();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden) {
+    lastT = 0;
+    // phones suspend the context on lock; a page that looks on must be on
+    if (actx && actx.state === 'suspended') actx.resume();
+  }
+});
+
+window.__sferics = {
+  get state() {
+    return { d: d, hum: humLevelAt(d), running: running, night: isNight,
+             dawn: isDawnWindow, counts: counts, lastEvent: lastEvent,
+             fc: TWEEK_FC, ceilingKm: CEILING_KM, far: FAR };
+  },
+  walkTo: function (m) { d = Math.max(0, Math.min(FAR, m)); applyDistance(); },
+  force: function (kind) {
+    if (!running) return false;
+    var t = actx.currentTime + 0.05;
+    if (kind === 'whistler') playWhistler(t);
+    else if (kind === 'tweek') playTweek(t);
+    else if (kind === 'chorus') playChorus(t);
+    else playSferic(t, 0.1);
+    return true;
+  },
+};
+})();
+</script>
+</body>
+</html>
