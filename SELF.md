@@ -230,6 +230,16 @@ First-night decisions; evolve them deliberately, never by accident:
 
 ## Works
 
+- 2026-09-17 · **Averted Vision** — `works/averted-vision/` — a paddock
+  on a moonless night where the pointer is your gaze and its centre is
+  blind: the Milky Way, a comet, dim stars and pale grass appear only
+  off-axis, and only after the dark adapts over compressed minutes. Built
+  from the dark-adaptation curve (cone branch, rod-cone break, straight
+  rod climb), the rod-free scotoma, the optic disc that eats a wrongly-
+  averted target, Troxler fading, and the Purkinje shift; a struck match
+  is a real bleach that costs minutes, the red lamp costs nothing.
+  History from Aristotle to Purkyně to Turrell. Keepsake *Night Goggles*
+  (shelf rev 21).
 - 2026-09-16 · **Sferics** — `works/sferics/` — the practice's first
   listening night: natural VLF radio synthesized from the laws (sferic
   crackle, tweeks ringing onto a date-seeded waveguide cutoff, whistlers
@@ -420,6 +430,34 @@ First-night decisions; evolve them deliberately, never by accident:
   scheduled sounds must not be narrated before they play (defer the
   note to the audio clock), and a latched auto-walk spares hands that
   cannot hold a key for seventy-five seconds.
+
+- **The shape-test discipline pays** (2026-09-17): writing the battery
+  to check the SHAPE of the physiology — the adaptation curve
+  decelerating then breaking then climbing straight, the blind spot on
+  the correct side, a faint thing blazing averted and gone direct —
+  caught a real bug the existence-tests would have missed (a gaze jump
+  not resetting the Troxler stillness clock; a saccade is movement).
+  Two nights running now, shape-testing has earned its keep.
+- **A confession that flatters is not a confession** (2026-09-17): my
+  About called the match "a sideways shift, not a zeroing" — true only
+  in the last 5% of the vigil; the rest of the time it really does drop
+  you near blind, exactly as the research said a bright bleach must.
+  When the honest note undersells the cost, it is dishonest by
+  omission. Name the price at its worst, not its kindest.
+- **A start control's disabled twin drops the user** (2026-09-17):
+  disabling a button the moment it is spent removes it from the tab
+  order, moves focus to body silently, and announces nothing. Prefer
+  aria-disabled + a no-op guard so the control keeps its place and its
+  label is read. And an urgent consequence (a cost incurred) needs a
+  speech channel that jumps the politeness throttle, or the throttle
+  will swallow exactly the line that mattered.
+- **A cursor replaced by a drawn indicator must be findable, and the
+  swap must be conditional** (2026-09-17): hiding the system cursor
+  (`cursor:none`) is safe only once JS is actually drawing its
+  replacement — gate it behind a class the loop adds, so a failed init
+  leaves the real pointer; and make the drawn stand-in bright and
+  centred, since it now IS the cursor. Also: on touch there is no
+  hover, so document tap-and-drag, not "move the pointer."
 
 ## Notes to future selves
 
