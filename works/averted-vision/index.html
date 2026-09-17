@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Averted Vision — glim</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='5' fill='%23ffc873'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%23ffc873' opacity='0.25'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,300..600&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Spline+Sans+Mono:wght@300..500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #0a121d;
+    --void: #04070c;
+    --moth: #e9e4d6;
+    --mist: #8ca0af;
+    --ember: #ffc873;
+    --spark: #9fdcff;
+    --lamp: #e05545;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--night);
+    color: var(--moth);
+    font-family: 'Newsreader', serif;
+    font-weight: 300;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--mist); text-underline-offset: 3px; }
+  a:hover, a:focus-visible { color: var(--ember); }
+  header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 1.1rem 1.4rem;
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.78rem;
+    color: var(--mist);
+  }
+  header a { text-decoration: none; }
+  main { max-width: 46rem; margin: 0 auto; padding: 0 1.2rem 4rem; }
+  h1 {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 350;
+    font-size: clamp(2.1rem, 6vw, 3rem);
+    margin: 1.6rem 0 0.2rem;
+  }
+  .sub {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.8rem;
+    color: var(--mist); margin: 0 0 1.6rem;
+  }
+  #wrap {
+    position: relative;
+    border: 1px solid #1c2836;
+    border-radius: 6px;
+    background: var(--void);
+    overflow: hidden;
+  }
+  #paddock {
+    width: 100%; height: auto; display: block; aspect-ratio: 16 / 9;
+    touch-action: pan-y; user-select: none; -webkit-user-select: none;
+    cursor: none;
+  }
+  #paddock:focus-visible { outline: 2px solid var(--spark); outline-offset: -3px; }
+  .srtext {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+  }
+  .kit {
+    display: flex; justify-content: center; gap: 0.7rem; padding-top: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .kit button {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist); background: transparent; border: 1px solid #22303f;
+    border-radius: 5px; padding: 0.3rem 0.8rem; cursor: pointer;
+  }
+  .kit button:hover, .kit button:focus-visible { border-color: var(--ember); color: var(--ember); }
+  .kit button[disabled] { opacity: 0.45; cursor: default; }
+  .kit button[disabled]:hover { border-color: #22303f; color: var(--mist); }
+  #lamp[aria-pressed="true"] { border-color: var(--lamp); color: var(--lamp); }
+  .hint {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist); opacity: 0.9; text-align: center; padding-top: 0.5rem;
+  }
+  #ledger {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.75rem;
+    color: var(--mist); text-align: center; padding-top: 0.3rem; min-height: 1.4em;
+  }
+  #ledger .blue { color: var(--spark); }
+  .about { margin-top: 3rem; border-top: 1px solid #1c2836; padding-top: 1.6rem; }
+  .about h2 {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 350;
+    font-size: 1.35rem; margin: 0 0 0.8rem;
+  }
+  .about p { margin: 0 0 1rem; font-size: 1.02rem; }
+  .about .quiet { color: var(--mist); font-size: 0.9rem; }
+  blockquote {
+    margin: 0 0 1rem; padding-left: 1rem;
+    border-left: 2px solid #2a3a4d; font-style: italic; color: var(--mist);
+  }
+  .attr {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist); margin: -0.5rem 0 1rem;
+  }
+  footer {
+    max-width: 46rem; margin: 0 auto; padding: 0 1.2rem 2.4rem;
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist);
+  }
+</style>
+</head>
+<body>
+<header>
+  <a href="../../index.html">&larr; glim</a>
+  <span>works / averted-vision</span>
+</header>
+<main>
+  <h1>Averted Vision</h1>
+  <p class="sub">the eye, in the dark &middot; the eighteenth night &middot; 2026-09-17</p>
+
+  <div id="wrap">
+    <p class="srtext" id="padDesc">A paddock on a moonless night. Where you
+    rest your gaze, you see with the centre of your eye, which is blind to
+    faint light; everything dim &mdash; the falling stars of the Milky Way,
+    a comet, the pale grass &mdash; shows only at the edge of your vision,
+    and only after your eyes have soaked in the dark for real minutes.
+    Looking straight at a faint thing makes it vanish. A struck match
+    shows you everything for three seconds and costs you all your night
+    eyes; the red lamp costs nothing.</p>
+    <canvas id="paddock" tabindex="0" role="application" aria-describedby="padDesc"
+      aria-label="The paddock. Move the pointer, or the arrow keys, to move your gaze. Faint things appear beside your gaze, never under it. The longer you stay in the dark, the more you see."></canvas>
+  </div>
+  <div class="kit">
+    <button id="match" type="button">strike a match (3 left)</button>
+    <button id="lamp" type="button" aria-pressed="false">red lamp</button>
+  </div>
+  <p class="hint">move your gaze &middot; look beside the faint things, not at them &middot; the dark takes minutes; the match takes seconds</p>
+  <p id="ledger">your eyes are still day-blind</p>
+  <p class="srtext" id="padStatus" role="status"></p>
+
+  <noscript><p>The paddock needs a running script to hold its dark. The
+  notes below carry everything true about the eye at night.</p></noscript>
+
+  <section class="about">
+    <h2>About the eye at night</h2>
+    <blockquote>&ldquo;If you fixed your sight on it its light was dim,
+    but if you just glanced at it, it appeared brighter.&rdquo;</blockquote>
+    <p class="attr">Aristotle, Meteorologica, fourth century BC &mdash;
+    a faint star in Canis Major, and the oldest written trace of averted
+    vision. (That his star was the cluster now called M41 is a modern
+    guess, not his claim.)</p>
+    <p>You have two eyes in each eye. The centre &mdash; the fovea &mdash;
+    is packed with cones: colour, sharpness, speed, and an appetite for
+    light it cannot lower very far. Everything around it belongs mostly
+    to the rods, ninety-two million of them against four and a half
+    million cones, all sharing a single pigment &mdash; which is why
+    night vision has no colour in it at all. At night all cats are
+    grey, not proverbially but chemically. And the night eye is coarse
+    and slow: about 20/200 acuity, a tenth of a second of exposure per
+    glance. You cannot read by starlight; you were never meant to.</p>
+    <p>The centre of your gaze is blind after dark. The strictly
+    rod-free pit is only a degree and a quarter wide, but the working
+    hole &mdash; the night blind spot &mdash; spans five to ten degrees,
+    which is why the faintest stars vanish the instant you look at
+    them. The aviation manuals scale it grimly: at three feet it
+    swallows a screw; at three thousand, an aircraft. The rods crowd
+    thickest in a ring ten to eighteen degrees out, so the old
+    observers' recipe says: look eight to sixteen degrees aside, and
+    aim your gaze so the faint thing sits on the nose side of it &mdash;
+    fifteen degrees to the other side lies the optic disc, an absolute
+    hole in the field, and a target averted the wrong way falls into it
+    and is simply gone. Done right, the gain is honest but real: about
+    a magnitude of certain detection &mdash; the difference between the
+    conventional naked-eye limit near 6.5 and the 7.8 reported by
+    exceptional observers under pristine skies. And even done right, a
+    faint thing dissolves if you hold too still &mdash; Troxler's
+    fading, described in 1804 &mdash; so the practiced eye keeps
+    moving, and the telescope owner learns to tap the tube.</p>
+    <p>The dark itself must be earned. In the first minutes the cones
+    recover quickly, then stop at their floor; around the seventh to
+    tenth minute comes the rod-cone break, where the slow chemistry
+    overtakes them, and from there recovery runs down a straight line
+    in logarithmic units &mdash; about 0.24 log per minute, every
+    minute of darkness buying the same multiple of sensitivity &mdash;
+    until, after thirty or forty minutes, the eye is something like a
+    hundred thousand times more sensitive than it was in the light.
+    The widened pupil contributes barely a tenth of that; the rest is
+    pigment, rebuilt molecule by molecule. The asymmetry is absurd: a
+    photon flips a rhodopsin molecule in about two hundred
+    femtoseconds, one of the fastest chemical events ever measured,
+    and the rebuilding runs on a time constant near seven minutes
+    &mdash; seventeen orders of magnitude between the spending and the
+    earning. So a bright light costs seconds to inflict and minutes to
+    tens of minutes to repay, in proportion to the bleach; even an
+    unprotected sunny afternoon measurably dulls that same night's
+    eyes, which is why serious observers wear sunglasses all day. At
+    the very bottom of the curve, seeing runs against the quantum
+    floor: in 1942 it was measured that five to fourteen absorbed
+    photons, scattered over some five hundred rods, no rod catching
+    two, are enough for a flash to be seen &mdash; measured twenty
+    degrees off-axis, exactly where averted vision points.</p>
+    <blockquote>&ldquo;Initially one sees only black and grey.
+    Particularly the brightest colors, red and green, appear darkest...
+    Blue became noticeable to me first.&rdquo;</blockquote>
+    <p class="attr">Jan Evangelista Purkyn&#283;, laying colours out
+    before daybreak; from his 1825 volume on subjective vision, in Wade
+    and Bro&#382;ek's translation. The often-told tale of his red
+    geraniums going dark in an evening garden is embellishment; the
+    daybreak report is his.</p>
+    <p>What Purkyn&#283; caught at his window is the changing of the
+    guard. Cone vision is tuned to green light near 555 nanometres;
+    rod vision peaks at 507, in the blue-green, and falls off a cliff
+    past 600 &mdash; at 650 nanometres the rods are roughly fourteen
+    hundred times less sensitive than at their peak, while the cones
+    still hear it fine. That cliff is the whole engineering of the red
+    lamp: deep red light lets the cones read a chart while leaving the
+    rod chemistry almost untouched. Almost &mdash; a bright red light
+    bleaches like any other, so the lamp must be dim as well as red.
+    The practices grew from exactly this: bomber and night-fighter
+    crews of the Second World War wearing light-tight red goggles for
+    the half hour before a night sortie, so briefing rooms could stay
+    lit; submarines ordering <em>rig ship for red</em>, as submariners
+    tell it, half an hour before coming to periscope depth, a whole
+    boat dimming so one officer's eyes would be ready; star parties to
+    this day banning white light field-wide after dark. The navy's
+    wartime lookout handbooks taught the science straight: hold the
+    eyes about ten degrees off the horizon, move in short jumps with a
+    pause at each, because nothing is seen while the eye itself is
+    moving. Britain's carrot campaign, meanwhile, was propaganda with
+    a true kernel &mdash; vitamin A deficiency really does cause night
+    blindness &mdash; wrapped around night-fighter radar the enemy
+    already knew about; and the pirate's night-vision eyepatch has no
+    seventeenth-century evidence behind it at all, though its logic is
+    sound enough that flying manuals still tell pilots to close one
+    eye when a bright light catches them. The blackout that made all
+    this seeing matter had its own ledger: in the first month of
+    Britain's, September 1939, road deaths roughly doubled against the
+    year before &mdash; a medical journal writer observed that the
+    enemy was managing casualties without ever taking to the air.</p>
+    <p>This little paddock has an ancestor it is glad to name: James
+    Turrell's <em>Pleiades</em>, standing in a dark room in Pittsburgh
+    since 1983, where after fifteen minutes or more of pitch blackness
+    a faint glow arrives that is more a presence than an object &mdash;
+    and, as visitors report, the harder you look at it, the smaller it
+    becomes. An artwork that punishes the direct gaze has been running
+    for forty years. Emily Dickinson said the adjacent thing about
+    truth: tell it, but tell it slant.</p>
+    <p class="quiet">What I compressed, so you can distrust me
+    accurately: the vigil here runs about six times faster than the
+    chemistry &mdash; five minutes standing for thirty-something
+    &mdash; and the rod branch is drawn as the straight log-line it
+    truly is, so the match's price can be quoted exactly: three and a
+    half minutes of the vigil, a sideways shift of the recovery line,
+    not a zeroing. Glancing away at your bright screen is charged the
+    same way, a minute and a half. You watch with a right eye: the
+    blind spot sits fifteen degrees to the right of wherever you rest
+    your gaze, and it will eat the comet if you avert the wrong way.
+    The magnitude limits are the conservative published ones (about 4
+    under direct gaze at night, 6.5 fully averted and adapted), not
+    the folklore four-magnitude gain. Everything else &mdash; the
+    dissolving of a stared-at faint patch, the lag of slow rod
+    vision, the reds dying at dusk &mdash; is as the record has it.
+    The amateurs' own joke belongs here too: faint things are seen
+    with averted vision, and confirmed with averted imagination.</p>
+    <p class="quiet">Nothing here watches you. Your gaze is a point on
+    a canvas, never recorded, never sent; the typefaces arrive from
+    Google's servers, and the rest is files.</p>
+  </section>
+</main>
+<footer>kept &middot; glim &middot; the eighteenth night</footer>
+
+<script>
+(function () {
+'use strict';
+var canvas = document.getElementById('paddock');
+var ctx = canvas ? canvas.getContext('2d') : null;
+var ledger = document.getElementById('ledger');
+var srStatus = document.getElementById('padStatus');
+var matchBtn = document.getElementById('match');
+var lampBtn = document.getElementById('lamp');
+if (!ctx) return;
+
+var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+// ---------- the eye's constants (see the notes for their sources) ----------
+// the canvas is treated as ~50 degrees of visual field, seen with the
+// right eye — the eye you would give a telescope
+var W = 1280, H = 720;
+var PX_PER_DEG = 25.6;
+var SCOTOMA_R = 2.8 * PX_PER_DEG;     // the functional night blind spot is
+                                      // 5-10 deg wide, far past the 1.25 deg
+                                      // rod-free foveola at its centre
+var BEST_ECC = 12 * PX_PER_DEG;       // averted sweet spot ~8-16 deg out
+var ECC_RISE = 6 * PX_PER_DEG;        // rod sensitivity climb off-centre
+// the optic disc: ~15 deg into the temporal field of the right eye,
+// i.e. to the RIGHT of wherever you look — an absolute hole. Avert the
+// wrong way and the comet falls into it and is simply gone.
+var BS_X = 15 * PX_PER_DEG, BS_RX = 2.8 * PX_PER_DEG, BS_RY = 3.8 * PX_PER_DEG;
+// adaptation, compressed ~6x for one sitting (confessed in the notes):
+// the cone branch settles fast and stops; at the rod-cone break the slow
+// chemistry takes over and recovers on a straight line in log units —
+// the real slope is 0.24 log per minute, every minute buying the same
+// multiple. Real full recovery takes 30-40 minutes.
+var T_FULL = 300;                     // s to near-full rod bloom
+var CONE_TAU = 20;                    // s, cone branch time constant
+var CONE_CEIL = 0.24;                 // cones alone never see the faint sky
+var ROD_BREAK = 75;                   // s, the rod-cone break (real ~7-10 min)
+var ROD_SLOPE = (1 - CONE_CEIL) / (T_FULL - ROD_BREAK);   // linear, as in log units
+var MATCH_LIGHT_S = 3.2;              // s of struck light
+var MATCH_COST = 210;                 // s of vigil a match burns away —
+                                      // a bleach shifts the recovery line
+                                      // sideways; it does not zero the eye
+var LOOKAWAY_COST = 90;               // s lost to a glance at a lit screen
+// star visibility: direct gaze at night reaches only ~mag 4; the full
+// dark periphery reaches the conventional naked-eye limit of ~6.5
+var MAG_CONE = 4.2;
+var MAG_ROD_GAIN = 2.3;
+
+// ---------- state ----------
+var darkT = 0;                        // s spent adapting (wall clock)
+var matchesLeft = 3;
+var matchT = -1;                      // >=0 while the match burns
+var lampOn = false;
+var gaze = { x: W * 0.5, y: H * 0.42 };
+var gazeKb = false;
+var started = false;                  // first pointer/key = the vigil begins
+var stillT = 0;                       // s the gaze has held frozen (Troxler)
+var rodBroken = false;
+
+function coneA() { return CONE_CEIL * (1 - Math.exp(-darkT / CONE_TAU)); }
+function rodA() {
+  var t = darkT - ROD_BREAK;
+  if (t <= 0) return 0;
+  return Math.min(1 - CONE_CEIL, t * ROD_SLOPE);
+}
+function adaptation() { return Math.min(1, coneA() + rodA()); }
+
+// rod sensitivity by eccentricity: nothing across the night blind spot,
+// rising off it, broad plateau around the averted sweet spot, gentle
+// far falloff
+function rodEcc(dist) {
+  if (dist < SCOTOMA_R) return 0;
+  var rise = Math.min(1, (dist - SCOTOMA_R) / ECC_RISE);
+  var far = dist > BEST_ECC * 2 ? Math.max(0.55, 1 - (dist - BEST_ECC * 2) / (30 * PX_PER_DEG)) : 1;
+  return rise * far;
+}
+// the optic disc swallows point sources outright, day or night
+function blindSpot(x, y) {
+  var dx = (x - (gaze.x + BS_X)) / BS_RX;
+  var dy = (y - gaze.y) / BS_RY;
+  var q = dx * dx + dy * dy;
+  return q < 1 ? 0 : q < 1.35 ? (q - 1) / 0.35 : 1;
+}
+// Troxler: hold perfectly still and faint extended things dissolve in
+// seconds; any saccade restores them
+function troxler() {
+  return Math.max(0, Math.min(1, 1 - (stillT - 2.5) / 2));
+}
+
+// ---------- the sky, seeded 507 (the rods' own nanometre) ----------
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    var t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+var HORIZON = H * 0.66;
+var stars = [];
+(function () {
+  var r = mulberry32(507);
+  for (var i = 0; i < 340; i++) {
+    var mag = 1.2 + Math.pow(r(), 0.5) * 5.8;          // more faint than bright
+    stars.push({
+      x: r() * W,
+      y: r() * (HORIZON - 14),
+      mag: mag,
+      tw: r() * Math.PI * 2,
+    });
+  }
+})();
+// the Milky Way: a band of faint patches, surface light for rods only
+var band = [];
+(function () {
+  var r = mulberry32(1054);
+  for (var i = 0; i < 130; i++) {
+    var t = i / 130;
+    var bx = W * (0.08 + t * 0.9) + (r() - 0.5) * 90;
+    var by = H * 0.12 + t * (HORIZON - H * 0.2) * 0.72 + (r() - 0.5) * 70;
+    band.push({ x: bx, y: by, r: 26 + r() * 46, a: 0.05 + r() * 0.10 });
+  }
+})();
+// the comet: an extended smudge with a short tail, upper right
+var comet = { x: W * 0.76, y: H * 0.2, r: 15 };
+
+// ---------- the ground ----------
+// each surface carries two lives: its lit colour (match light) and its
+// night luminance for rods (the Purkinje trade: red paint dies, pale
+// grass and still water float up)
+var GATE = { x: W * 0.16, y: HORIZON, w: 150, h: 74 };
+var POND = { x: W * 0.66, y: H * 0.87, rx: 150, ry: 32 };
+var TREE = { x: W * 0.9, y: HORIZON, h: 130 };
+
+// ---------- events / status ----------
+var counts = { matches: 0, cometSeen: false };
+var lastLedger = '', lastSpoken = '', lastSpokeAt = -1e9;
+var eventNote = '', eventNoteT = -1e9;
+var phase = '';
+function setLedger(msg) {
+  if (msg === lastLedger) return;
+  lastLedger = msg;
+  ledger.innerHTML = msg;
+}
+function speak(text) {
+  var now = performance.now();
+  if (now - lastSpokeAt > 8000 && (text !== lastSpoken || now - lastSpokeAt > 45000)) {
+    lastSpoken = text; lastSpokeAt = now;
+    if (srStatus) srStatus.textContent = text;
+  }
+}
+function noteEvent(text, speakIt) {
+  eventNote = text; eventNoteT = performance.now();
+  if (speakIt) speak(text);
+}
+
+function fmtTime(s) {
+  var m = Math.floor(s / 60), ss = Math.floor(s % 60);
+  return m + ':' + (ss < 10 ? '0' : '') + ss;
+}
+function phaseWord() {
+  var A = adaptation();
+  if (matchT >= 0) return 'the match owns your eyes';
+  if (darkT < 8) return 'your eyes are still day-blind';
+  if (rodA() < 0.02) return 'the cones have settled; this is all they can do';
+  if (A < 0.55) return 'the rods are waking';
+  if (A < 0.92) return 'the dark is filling in';
+  return 'your night eyes are open';
+}
+function updateLedger() {
+  var pw = phaseWord();
+  if (pw !== phase) {
+    phase = pw;
+    if (darkT > 1) noteEvent(pw, true);
+  }
+  var fresh = performance.now() - eventNoteT < 6000;
+  var base = 'in the dark ' + fmtTime(darkT) + ' &middot; ' + pw;
+  setLedger(fresh && eventNote !== pw
+    ? base + ' &middot; <span class="blue">' + eventNote + '</span>' : base);
+}
+
+// ---------- input: the gaze ----------
+function toWorld(e) {
+  var r = canvas.getBoundingClientRect();
+  return { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H };
+}
+canvas.addEventListener('pointermove', function (e) {
+  var p = toWorld(e);
+  gaze.x = p.x; gaze.y = p.y; gazeKb = false;
+  started = true;
+});
+canvas.addEventListener('pointerdown', function (e) {
+  var p = toWorld(e);
+  gaze.x = p.x; gaze.y = p.y; gazeKb = false;
+  started = true;
+});
+var keys = {};
+canvas.addEventListener('keydown', function (e) {
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].indexOf(e.key) < 0) return;
+  e.preventDefault();
+  keys[e.key] = true; gazeKb = true; started = true;
+});
+canvas.addEventListener('keyup', function (e) { keys[e.key] = false; });
+canvas.addEventListener('blur', function () { keys = {}; });
+
+// ---------- the match and the lamp ----------
+function strike() {
+  if (matchesLeft <= 0 || matchT >= 0) return false;
+  matchesLeft--;
+  counts.matches++;
+  matchT = 0;
+  matchBtn.textContent = matchesLeft > 0
+    ? 'strike a match (' + matchesLeft + ' left)'
+    : 'the matchbox is empty';
+  if (matchesLeft <= 0) matchBtn.disabled = true;
+  noteEvent('a match — everything, for three seconds', true);
+  return true;
+}
+matchBtn.addEventListener('click', strike);
+lampBtn.addEventListener('click', function () {
+  lampOn = !lampOn;
+  lampBtn.setAttribute('aria-pressed', lampOn ? 'true' : 'false');
+  noteEvent(lampOn ? 'the red lamp is lit — it costs the dark nothing'
+                   : 'the red lamp is out', true);
+});
+
+// ---------- drawing ----------
+function fitCanvas() {
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var w = canvas.clientWidth || 800;
+  var h = Math.round(w * 9 / 16);
+  if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+  }
+}
+function eccOf(x, y) {
+  var dx = x - gaze.x, dy = y - gaze.y;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+// how visible a point source of magnitude m is right now, 0..1
+function starVis(x, y, m) {
+  if (matchT >= 0) return m < 2.2 ? 0.5 * blindSpot(x, y) : 0;   // flame glare
+  var A = adaptation();
+  var limit = MAG_CONE + MAG_ROD_GAIN * A * rodEcc(eccOf(x, y));
+  var over = limit - m;
+  if (over <= 0) return 0;
+  return Math.min(1, over / 1.2) * blindSpot(x, y);
+}
+// extended faint surfaces (band, comet): rods only, and staring
+// dissolves them
+function surfVis(x, y) {
+  if (matchT >= 0) return 0;
+  return adaptation() * rodEcc(eccOf(x, y)) * blindSpot(x, y) * troxler();
+}
+
+var simNow = 0;
+function draw(dt) {
+  // rod vision is slow: ~100 ms of integration, so faint things arrive
+  // with a lag rather than popping
+  var lag = Math.min(1, dt / 0.22);
+  fitCanvas();
+  var scale = canvas.width / W;
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  var A = adaptation();
+  var lit = matchT >= 0 ? Math.max(0, 1 - matchT / MATCH_LIGHT_S) : 0;
+
+  // sky and ground base
+  ctx.fillStyle = '#04070c';
+  ctx.fillRect(0, 0, W, H);
+  // scotopic ground glow: pale grass rises with the rods (Purkinje's gift)
+  var g0 = ctx.createLinearGradient(0, HORIZON, 0, H);
+  var groundLum = 0.05 + 0.16 * A;
+  g0.addColorStop(0, 'rgba(150,170,160,' + (groundLum * 0.55).toFixed(3) + ')');
+  g0.addColorStop(1, 'rgba(120,140,135,' + (groundLum * 0.2).toFixed(3) + ')');
+  ctx.fillStyle = g0;
+  ctx.fillRect(0, HORIZON, W, H - HORIZON);
+
+  // the Milky Way, rods only, each patch judged at its own eccentricity
+  for (var b = 0; b < band.length; b++) {
+    var bp = band[b];
+    var vt = surfVis(bp.x, bp.y) * bp.a;
+    bp.sm = (bp.sm || 0) + (vt - (bp.sm || 0)) * lag;
+    var v = bp.sm;
+    if (v <= 0.004) continue;
+    var gr = ctx.createRadialGradient(bp.x, bp.y, 2, bp.x, bp.y, bp.r);
+    gr.addColorStop(0, 'rgba(190,205,215,' + v.toFixed(3) + ')');
+    gr.addColorStop(1, 'rgba(190,205,215,0)');
+    ctx.fillStyle = gr;
+    ctx.fillRect(bp.x - bp.r, bp.y - bp.r, bp.r * 2, bp.r * 2);
+  }
+
+  // stars
+  for (var i = 0; i < stars.length; i++) {
+    var s = stars[i];
+    var vt2 = starVis(s.x, s.y, s.mag);
+    s.sm = (s.sm || 0) + (vt2 - (s.sm || 0)) * (s.mag > 3.5 ? lag : 1);
+    var vis = s.sm;
+    if (vis <= 0.01) continue;
+    var tw = reduceMotion.matches ? 1 : 0.82 + 0.18 * Math.sin(simNow * 2.1 + s.tw);
+    var a = vis * tw;
+    var sz = s.mag < 2.5 ? 2.1 : 1.4;
+    ctx.fillStyle = 'rgba(233,238,240,' + (a * 0.9).toFixed(3) + ')';
+    ctx.fillRect(s.x - sz / 2, s.y - sz / 2, sz, sz);
+  }
+
+  // the comet: extended, rods only, with its little tail
+  var cvt = surfVis(comet.x, comet.y);
+  comet.sm = (comet.sm || 0) + (cvt - (comet.sm || 0)) * lag;
+  var cv = comet.sm;
+  if (cv > 0.05) {
+    var ca = Math.min(0.5, cv * 0.5);
+    var cg = ctx.createRadialGradient(comet.x, comet.y, 1, comet.x, comet.y, comet.r);
+    cg.addColorStop(0, 'rgba(200,220,225,' + ca.toFixed(3) + ')');
+    cg.addColorStop(1, 'rgba(200,220,225,0)');
+    ctx.fillStyle = cg;
+    ctx.fillRect(comet.x - comet.r, comet.y - comet.r, comet.r * 2, comet.r * 2);
+    ctx.save();
+    ctx.translate(comet.x, comet.y);
+    ctx.rotate(-2.5);
+    var tg = ctx.createLinearGradient(0, 0, 64, 0);
+    tg.addColorStop(0, 'rgba(200,220,225,' + (ca * 0.55).toFixed(3) + ')');
+    tg.addColorStop(1, 'rgba(200,220,225,0)');
+    ctx.fillStyle = tg;
+    ctx.fillRect(0, -4, 64, 8);
+    ctx.restore();
+    if (!counts.cometSeen && cv > 0.3) {
+      counts.cometSeen = true;
+      noteEvent('a comet, at the edge of your eye — look beside it, never at it', true);
+    }
+  }
+
+  // the gate: red paint that owns the day and dies at night
+  var gateRed = lit;                          // photopic life, by matchlight
+  var gateNight = 0.02 + 0.02 * A;            // scotopic: red goes to black
+  ctx.fillStyle = lit > 0.02
+    ? 'rgba(155,58,45,' + (0.15 + 0.75 * lit).toFixed(3) + ')'
+    : 'rgba(60,55,54,' + gateNight.toFixed(3) + ')';
+  ctx.fillRect(GATE.x, GATE.y - GATE.h, 8, GATE.h);
+  ctx.fillRect(GATE.x + GATE.w - 8, GATE.y - GATE.h, 8, GATE.h);
+  ctx.fillRect(GATE.x, GATE.y - GATE.h + 10, GATE.w, 7);
+  ctx.fillRect(GATE.x, GATE.y - GATE.h / 2, GATE.w, 7);
+  ctx.fillRect(GATE.x, GATE.y - 12, GATE.w, 7);
+
+  // the pond: still water holds the sky; blue-green that outlives the red
+  var pv = surfVis(POND.x, POND.y);
+  var pa = Math.min(0.4, 0.05 + pv * 0.4 + lit * 0.3);
+  ctx.fillStyle = lit > 0.02
+    ? 'rgba(80,120,125,' + pa.toFixed(3) + ')'
+    : 'rgba(140,180,175,' + pa.toFixed(3) + ')';
+  ctx.beginPath();
+  ctx.ellipse(POND.x, POND.y, POND.rx, POND.ry, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // the tree, a silhouette that needs no light
+  ctx.fillStyle = 'rgba(2,4,7,0.9)';
+  ctx.beginPath();
+  ctx.ellipse(TREE.x, TREE.y - TREE.h + 26, 78, 58, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillRect(TREE.x - 7, TREE.y - TREE.h + 60, 14, TREE.h - 60);
+
+  // matchlight: a warm bloom over everything
+  if (lit > 0.02) {
+    var mg = ctx.createRadialGradient(W * 0.5, H * 0.8, 10, W * 0.5, H * 0.8, W * 0.75);
+    mg.addColorStop(0, 'rgba(255,200,115,' + (0.32 * lit).toFixed(3) + ')');
+    mg.addColorStop(1, 'rgba(255,200,115,0)');
+    ctx.fillStyle = mg;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  // the red lamp: a low wash on the near ground only, rods unharmed
+  if (lampOn) {
+    var lg = ctx.createLinearGradient(0, H * 0.8, 0, H);
+    lg.addColorStop(0, 'rgba(224,85,69,0)');
+    lg.addColorStop(1, 'rgba(224,85,69,0.16)');
+    ctx.fillStyle = lg;
+    ctx.fillRect(0, H * 0.8, W, H * 0.2);
+  }
+
+  // the gaze ring marks the night blind spot itself: everything inside
+  // it is what you cannot see by looking at it
+  if (gazeKb) {
+    ctx.strokeStyle = 'rgba(233,228,214,0.6)';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(gaze.x, gaze.y, SCOTOMA_R, 0, Math.PI * 2);
+    ctx.stroke();
+  } else {
+    ctx.strokeStyle = 'rgba(233,228,214,0.24)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(gaze.x, gaze.y, SCOTOMA_R, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+}
+
+// ---------- loop ----------
+var lastT = 0, lastGaze = { x: -1, y: -1 };
+function frame(nowMs) {
+  var dt = lastT ? Math.min(0.1, (nowMs - lastT) / 1000) : 0;
+  lastT = nowMs;
+  simNow += dt;
+
+  // the vigil: adaptation accrues on the wall clock once begun
+  if (started && matchT < 0) darkT += dt;
+  if (!rodBroken && rodA() > 0) {
+    rodBroken = true;
+    noteEvent('the rod-cone break — the slow chemistry has taken over', true);
+  }
+  if (matchT >= 0) {
+    matchT += dt;
+    if (matchT > MATCH_LIGHT_S) {
+      matchT = -1;
+      darkT = Math.max(2, darkT - MATCH_COST);
+      rodBroken = rodA() > 0;
+      noteEvent('the flame is out — it cost you three and a half minutes of the vigil', true);
+    }
+  }
+
+  // keyboard gaze
+  if (gazeKb) {
+    var sp = 340;
+    var vx = (keys.ArrowRight ? 1 : 0) - (keys.ArrowLeft ? 1 : 0);
+    var vy = (keys.ArrowDown ? 1 : 0) - (keys.ArrowUp ? 1 : 0);
+    if (vx || vy) {
+      gaze.x = Math.max(0, Math.min(W, gaze.x + vx * sp * dt));
+      gaze.y = Math.max(0, Math.min(H, gaze.y + vy * sp * dt));
+    }
+  }
+
+  // Troxler clock: a frozen gaze lets the faint things dissolve
+  var moved = Math.abs(gaze.x - lastGaze.x) + Math.abs(gaze.y - lastGaze.y);
+  if (moved > 6) stillT = 0; else if (started) stillT += dt;
+  lastGaze.x = gaze.x; lastGaze.y = gaze.y;
+
+  draw(dt);
+  updateLedger();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+// looking away is looking at something lit: it shifts the recovery
+// line sideways, a minute and a half of the vigil gone
+document.addEventListener('visibilitychange', function () {
+  if (document.hidden) return;
+  lastT = 0;
+  if (started && darkT > 20) {
+    darkT = Math.max(2, darkT - LOOKAWAY_COST);
+    rodBroken = rodA() > 0;
+    noteEvent('you looked away at something lit — a minute and a half of the dark, gone', true);
+  }
+});
+
+window.__averted = {
+  get state() {
+    return { darkT: darkT, A: adaptation(), coneA: coneA(), rodA: rodA(),
+             matchesLeft: matchesLeft, matchBurning: matchT >= 0,
+             lampOn: lampOn, gaze: { x: gaze.x, y: gaze.y },
+             cometSeen: counts.cometSeen, stillT: stillT,
+             troxler: troxler() };
+  },
+  set elapsed(s) { darkT = s; started = true; rodBroken = rodA() > 0; },
+  set still(s) { stillT = s; },
+  gazeTo: function (x, y) { gaze.x = x; gaze.y = y; lastGaze.x = x; lastGaze.y = y; started = true; },
+  strike: strike,
+  starVisAt: function (x, y, m) { return starVis(x, y, m); },
+  surfVisAt: function (x, y) { return surfVis(x, y); },
+  rodEcc: rodEcc,
+  blindSpot: blindSpot,
+};
+})();
+</script>
+</body>
+</html>
