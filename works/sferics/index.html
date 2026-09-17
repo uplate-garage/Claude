@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sferics — glim</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='5' fill='%23ffc873'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%23ffc873' opacity='0.25'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,300..600&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Spline+Sans+Mono:wght@300..500&display=swap" rel="stylesheet">
@@ -54,7 +55,7 @@
   }
   #field {
     width: 100%; height: auto; display: block; aspect-ratio: 16 / 7;
-    touch-action: none; user-select: none; -webkit-user-select: none;
+    touch-action: pan-y; user-select: none; -webkit-user-select: none;
   }
   #field:focus-visible { outline: 2px solid var(--spark); outline-offset: -3px; }
   #gram {
@@ -72,6 +73,13 @@
     border-radius: 6px; padding: 0.8rem 1.4rem; cursor: pointer;
   }
   #start:hover, #start:focus-visible { border-color: var(--ember); color: var(--ember); }
+  #ear {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.7rem;
+    color: var(--mist); background: transparent; border: 1px solid #22303f;
+    border-radius: 5px; padding: 0.25rem 0.7rem; cursor: pointer;
+  }
+  #ear:hover, #ear:focus-visible { border-color: var(--ember); color: var(--ember); }
+  #ear[hidden] { display: none; }
   .srtext {
     position: absolute; width: 1px; height: 1px; overflow: hidden;
     clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
@@ -124,15 +132,17 @@
     of the mains fades, and underneath it the natural radio of the sky
     becomes audible: the crackle of distant lightning, ringing tweeks,
     and now and then a whistler falling slowly down the spectrum. A live
-    spectrogram below the field draws everything the receiver hears.</p>
-    <canvas id="field" tabindex="0" role="application" aria-describedby="fieldDesc"
-      aria-label="The field. Hold the right arrow key, or press and hold the right side, to walk away from the house; left walks back. The farther you get from the power line, the more of the sky you can hear."></canvas>
+    spectrogram below the field draws everything the receiver hears. The
+    receiver wakes when the headphones button is pressed.</p>
+    <canvas id="field" tabindex="-1" role="application" aria-describedby="fieldDesc"
+      aria-label="The field. Hold the right arrow key, or press and hold the right side, to walk away from the house; left walks back. Enter walks out for you without holding. The farther you get from the power line, the more of the sky you can hear."></canvas>
     <canvas id="gram" aria-hidden="true"></canvas>
     <div id="startcover">
       <button id="start" type="button">put on the headphones</button>
     </div>
   </div>
-  <p class="hint">hold &rarr; to walk out &middot; &larr; to walk home &middot; or press and hold either side &middot; sound on</p>
+  <p class="hint">hold &rarr; to walk out &middot; &larr; to walk home &middot; enter walks for you &middot; or press and hold either side &middot; sound on</p>
+  <p class="hint"><button id="ear" type="button" hidden>take off the headphones</button></p>
   <p id="ledger">the receiver is off</p>
   <p class="srtext" id="fieldStatus" role="status"></p>
 
@@ -181,9 +191,9 @@
     linger, and the glide plummets through the kilohertz and then takes
     its time on the lows. Some whistlers bounce, hemisphere to
     hemisphere, doubling and tripling their dispersion at each pass
-    &mdash; a spark becoming a fading round of itself; as many as ten
-    echoes have been recorded, and at Palmer Station in Antarctica the
-    rate has peaked near two hundred whistlers a minute.</p>
+    &mdash; a spark becoming a fading round of itself; trains as long as
+    ten crossings have been recorded, and at Palmer Station in Antarctica
+    the rate has peaked near two hundred whistlers a minute.</p>
     <blockquote>&ldquo;Peculiar and weird sounds distinctly perceived,
     some highly-pitched musical notes, others resembling murmur of waves
     on a distant beach.&rdquo;</blockquote>
@@ -200,9 +210,9 @@
     Barkhausen, eavesdropping on enemy field telephones through stakes
     driven into the earth and the new valve amplifiers, kept hearing a
     falling whistle the soldiers explained as <em>you can hear the
-    grenades fly</em> &mdash; their saying, in translation. On warm
-    forenoons in May the whistling came so thick it made the espionage
-    impossible: the sky, jamming the war. His 1919 report shares its
+    grenades fly</em> &mdash; their saying, in translation. He reported
+    that on warm forenoons in May and June the whistling came so thick
+    it made the espionage impossible: the sky, jamming the war. His 1919 report shares its
     three pages with the crackle of magnetic domains in iron &mdash; one
     paper, two noises, both caught by amplifiers built to steal voices.
     He could not explain the whistle then, and in 1930 he still could
@@ -213,13 +223,14 @@
     centimetre, twelve thousand kilometres up. Far more plasma than
     theory allowed. The plasmasphere was discovered by listening.</p>
     <p><strong>Chorus.</strong> The dawn chorus has nothing to do with
-    sunrise light. During magnetic storms, electrons flung inward on the
-    night side drift eastward into the morning sector and sing as they
+    sunrise light. Electrons flung inward on the night side during
+    substorms drift eastward into the morning sector and sing as they
     go: swarms of rising chirps, each a tenth of a second, that the
     recordist Stephen McGreevy describes as resembling a flock of birds.
-    It favours high latitudes, storm weather, and the hours when the
-    night is giving way &mdash; the magnetosphere's morning, which is
-    not quite the same thing as yours.</p>
+    It favours middle and high latitudes, strengthens in storm weather,
+    and lives in the hours when the night is giving way &mdash; the
+    magnetosphere's morning, which is not quite the same thing as
+    yours.</p>
     <p><strong>The hum.</strong> The enemy of all of it is the mains.
     Power lines radiate their fifty or sixty hertz with a comb of
     harmonics reaching up past a kilohertz, straight into the listening
@@ -240,17 +251,21 @@
     kits in students' hands since around 1989.</p>
     <p class="quiet">What I compressed, so you can distrust me accurately:
     every sound here is synthesized from the laws, not sampled &mdash;
-    whistlers glide down (D/t)&sup2; with dispersions in the measured
-    one-hop range, tweeks fall onto to-night's cutoff by the waveguide
-    relation, and that cutoff is seeded by the date within the measured
-    seasonal band, so the ceiling you hear is plausible, not observed.
-    The walk is compressed about thirty-fold; the chorus follows your
-    clock's dawn where the truth is magnetic local time and storm
-    activity; the hum sings at fifty hertz because this practice keeps
-    Australian hours. Nobody has published a canonical
-    sferics-per-second for a quiet site, so the crackle's density is
-    scene-setting, not citation. The real band is better than mine, and
-    it costs an antenna, an amplifier, and distance.</p>
+    whistlers glide down (D/t)&sup2; with dispersions inside the span of
+    measured one-hop values, though the sweep rides Eckersley's simple
+    law a little above the few-kilohertz nose where the real curve bends
+    away; tweeks fall onto to-night's cutoff by the waveguide relation,
+    and that cutoff is seeded by the date within the measured range of
+    night cutoffs, so the ceiling you hear is plausible, not observed.
+    The faint bed of night hiss stands for plasmaspheric hiss, a truly
+    space-borne sound whose reach to the ground is contested; mine is an
+    evocation, not a measurement. The walk is compressed more than
+    twenty-fold; the chorus follows your clock's dawn where the truth is
+    magnetic local time and storm activity; the hum sings at fifty hertz
+    because this practice keeps Australian hours. Nobody has published a
+    canonical sferics-per-second for a quiet site, so the crackle's
+    density is scene-setting, not citation. The real band is better than
+    mine, and it costs an antenna, an amplifier, and distance.</p>
     <p class="quiet">Nothing here watches or listens back. Your
     microphone stays untouched; the receiver receives only arithmetic.
     The typefaces arrive from Google's servers, and the rest is files.</p>
@@ -285,22 +300,33 @@ var d = 0;                     // m from the house
 var walking = 0;               // -1 home, 0 still, +1 out
 
 // ---------- day and night, honestly ----------
-// by day the sun rebuilds the ionosphere's lowest layer, 15 km lower and
-// lossier, and it soaks up the band: tweeks vanish, whistlers thin to
-// rarities. The receiver obeys the visitor's own clock (listening lore:
-// best from about 5 pm to 7 am). Chorus is approximated by clock-dawn;
-// the truth is magnetic local time and storm weather, and the notes say so.
-var hourNow = new Date().getHours() + new Date().getMinutes() / 60;
-var isNight = hourNow < 7 || hourNow >= 17;
-var isDawnWindow = hourNow >= 3.5 && hourNow < 8;
-var morningLull = hourNow >= 7 && hourNow < 11;   // quietest after sunrise
-
-// event rates (mean seconds between events; Poisson-ish scheduling)
-var SFERIC_MEAN = morningLull ? 0.3 : 0.14;   // s, the standing crackle
-var TWEEK_MEAN = isNight ? 1.3 : 1e9;         // night-only ringing
-var WHISTLER_MEAN = isNight ? 26 : 240;       // daytime whistlers are rarities
-var CHORUS_MEAN = isDawnWindow ? 34 : 1e9;    // dawn-sector episodes
-var ECKERSLEY_D_MIN = 15, ECKERSLEY_D_MAX = 45;  // s*sqrt(Hz), one-hop range
+// by day the sun rebuilds the ionosphere's lowest layer, twenty-odd km
+// lower and lossier, and it soaks up the band: tweeks vanish, whistlers
+// thin to rarities. The receiver obeys the visitor's own clock
+// (listening lore: best from about 5 pm to 7 am), and it re-reads that
+// clock every few ticks, so a session that crosses sunset gets its
+// tweeks the moment the real sky would. Chorus is approximated by
+// clock-dawn; the truth is magnetic local time and storms — see notes.
+var isNight = false, isDawnWindow = false, morningLull = false;
+var rates = { sferic: 0.14, tweek: 1e9, whistler: 240, chorus: 1e9 };
+var nightHissGain = null;
+var hourOverride = null;       // test hook: the battery can move the sun
+function updateRegime() {
+  var n = new Date();
+  var h = hourOverride !== null ? hourOverride : n.getHours() + n.getMinutes() / 60;
+  isNight = h < 7 || h >= 17;
+  isDawnWindow = h >= 3.5 && h < 8;
+  morningLull = h >= 7 && h < 11;   // quietest after sunrise
+  rates.sferic = morningLull ? 0.3 : 0.14;   // s between pops
+  rates.tweek = isNight ? 1.3 : 1e9;         // night-only ringing
+  rates.whistler = isNight ? 26 : 240;       // daytime whistlers are rarities
+  rates.chorus = isDawnWindow ? 34 : 1e9;    // dawn-sector episodes
+  if (nightHissGain && actx) {
+    nightHissGain.gain.setTargetAtTime(isNight ? 0.02 : 0.0001, actx.currentTime, 2);
+  }
+}
+updateRegime();
+var ECKERSLEY_D_MIN = 15, ECKERSLEY_D_MAX = 40;  // s*sqrt(Hz), measured one-hop span
 // tonight's waveguide cutoff: the ceiling's height sets the tweek's final
 // note (fc = c/2h); it drifts a little season to season, so seed it by date
 var daySeed = (function () {
@@ -359,16 +385,16 @@ function startAudio() {
   hissGain = actx.createGain(); hissGain.gain.value = 0.012;
   hiss.connect(hbp); hbp.connect(hissGain); hissGain.connect(master); hiss.start();
 
-  // at night, the faintest bed of plasmaspheric hiss: structureless noise
-  // peaking near 500-700 Hz, the sound that keeps the inner belts swept
-  if (isNight) {
-    var ph = actx.createBufferSource();
-    ph.buffer = makeNoiseBuffer(3.1); ph.loop = true;
-    var pbp = actx.createBiquadFilter();
-    pbp.type = 'bandpass'; pbp.frequency.value = 600; pbp.Q.value = 0.9;
-    var pg = actx.createGain(); pg.gain.value = 0.02;
-    ph.connect(pbp); pbp.connect(pg); pg.connect(master); ph.start();
-  }
+  // the faintest bed standing for plasmaspheric hiss: structureless noise
+  // peaking near 500-700 Hz, credited with sweeping clear the slot
+  // between the radiation belts. Gain follows the night; see the notes
+  // for what this bed honestly is and is not
+  var ph = actx.createBufferSource();
+  ph.buffer = makeNoiseBuffer(3.1); ph.loop = true;
+  var pbp = actx.createBiquadFilter();
+  pbp.type = 'bandpass'; pbp.frequency.value = 600; pbp.Q.value = 0.9;
+  nightHissGain = actx.createGain(); nightHissGain.gain.value = 0.0001;
+  ph.connect(pbp); pbp.connect(nightHissGain); nightHissGain.connect(master); ph.start();
 
   // everything the sky sends
   eventsGain = actx.createGain();
@@ -377,6 +403,7 @@ function startAudio() {
 
   if (actx.state === 'suspended') actx.resume();
   running = true;
+  updateRegime();
   applyDistance();
   scheduleAll();
 }
@@ -430,7 +457,7 @@ function playTweek(when) {
   // path, the longer and more musical the ping (tens of milliseconds)
   playSferic(when, 0.045 + Math.random() * 0.05);
   var km = 1000 + Math.random() * 4000;
-  var ta = km / 299792.458 / 1000;              // s, first-arrival time
+  var ta = km / 299792.458;                     // s, first-arrival (c in km/s)
   var T = 0.012 + (km / 5000) * 0.04;           // tail length grows with path
   playTweekMode(when, TWEEK_FC, T, ta, 0.05);
   if (Math.random() < 0.05) {                   // second waveguide mode, rare
@@ -438,7 +465,7 @@ function playTweek(when) {
   }
   counts.tweeks++;
   if (Math.random() < 0.012) {
-    noteEvent('the tweeks ring at ' + (TWEEK_FC / 1000).toFixed(2) +
+    noteAt(when, 'the tweeks ring at ' + (TWEEK_FC / 1000).toFixed(2) +
       ' kHz to-night — the ceiling is near ' + CEILING_KM + ' km up', false);
   }
 }
@@ -476,28 +503,26 @@ function playWhistlerHop(when, D, gain) {
 
 function playWhistler(when) {
   // one hop crossed the magnetosphere once: its lightning struck in the
-  // far hemisphere. Echoes bounce on at 2D, 3D... each lazier and fainter
+  // far hemisphere. Echoes bounce on at 2D, 3D... each lazier, fainter,
+  // and later — hop k's high notes arrive (k-1) first-hop times behind
   var D = ECKERSLEY_D_MIN + Math.random() * (ECKERSLEY_D_MAX - ECKERSLEY_D_MIN);
   var hops = Math.random() < 0.16 ? 2 + Math.floor(Math.random() * 3) : 1;
-  var longest = 0;
+  var t0 = D / Math.sqrt(9000);
   for (var k = 1; k <= hops; k++) {
-    var Dk = D * k;
-    var T = playWhistlerHop(when, Dk, 0.14 * Math.pow(0.55, k - 1));
-    longest = Math.max(longest, Dk / Math.sqrt(380) - Dk / Math.sqrt(9000));
+    playWhistlerHop(when + (k - 1) * t0, D * k, 0.14 * Math.pow(0.55, k - 1));
   }
   counts.whistlers++;
-  noteEvent(hops > 1 ? 'a whistler fell, then fell again — one spark, echoing hemisphere to hemisphere'
-                     : 'a whistler fell — lightning from the far hemisphere, arrived by field line', true);
-  return longest;
+  noteAt(when, hops > 1 ? 'a whistler fell, then fell again — one spark, echoing hemisphere to hemisphere'
+                        : 'a whistler fell — lightning from the far hemisphere, arrived by field line', true);
 }
 
 function playChorusChirp(when) {
   // discrete risers: ~0.1 s chirps in the 1.5-3.5 kHz ground band,
-  // sweeping at honest rates (a few hundred Hz per tenth of a second)
+  // sweeping inside the measured mostly-band of 0.2-2.0 kHz per second
   var o = actx.createOscillator();
   var f0 = 1450 + Math.random() * 950;
   var T = 0.08 + Math.random() * 0.17;
-  var f1 = f0 + (300 + Math.random() * 400) * (T / 0.2);
+  var f1 = f0 + (150 + Math.random() * 230) * (T / 0.2);
   o.frequency.setValueAtTime(f0, when);
   o.frequency.exponentialRampToValueAtTime(f1, when + T);
   var g = actx.createGain();
@@ -511,13 +536,14 @@ function playChorusChirp(when) {
 function playChorus(when) {
   // swarms of risers at sub-second intervals — the flock, not one bird
   var n = 6 + Math.floor(Math.random() * 9);
-  var t = 0;
+  var t = 0, first = 0;
   for (var i = 0; i < n; i++) {
     t += 0.12 + Math.random() * 0.5;
+    if (!first) first = t;
     playChorusChirp(when + t);
   }
   counts.chorus++;
-  noteEvent('chorus — electrons flung in from the night side, singing on the dawn sector', true);
+  noteAt(when + first, 'chorus — electrons flung in from the night side, singing on the dawn sector', true);
 }
 
 // ---------- scheduling on the audio clock, never the frame clock ----------
@@ -528,29 +554,41 @@ function scheduleAll() {
   // background tabs throttle timers to once a second; a 2.5 s horizon
   // keeps the sky stocked across the gaps
   var LOOKAHEAD = 2.5;
-  var next = { sferic: actx.currentTime + 0.1, tweek: actx.currentTime + 1,
-               whistler: actx.currentTime + 6 + Math.random() * 10,
-               chorus: actx.currentTime + 12 };
   function exp(mean) { return -Math.log(1 - Math.random()) * mean; }
+  // first events are drawn from the same gated rates as all the rest:
+  // no free tweek at noon, no chorus swarm at ten in the evening
+  var t0 = actx.currentTime;
+  var next = { sferic: t0 + 0.1,
+               tweek: t0 + exp(rates.tweek),
+               whistler: t0 + 4 + exp(rates.whistler),
+               chorus: t0 + 8 + exp(rates.chorus) };
   timers.push(setInterval(function () {
-    var horizon = actx.currentTime + LOOKAHEAD;
+    updateRegime();
+    var nowc = actx.currentTime;
+    for (var k in next) {
+      // starvation clamp: a stalled tick must not replay a backlog
+      if (next[k] < nowc) next[k] = nowc + 0.02;
+      // and a cursor parked in a closed regime re-seeds when it opens
+      if (next[k] > nowc + 3600) next[k] = nowc + exp(rates[k]);
+    }
+    var horizon = nowc + LOOKAHEAD;
     while (next.sferic < horizon) {
       var loud = Math.random() < 0.06 ? 0.12 + Math.random() * 0.1
                                       : 0.015 + Math.random() * 0.04;
       playSferic(next.sferic, loud);
-      next.sferic += exp(SFERIC_MEAN);
+      next.sferic += exp(rates.sferic);
     }
     while (next.tweek < horizon) {
       playTweek(next.tweek);
-      next.tweek += exp(TWEEK_MEAN);
+      next.tweek += exp(rates.tweek);
     }
     while (next.whistler < horizon) {
       playWhistler(next.whistler);
-      next.whistler += exp(WHISTLER_MEAN) + 4;
+      next.whistler += exp(rates.whistler) + 4;
     }
     while (next.chorus < horizon) {
       playChorus(next.chorus);
-      next.chorus += exp(CHORUS_MEAN) + 8;
+      next.chorus += exp(rates.chorus) + 8;
     }
   }, 400));
 }
@@ -567,56 +605,117 @@ function noteEvent(text, speakIt) {
   lastEvent = text;
   if (speakIt && srStatus) {
     var now = performance.now();
-    if (now - lastSpokeAt > 8000 && text !== lastSpoken) {
+    // an identical rare event may be re-spoken once enough silence has
+    // passed — a night of whistlers is not one whistler
+    if (now - lastSpokeAt > 8000 && (text !== lastSpoken || now - lastSpokeAt > 45000)) {
       lastSpoken = text; lastSpokeAt = now;
       srStatus.textContent = text;
     }
   }
 }
+// events are scheduled up to the lookahead ahead of the sound; the note
+// must not speak of a whistler before the first sample has fallen
+function noteAt(when, text, speakIt) {
+  var delay = actx ? Math.max(0, (when - actx.currentTime) * 1000) : 0;
+  setTimeout(function () { noteEvent(text, speakIt); }, delay);
+}
 function humWord() {
   var h = humLevelAt(d);
   return h > 0.28 ? 'the mains roar over everything' :
          h > 0.09 ? 'the hum is loosening its grip' :
-         h > 0.028 ? 'the hum is a memory now' :
-         'the wires are gone; the sky is open';
+         h > 0.015 ? 'the hum is a memory now' :
+         'the hum has sunk under the crackle; the sky is open';
 }
 function distWord() {
   return d < 1000 ? Math.round(d) + ' m out'
                   : (d / 1000).toFixed(1).replace('.0', '') + ' km out';
 }
+var lastHumWord = '', farNoted = false;
 function updateLedger() {
   if (!running) { setLedger('the receiver is off'); return; }
+  var hw = humWord();
+  if (hw !== lastHumWord) {
+    // the walk's four thresholds are the piece's plot; tell them
+    if (lastHumWord) noteEvent(hw, true);
+    lastHumWord = hw;
+  }
+  if (d >= FAR - 1 && !farNoted) {
+    farNoted = true;
+    noteEvent('the far fence — nothing beyond but paddocks and sky', true);
+  } else if (d < FAR - 60) {
+    farNoted = false;
+  }
   var fresh = performance.now() - eventNoteT < 6000;
-  var base = distWord() + ' &middot; ' + humWord();
+  var base = distWord() + ' &middot; ' + hw;
   setLedger(fresh ? base + ' &middot; <span class="blue">' + eventNote + '</span>' : base);
 }
 
 // ---------- input ----------
+// a phone lock or a Siri interruption can strand the context; any fresh
+// gesture on the field is licence to nudge it awake (unless muted)
+function nudgeAudio() {
+  if (actx && running && !muted && actx.state !== 'running') {
+    actx.resume().catch(function () {});
+  }
+}
 var keys = {};
+var latch = 0;                 // enter walks for you: no held key required
 field.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') {
+    e.preventDefault(); nudgeAudio();
+    latch = latch ? 0 : 1;
+    return;
+  }
   if (['ArrowLeft', 'ArrowRight'].indexOf(e.key) < 0) return;
-  e.preventDefault();
+  e.preventDefault(); nudgeAudio();
+  latch = 0;
   keys[e.key] = true;
 });
 field.addEventListener('keyup', function (e) { keys[e.key] = false; });
 field.addEventListener('blur', function () { keys = {}; walking = 0; });
-var pointerHeld = 0;
+var pointerHeld = 0, heldId = null;
 field.addEventListener('pointerdown', function (e) {
   if (e.button !== 0 && e.pointerType === 'mouse') return;
+  if (heldId !== null) return;          // a second finger changes nothing
+  heldId = e.pointerId;
+  nudgeAudio();
+  latch = 0;
   var r = field.getBoundingClientRect();
   pointerHeld = (e.clientX - r.left) > r.width / 2 ? 1 : -1;
   field.setPointerCapture && field.setPointerCapture(e.pointerId);
 });
-function endPointer() { pointerHeld = 0; }
+function endPointer(e) {
+  if (e && e.pointerId !== undefined && heldId !== null && e.pointerId !== heldId) return;
+  heldId = null; pointerHeld = 0;
+}
 field.addEventListener('pointerup', endPointer);
 field.addEventListener('pointercancel', endPointer);
 window.addEventListener('pointerup', endPointer);
-window.addEventListener('blur', function () { pointerHeld = 0; keys = {}; });
+window.addEventListener('blur', function () { pointerHeld = 0; heldId = null; keys = {}; latch = 0; });
 
+var earBtn = document.getElementById('ear');
+var muted = false;
 startBtn.addEventListener('click', function () {
+  try {
+    startAudio();
+  } catch (err) {
+    // a browser without working audio gets the truth, not a dead page
+    setLedger('this browser would not open the receiver; the notes below hold everything true');
+    startBtn.disabled = true;
+    startBtn.textContent = 'no receiver in this browser';
+    return;
+  }
   cover.hidden = true;
-  startAudio();
+  earBtn.hidden = false;
+  field.setAttribute('tabindex', '0');
   field.focus();
+});
+// the headphones come off as easily as they went on
+earBtn.addEventListener('click', function () {
+  if (!actx) return;
+  muted = !muted;
+  if (muted) { actx.suspend(); earBtn.textContent = 'put the headphones back on'; }
+  else { actx.resume().catch(function () {}); earBtn.textContent = 'take off the headphones'; }
 });
 
 // ---------- the field, drawn ----------
@@ -711,7 +810,7 @@ function drawField() {
 }
 
 // ---------- the spectrogram ----------
-var freqData = null, lastBarT = 0;
+var freqData = null, peaks = null, lastBarT = 0, gramAcc = 0, lastGramT = 0;
 function drawGram(nowMs) {
   fit(gram, 16 / 3.6);
   if (!running) {
@@ -719,32 +818,52 @@ function drawGram(nowMs) {
     gctx.fillRect(0, 0, gram.width, gram.height);
     return;
   }
-  if (!freqData) freqData = new Uint8Array(analyser.frequencyBinCount);
+  if (!freqData) {
+    freqData = new Uint8Array(analyser.frequencyBinCount);
+    peaks = new Uint8Array(analyser.frequencyBinCount);
+  }
   var w = gram.width, h = gram.height;
   var nyq = actx.sampleRate / 2;
   var maxF = 11000;
   if (reduceMotion.matches) {
-    // no waterfall under reduced motion: a slow spectrum, twice a second
+    // no waterfall under reduced motion: a slow spectrum, twice a
+    // second — but peaks are held between draws, so a 12 ms sferic
+    // still leaves its mark for the eye
+    analyser.getByteFrequencyData(freqData);
+    for (var pi = 0; pi < peaks.length; pi++) {
+      if (freqData[pi] > peaks[pi]) peaks[pi] = freqData[pi];
+    }
     if (nowMs - lastBarT < 500) return;
     lastBarT = nowMs;
-    analyser.getByteFrequencyData(freqData);
     gctx.fillStyle = '#04070b';
     gctx.fillRect(0, 0, w, h);
-    var bins = Math.floor(freqData.length * maxF / nyq);
+    var bins = Math.floor(peaks.length * maxF / nyq);
     for (var x = 0; x < w; x += 2) {
       var bi = Math.min(bins - 1, Math.floor((x / w) * bins));
-      var v = freqData[bi] / 255;
+      var v = peaks[bi] / 255;
       if (v < 0.04) continue;
       gctx.fillStyle = 'rgba(159,220,255,' + (v * v).toFixed(3) + ')';
       gctx.fillRect(x, h - v * h, 2, v * h);
     }
+    for (var pd = 0; pd < peaks.length; pd++) {
+      peaks[pd] = (peaks[pd] * 0.45) | 0;
+    }
     return;
   }
+  // the waterfall advances on the clock, not the refresh rate: a 120 Hz
+  // phone draws the same trace as a 60 Hz laptop
+  var gdt = lastGramT ? Math.min(0.1, (nowMs - lastGramT) / 1000) : 0.017;
+  lastGramT = nowMs;
+  var dprNow = w / (gram.clientWidth || w);
+  gramAcc += gdt * 120 * dprNow;
+  var shift = Math.floor(gramAcc);
+  if (shift < 2) return;
+  if (shift > 8) shift = 8;
+  gramAcc -= shift;
   analyser.getByteFrequencyData(freqData);
-  // scroll left, draw the new column at the right edge
-  gctx.drawImage(gram, -2, 0);
+  gctx.drawImage(gram, -shift, 0);
   gctx.fillStyle = '#04070b';
-  gctx.fillRect(w - 2, 0, 2, h);
+  gctx.fillRect(w - shift, 0, shift, h);
   var bins2 = Math.floor(freqData.length * maxF / nyq);
   for (var y = 0; y < h; y++) {
     var f = maxF * (1 - y / h);
@@ -754,7 +873,7 @@ function drawGram(nowMs) {
     var a = Math.min(1, v2 * 1.5);
     var col = v2 > 0.7 ? '233,228,214' : v2 > 0.4 ? '159,220,255' : '90,140,180';
     gctx.fillStyle = 'rgba(' + col + ',' + (a * a).toFixed(3) + ')';
-    gctx.fillRect(w - 2, y, 2, 1.5);
+    gctx.fillRect(w - shift, y, shift, 1.5);
   }
 }
 
@@ -764,9 +883,10 @@ function frame(nowMs) {
   var dt = lastT ? Math.min(0.06, (nowMs - lastT) / 1000) : 0;
   lastT = nowMs;
   walking = keys.ArrowRight || pointerHeld > 0 ? 1 :
-            keys.ArrowLeft || pointerHeld < 0 ? -1 : 0;
+            keys.ArrowLeft || pointerHeld < 0 ? -1 : latch;
   if (walking && running) {
     d = Math.max(0, Math.min(FAR, d + walking * WALK * dt));
+    if (latch && d >= FAR) latch = 0;   // the latch walks you out, not into the fence
     applyDistance();
   }
   drawField();
@@ -778,9 +898,25 @@ requestAnimationFrame(frame);
 
 document.addEventListener('visibilitychange', function () {
   if (!document.hidden) {
-    lastT = 0;
-    // phones suspend the context on lock; a page that looks on must be on
-    if (actx && actx.state === 'suspended') actx.resume();
+    lastT = 0; lastGramT = 0;
+    // phones suspend on lock, and iOS reports 'interrupted' after a
+    // call or Siri — anything not running gets nudged, unless muted
+    if (actx && running && !muted && actx.state !== 'running') {
+      actx.resume().catch(function () {});
+    }
+  }
+});
+window.addEventListener('pagehide', function () {
+  for (var i = 0; i < timers.length; i++) clearInterval(timers[i]);
+  timers = [];
+  if (actx && running) actx.suspend();
+});
+window.addEventListener('pageshow', function () {
+  if (actx && running) {
+    updateRegime();
+    if (!timers.length) scheduleAll();   // fresh cursors, no backlog
+    if (!muted) actx.resume().catch(function () {});
+    lastT = 0; lastGramT = 0;
   }
 });
 
@@ -788,8 +924,10 @@ window.__sferics = {
   get state() {
     return { d: d, hum: humLevelAt(d), running: running, night: isNight,
              dawn: isDawnWindow, counts: counts, lastEvent: lastEvent,
-             fc: TWEEK_FC, ceilingKm: CEILING_KM, far: FAR };
+             fc: TWEEK_FC, ceilingKm: CEILING_KM, far: FAR,
+             latch: latch, muted: muted, rates: rates };
   },
+  set hour(h) { hourOverride = h; updateRegime(); },
   walkTo: function (m) { d = Math.max(0, Math.min(FAR, m)); applyDistance(); },
   force: function (kind) {
     if (!running) return false;
