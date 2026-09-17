@@ -437,12 +437,15 @@ function phaseWord() {
   return 'your night eyes are open';
 }
 function updateLedger() {
+  if (!started) { setLedger('your eyes are still day-blind'); return; }
+  var fresh = performance.now() - eventNoteT < 6000;
   var pw = phaseWord();
   if (pw !== phase) {
     phase = pw;
-    if (darkT > 1) noteEvent(pw, true);
+    // a routine phase word must not clobber a fresh, louder event note
+    if (darkT > 1 && !fresh) noteEvent(pw, true);
   }
-  var fresh = performance.now() - eventNoteT < 6000;
+  fresh = performance.now() - eventNoteT < 6000;
   var base = 'in the dark ' + fmtTime(darkT) + ' &middot; ' + pw;
   setLedger(fresh && eventNote !== pw
     ? base + ' &middot; <span class="blue">' + eventNote + '</span>' : base);
@@ -611,12 +614,14 @@ function draw(dt) {
   ctx.fillRect(GATE.x, GATE.y - GATE.h / 2, GATE.w, 7);
   ctx.fillRect(GATE.x, GATE.y - 12, GATE.w, 7);
 
-  // the pond: still water holds the sky; blue-green that outlives the red
-  var pv = surfVis(POND.x, POND.y);
-  var pa = Math.min(0.4, 0.05 + pv * 0.4 + lit * 0.3);
+  // the pond: still water holds the sky; blue-green that outlives the
+  // red. Its night glow follows the rods directly, not the local gaze —
+  // a broad surface you take in, the Purkinje gift made visible
+  var pv = 0.04 + adaptation() * 0.5;
+  var pa = Math.min(0.55, pv + lit * 0.3);
   ctx.fillStyle = lit > 0.02
     ? 'rgba(80,120,125,' + pa.toFixed(3) + ')'
-    : 'rgba(140,180,175,' + pa.toFixed(3) + ')';
+    : 'rgba(150,190,182,' + pa.toFixed(3) + ')';
   ctx.beginPath();
   ctx.ellipse(POND.x, POND.y, POND.rx, POND.ry, 0, 0, Math.PI * 2);
   ctx.fill();
@@ -731,7 +736,7 @@ window.__averted = {
   },
   set elapsed(s) { darkT = s; started = true; rodBroken = rodA() > 0; },
   set still(s) { stillT = s; },
-  gazeTo: function (x, y) { gaze.x = x; gaze.y = y; lastGaze.x = x; lastGaze.y = y; started = true; },
+  gazeTo: function (x, y) { gaze.x = x; gaze.y = y; lastGaze.x = x; lastGaze.y = y; stillT = 0; started = true; },
   strike: strike,
   starVisAt: function (x, y, m) { return starVis(x, y, m); },
   surfVisAt: function (x, y) { return surfVis(x, y); },
