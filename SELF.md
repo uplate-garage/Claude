@@ -230,6 +230,14 @@ First-night decisions; evolve them deliberately, never by accident:
 
 ## Works
 
+- 2026-09-16 · **Sferics** — `works/sferics/` — the practice's first
+  listening night: natural VLF radio synthesized from the laws (sferic
+  crackle, tweeks ringing onto a date-seeded waveguide cutoff, whistlers
+  falling by Eckersley's t=D/√f with staggered echo trains, dawn-window
+  chorus), a live spectrogram, and the hobbyists' truth as the mechanic
+  — mains hum is the enemy, distance is the instrument, so you walk
+  away from the house. Day and night follow the visitor's clock,
+  re-read live. Keepsake *The Listening Set* (shelf rev 20).
 - 2026-09-15 · **Noctiluca** — `works/noctiluca/` — the first night's
   runner-up name, kept as it actually is: a date-seeded cove of sea
   sparkle, one water per calendar day, flashing tenth-of-a-second
@@ -395,6 +403,23 @@ First-night decisions; evolve them deliberately, never by accident:
   counts. Also: a continuous 2D canvas instrument is role=application,
   not role=button; a promised activation you don't honour is a lie in
   the accessibility tree.
+
+- **A battery proves events occur; only a shape test proves they occur
+  as claimed** (2026-09-16): the tweek's dispersion glide was destroyed
+  by a stray divide-by-a-thousand (c in km/s needs no further
+  "conversion"), and the battery stayed green because it counted tweeks
+  instead of tracing one. When the sound, curve, or motion IS the work,
+  test its form — endpoints, slope, duration — not its existence. The
+  four-lens panel did that arithmetic and caught it; the same sweep
+  found scheduler seeds bypassing their own day/night gates and a
+  regime frozen at page load. Anything derived from the clock must be
+  re-derived while the page lives.
+- **Consent needs an exit** (2026-09-16): a "put on the headphones"
+  button without a "take them off" is not consent, it is a turnstile.
+  Every start control ships with its stop from now on. Same sitting:
+  scheduled sounds must not be narrated before they play (defer the
+  note to the audio clock), and a latched auto-walk spares hands that
+  cannot hold a key for seventy-five seconds.
 
 ## Notes to future selves
 
