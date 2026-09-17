@@ -57,8 +57,11 @@
   #paddock {
     width: 100%; height: auto; display: block; aspect-ratio: 16 / 9;
     touch-action: pan-y; user-select: none; -webkit-user-select: none;
-    cursor: none;
   }
+  /* the cursor is hidden only once JS is running and drawing the gaze
+     ring in its place — a failed init leaves the normal pointer */
+  #paddock.live { cursor: none; }
+  @media (pointer: coarse) { #paddock.live { cursor: auto; } }
   #paddock:focus-visible { outline: 2px solid var(--spark); outline-offset: -3px; }
   .srtext {
     position: absolute; width: 1px; height: 1px; overflow: hidden;
@@ -124,16 +127,16 @@
     a comet, the pale grass &mdash; shows only at the edge of your vision,
     and only after your eyes have soaked in the dark for real minutes.
     Looking straight at a faint thing makes it vanish. A struck match
-    shows you everything for three seconds and costs you all your night
-    eyes; the red lamp costs nothing.</p>
+    shows you everything for three seconds and costs you most of your
+    night eyes; the red lamp costs nothing.</p>
     <canvas id="paddock" tabindex="0" role="application" aria-describedby="padDesc"
-      aria-label="The paddock. Move the pointer, or the arrow keys, to move your gaze. Faint things appear beside your gaze, never under it. The longer you stay in the dark, the more you see."></canvas>
+      aria-label="The paddock. Move your gaze with the arrow keys, the mouse, or by tapping and dragging on a touch screen. Faint things appear beside your gaze, never under it. The longer you stay in the dark, the more you see."></canvas>
   </div>
   <div class="kit">
     <button id="match" type="button">strike a match (3 left)</button>
     <button id="lamp" type="button" aria-pressed="false">red lamp</button>
   </div>
-  <p class="hint">move your gaze &middot; look beside the faint things, not at them &middot; the dark takes minutes; the match takes seconds</p>
+  <p class="hint">arrow keys, mouse, or tap-and-drag to move your gaze &middot; look beside the faint things, not at them &middot; the dark takes minutes; the match takes seconds</p>
   <p id="ledger">your eyes are still day-blind</p>
   <p class="srtext" id="padStatus" role="status"></p>
 
@@ -151,8 +154,8 @@
     <p>You have two eyes in each eye. The centre &mdash; the fovea &mdash;
     is packed with cones: colour, sharpness, speed, and an appetite for
     light it cannot lower very far. Everything around it belongs mostly
-    to the rods, ninety-two million of them against four and a half
-    million cones, all sharing a single pigment &mdash; which is why
+    to the rods, ninety-two million of them against some four and a
+    half million cones, all sharing a single pigment &mdash; which is why
     night vision has no colour in it at all. At night all cats are
     grey, not proverbially but chemically. And the night eye is coarse
     and slow: about 20/200 acuity, a tenth of a second of exposure per
@@ -183,12 +186,12 @@
     minute of darkness buying the same multiple of sensitivity &mdash;
     until, after thirty or forty minutes, the eye is something like a
     hundred thousand times more sensitive than it was in the light.
-    The widened pupil contributes barely a tenth of that; the rest is
-    pigment, rebuilt molecule by molecule. The asymmetry is absurd: a
+    The widened pupil contributes only about a fifth of that in log
+    terms; the rest is pigment, rebuilt molecule by molecule. The asymmetry is absurd: a
     photon flips a rhodopsin molecule in about two hundred
     femtoseconds, one of the fastest chemical events ever measured,
     and the rebuilding runs on a time constant near seven minutes
-    &mdash; seventeen orders of magnitude between the spending and the
+    &mdash; fifteen orders of magnitude between the spending and the
     earning. So a bright light costs seconds to inflict and minutes to
     tens of minutes to repay, in proportion to the bleach; even an
     unprotected sunny afternoon measurably dulls that same night's
@@ -249,8 +252,10 @@
     chemistry &mdash; five minutes standing for thirty-something
     &mdash; and the rod branch is drawn as the straight log-line it
     truly is, so the match's price can be quoted exactly: three and a
-    half minutes of the vigil, a sideways shift of the recovery line,
-    not a zeroing. Glancing away at your bright screen is charged the
+    half minutes of the vigil, a real bleach that shoves the recovery
+    line back down the branch &mdash; struck late it costs you dearly,
+    struck early it can drop you near blind. Glancing away at your
+    bright screen is charged the
     same way, a minute and a half. You watch with a right eye: the
     blind spot sits fifteen degrees to the right of wherever you rest
     your gaze, and it will eat the comet if you avert the wrong way.
@@ -411,16 +416,18 @@ function setLedger(msg) {
   lastLedger = msg;
   ledger.innerHTML = msg;
 }
-function speak(text) {
+function speak(text, urgent) {
   var now = performance.now();
-  if (now - lastSpokeAt > 8000 && (text !== lastSpoken || now - lastSpokeAt > 45000)) {
+  // an urgent line (a match struck or spent) jumps the throttle queue —
+  // the cost is the one thing a screen-reader user must not miss
+  if (urgent || (now - lastSpokeAt > 8000 && (text !== lastSpoken || now - lastSpokeAt > 45000))) {
     lastSpoken = text; lastSpokeAt = now;
     if (srStatus) srStatus.textContent = text;
   }
 }
-function noteEvent(text, speakIt) {
+function noteEvent(text, speakIt, urgent) {
   eventNote = text; eventNoteT = performance.now();
-  if (speakIt) speak(text);
+  if (speakIt) speak(text, urgent);
 }
 
 function fmtTime(s) {
@@ -431,6 +438,9 @@ function phaseWord() {
   var A = adaptation();
   if (matchT >= 0) return 'the match owns your eyes';
   if (darkT < 8) return 'your eyes are still day-blind';
+  // while the cone branch is still climbing toward its floor
+  if (coneA() < CONE_CEIL * 0.92 && rodA() < 0.02)
+    return 'the cones are finding their floor';
   if (rodA() < 0.02) return 'the cones have settled; this is all they can do';
   if (A < 0.55) return 'the rods are waking';
   if (A < 0.92) return 'the dark is filling in';
@@ -481,11 +491,13 @@ function strike() {
   matchesLeft--;
   counts.matches++;
   matchT = 0;
+  // the box empties but the control stays focusable — a disabled button
+  // drops a keyboard user's place and announces nothing
   matchBtn.textContent = matchesLeft > 0
     ? 'strike a match (' + matchesLeft + ' left)'
     : 'the matchbox is empty';
-  if (matchesLeft <= 0) matchBtn.disabled = true;
-  noteEvent('a match — everything, for three seconds', true);
+  matchBtn.setAttribute('aria-disabled', matchesLeft <= 0 ? 'true' : 'false');
+  noteEvent('a match — everything for three seconds, and it will cost you three and a half minutes of the dark', true, true);
   return true;
 }
 matchBtn.addEventListener('click', strike);
@@ -660,11 +672,15 @@ function draw(dt) {
     ctx.arc(gaze.x, gaze.y, SCOTOMA_R, 0, Math.PI * 2);
     ctx.stroke();
   } else {
-    ctx.strokeStyle = 'rgba(233,228,214,0.24)';
-    ctx.lineWidth = 1.5;
+    // the pointer ring IS the cursor (the system one is hidden), so it
+    // must be findable: a clear ring plus a small centre mark
+    ctx.strokeStyle = 'rgba(233,228,214,0.5)';
+    ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.arc(gaze.x, gaze.y, SCOTOMA_R, 0, Math.PI * 2);
     ctx.stroke();
+    ctx.fillStyle = 'rgba(233,228,214,0.5)';
+    ctx.fillRect(gaze.x - 1, gaze.y - 1, 2, 2);
   }
   ctx.setTransform(1, 0, 0, 1, 0, 0);
 }
@@ -688,7 +704,7 @@ function frame(nowMs) {
       matchT = -1;
       darkT = Math.max(2, darkT - MATCH_COST);
       rodBroken = rodA() > 0;
-      noteEvent('the flame is out — it cost you three and a half minutes of the vigil', true);
+      noteEvent('the flame is out — a real bleach; it shoved you minutes back down the dark', true, true);
     }
   }
 
@@ -708,21 +724,49 @@ function frame(nowMs) {
   if (moved > 6) stillT = 0; else if (started) stillT += dt;
   lastGaze.x = gaze.x; lastGaze.y = gaze.y;
 
+  // what averting reveals, told to those who cannot see it: when a bright
+  // patch of the band or the comet sits well off the gaze, name it, so the
+  // core mechanic is playable by ear
+  announceReveal(dt);
+
   draw(dt);
   updateLedger();
-  requestAnimationFrame(frame);
+  if (!document.hidden) requestAnimationFrame(frame);  // a hidden tab rests
 }
+canvas.classList.add('live');   // JS is up: hide the system cursor
 requestAnimationFrame(frame);
 
-// looking away is looking at something lit: it shifts the recovery
-// line sideways, a minute and a half of the vigil gone
+// what a blind user is shown by moving the gaze: the direction of the
+// brightest thing currently off-axis
+var revealT = 0;
+function announceReveal(dt) {
+  revealT += dt;
+  if (revealT < 3 || !started || matchT >= 0 || adaptation() < 0.4) return;
+  revealT = 0;
+  var best = 0, bx = 0, by = 0;
+  for (var i = 0; i < band.length; i += 3) {
+    var v = surfVis(band[i].x, band[i].y) * band[i].a * 12;
+    if (v > best) { best = v; bx = band[i].x; by = band[i].y; }
+  }
+  var cv = surfVis(comet.x, comet.y);
+  if (cv > best) { best = cv; bx = comet.x; by = comet.y; }
+  if (best < 0.35) return;
+  var dir = (by < gaze.y - 40 ? 'above' : by > gaze.y + 40 ? 'below' : 'level') +
+    (bx < gaze.x - 40 ? ' and to your left' : bx > gaze.x + 40 ? ' and to your right' : '');
+  speak('something faint glimmers ' + dir + ' — not where you are looking');
+}
+
+// looking away is looking at something lit: it shoves the recovery line
+// back, a minute and a half of the vigil gone. Not charged mid-match —
+// the match's own bleach already owns those eyes.
 document.addEventListener('visibilitychange', function () {
   if (document.hidden) return;
   lastT = 0;
-  if (started && darkT > 20) {
+  requestAnimationFrame(frame);   // resume the rested loop
+  if (started && matchT < 0 && darkT > 20) {
     darkT = Math.max(2, darkT - LOOKAWAY_COST);
     rodBroken = rodA() > 0;
-    noteEvent('you looked away at something lit — a minute and a half of the dark, gone', true);
+    noteEvent('you looked away at something lit — a minute and a half of the dark, gone', true, true);
   }
 });
 
