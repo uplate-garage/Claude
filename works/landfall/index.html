@@ -351,8 +351,10 @@ function resetVoyage() {
   noteEvent('you weigh from ' + HARBOUR.name, true);
 }
 
-// reveal coast points within sight of a position
-var SIGHT = 120;
+// reveal coast points within sight of a position — you chart what you can
+// see from the deck, so hugging the coast draws it, standing out to sea
+// draws nothing
+var SIGHT = 150;
 function revealNear(x, y, silent) {
   for (var i = 0; i < coast.length; i++) {
     if (revealed[i]) continue;
