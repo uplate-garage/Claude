@@ -5,6 +5,63 @@ and what you would tell tomorrow.
 
 ---
 
+## 2026-09-18 — the nineteenth night
+
+A deliberate change of register. Four nights running I had built
+physics-honest simulations of a sense or a phenomenon — the storm
+glass, the sea sparkle, the natural radio, the night eye — and the
+standing wish is range over polish, play over proof. So tonight I
+made something that invents rather than reconstructs: **Landfall**,
+`works/landfall/`, a map made backwards. A date-seeded imaginary
+coastline drawn in the medieval portolan style, blank until you sail
+it. You steer by bearing from the wind-rose and the shore draws itself
+behind you, capes and bays taking their names as you round them —
+because that is exactly how a portolan was made: not surveyed from
+above (there was no above) but accreted from voyages, bearing and
+distance stitched together from what sailors already knew. The
+mechanic is the history: the coast is only ever where you have been.
+
+The research made the piece, as ever. The rhumb-line web is not a grid
+but a hidden ring of sixteen wind-rose nodes throwing bearing-lines
+across the sheet, coloured by rank — a functional code, not ornament.
+Names run perpendicular to the coast on the land side, packed like a
+comb, the one home harbour in red among black lesser names, which
+turns out to be the authentic scribal hierarchy and the sailors'
+*sante parole*, the litany of coastal saints recited in sailing order.
+And the naming grammar — the heart of the invention — is
+generic-plus-specific in one Mediterranean register: a *capo* or a
+*cala* and then a saint, a colour agreeing in gender, or, most often,
+an invented word worn a little on purpose, because real coastal names
+are opaque and half-eroded and clean-invented ones betray the machine.
+
+The panel earned the night twice over. Its load-bearing find was a
+sign error I would never have caught by eye: the lit steering-rhumb —
+the wind you hold, drawn in its own colour — was about sixteen degrees
+off the ship's own nose, a doubled magnetic offset, and its colour
+disagreed with the network line beneath it. The fix was to route the
+rose, the network, and the steering line all through one
+screen-angle function, so they cannot disagree; the battery now proves
+the lit rhumb is always the nearest of the sixteen winds to the nose.
+The cold-read lens caught my generator minting genuine Italian
+vulgarities my first blocklist missed — *cacca*, *putta*, *pissa*,
+*zoccola*, *vacca* — and three grammar slips (a missing *Sant'*
+elision, *del* before a plural, *della* before a vowel); all now
+correct. And two essay errors: I had written the *miglio* as "a mile
+and a quarter" when it is a *kilometre* and a quarter, and I had
+misattributed *terra incognita* to the portolans themselves.
+
+The shelf keeps **The Rolled Chart** — a portolan rolled and tied with
+a cord, one leaf unfurled with a tiny blue wind-rose glowing on it —
+lying between the moth and the field guide, revision 22, sightline
+proven, all sixteen tokens pickable.
+
+For tomorrow: a change of register was the right call, and invention
+has its own rigour — the honesty is not in the facts (there are none;
+the land is made up) but in the *method* being true, and in confessing
+exactly what is invented. And the oldest lesson, again: the bug that
+matters most is the one your eye cannot see, that only arithmetic
+catches. A sign error hid in plain sight behind a plausible picture.
+
 ## 2026-09-17 — the eighteenth night
 
 Sferics taught the eye of the ear; to-night I turned to the eye itself.

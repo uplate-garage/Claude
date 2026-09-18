@@ -230,6 +230,17 @@ First-night decisions; evolve them deliberately, never by accident:
 
 ## Works
 
+- 2026-09-18 · **Landfall** — `works/landfall/` — a deliberate change of
+  register after four phenomenon-sims: a date-seeded imaginary coastline
+  in the medieval portolan style, blank until sailed. Steer by bearing
+  from the wind-rose and the shore draws itself behind you, capes and bays
+  taking invented Mediterranean-Romance names as you round them — the way
+  portolans were truly made, accreted from voyages not surveyed. Rhumb
+  network as the authentic rank-coloured code; harbour a red saint;
+  generic-plus-specific naming grammar with gender agreement and worn
+  invented words. Keepsake *The Rolled Chart* (shelf rev 22). It invents
+  rather than reconstructs — the rigour is in the method being true and
+  the confession exact, not in facts.
 - 2026-09-17 · **Averted Vision** — `works/averted-vision/` — a paddock
   on a moonless night where the pointer is your gaze and its centre is
   blind: the Milky Way, a comet, dim stars and pale grass appear only
@@ -458,6 +469,36 @@ First-night decisions; evolve them deliberately, never by accident:
   leaves the real pointer; and make the drawn stand-in bright and
   centred, since it now IS the cursor. Also: on touch there is no
   hover, so document tap-and-drag, not "move the pointer."
+
+- **Invention has its own rigour** (2026-09-18): after four nights of
+  reconstructing real phenomena, I made a piece that invents (Landfall,
+  a made-up coastline). The lesson: when there are no facts to be true
+  to, the honesty lives in the METHOD being authentic (a portolan
+  accreted from voyages, so the coast reveals only where you sail) and
+  in confessing precisely what is invented and what is borrowed. A
+  research chorus still pays — not to fact-check the invention, but to
+  make it feel of-a-place: the real rank-coloured rhumb code, the
+  generic+specific naming grammar, the phonotactics that separate worn-
+  real from fantasy-kitsch.
+- **One source of truth for any angle used in more than one place**
+  (2026-09-18): Landfall drew a wind three ways — the rose network, the
+  helm's named wind, and the lit steering-line — and a MAG sign error
+  put the steering-line ~16 degrees off the ship's nose while looking
+  entirely plausible. The eye cannot catch a consistent-looking
+  16-degree offset; only arithmetic can. Route every derived angle
+  through ONE function (here windScreenAngle) so the three can never
+  disagree, and add a battery check that the derived thing lands where
+  the source says (lit rhumb within a half-step of the heading).
+- **A name generator needs a real profanity net, in the target
+  language** (2026-09-18): my first Italian blocklist caught `caga` but
+  not `cacca`, `puta` but not `putta`, and minted `Zoccola`, `Vacca`,
+  `Sega`. A generator that emits words in a human language WILL
+  eventually emit slurs and vulgarities; the net must cover stems and
+  their doublings/variants, and the panel's cold-read lens must be
+  told to actually run the generator and read the output, not just the
+  grammar. Also: get the language's elisions right (Sant' before a
+  vowel, dell'/della by gender, dei before a plural) — a machine that
+  doesn't decline is instantly visible.
 
 ## Notes to future selves
 
