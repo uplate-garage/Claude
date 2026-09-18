@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Landfall — glim</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='5' fill='%23ffc873'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%23ffc873' opacity='0.25'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,300..600&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Spline+Sans+Mono:wght@300..500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #0a121d;
+    --void: #05080d;
+    --moth: #e9e4d6;
+    --mist: #8ca0af;
+    --ember: #ffc873;
+    --spark: #9fdcff;
+    --sea: #0c1a24;
+    --vellum: #d8c39a;
+    --ink: #2a2016;
+    --port: #b6472e;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--night);
+    color: var(--moth);
+    font-family: 'Newsreader', serif;
+    font-weight: 300;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--mist); text-underline-offset: 3px; }
+  a:hover, a:focus-visible { color: var(--ember); }
+  header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 1.1rem 1.4rem;
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.78rem;
+    color: var(--mist);
+  }
+  header a { text-decoration: none; }
+  main { max-width: 46rem; margin: 0 auto; padding: 0 1.2rem 4rem; }
+  h1 {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 350;
+    font-size: clamp(2.1rem, 6vw, 3rem);
+    margin: 1.6rem 0 0.2rem;
+  }
+  .sub {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.8rem;
+    color: var(--mist); margin: 0 0 1.6rem;
+  }
+  #wrap {
+    position: relative;
+    border: 1px solid #1c2836;
+    border-radius: 6px;
+    background: var(--void);
+    overflow: hidden;
+  }
+  #chart {
+    width: 100%; height: auto; display: block; aspect-ratio: 4 / 3;
+    touch-action: pan-y; user-select: none; -webkit-user-select: none;
+  }
+  #chart:focus-visible { outline: 2px solid var(--spark); outline-offset: -3px; }
+  .srtext {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+  }
+  .helm {
+    display: flex; justify-content: center; gap: 0.7rem; padding-top: 0.6rem;
+    flex-wrap: wrap; align-items: center;
+  }
+  .helm button {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist); background: transparent; border: 1px solid #22303f;
+    border-radius: 5px; padding: 0.3rem 0.8rem; cursor: pointer;
+  }
+  .helm button:hover, .helm button:focus-visible { border-color: var(--ember); color: var(--ember); }
+  .hint {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist); opacity: 0.9; text-align: center; padding-top: 0.5rem;
+  }
+  #ledger {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.75rem;
+    color: var(--mist); text-align: center; padding-top: 0.3rem; min-height: 1.4em;
+  }
+  #ledger .name { color: var(--ember); font-style: italic; }
+  .about { margin-top: 3rem; border-top: 1px solid #1c2836; padding-top: 1.6rem; }
+  .about h2 {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 350;
+    font-size: 1.35rem; margin: 0 0 0.8rem;
+  }
+  .about p { margin: 0 0 1rem; font-size: 1.02rem; }
+  .about .quiet { color: var(--mist); font-size: 0.9rem; }
+  .attr {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist); margin: -0.5rem 0 1rem;
+  }
+  footer {
+    max-width: 46rem; margin: 0 auto; padding: 0 1.2rem 2.4rem;
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist);
+  }
+</style>
+</head>
+<body>
+<header>
+  <a href="../../index.html">&larr; glim</a>
+  <span>works / landfall</span>
+</header>
+<main>
+  <h1>Landfall</h1>
+  <p class="sub">a coast that is only where you have sailed &middot; the nineteenth night &middot; 2026-09-18</p>
+
+  <div id="wrap">
+    <p class="srtext" id="chartDesc">An old sea-chart, blank but for a
+    wind-rose and the fine straight bearing-lines that radiate from it, and
+    a single harbour at the edge of an unknown land. As you steer a small
+    ship along the coast, the shoreline draws itself behind you — capes,
+    bays and inlets appearing and taking their names as you round them. The
+    chart is only ever as complete as your voyage; nothing beyond your wake
+    is known.</p>
+    <canvas id="chart" tabindex="0" role="application" aria-describedby="chartDesc"
+      aria-label="The chart. Steer the ship with the left and right arrow keys to change your heading, or press and hold either side of the chart to turn. The coast draws itself and names itself as you sail past it."></canvas>
+  </div>
+  <div class="helm">
+    <button id="anchor" type="button" aria-pressed="false">drop anchor</button>
+    <span class="hint" id="compass" aria-hidden="true">heading —</span>
+    <button id="newcoast" type="button">a new coast (today's)</button>
+  </div>
+  <p class="hint">steer with &larr; &rarr; &middot; or press and hold the left or right of the chart &middot; the coast is only where you have been</p>
+  <p id="ledger">make sail from the harbour</p>
+  <p class="srtext" id="chartStatus" role="status"></p>
+
+  <noscript><p>The chart needs a running script to be sailed. The notes
+  below carry everything true about how these maps were made.</p></noscript>
+
+  <section class="about">
+    <h2>About the portolan</h2>
+    <p>A portolan is a map made backwards. Not surveyed from above &mdash;
+    there was no above to survey from &mdash; but stitched together from
+    below, out of what sailors already knew: the bearing from this cape to
+    that one, the days' sail between them, the lie of a coast learned by
+    running along it. The name comes from the Italian <em>portolano</em>,
+    a pilot's book of written sailing directions; the chart is only the
+    book drawn. So a portolan knows the coast intimately and the interior
+    not at all &mdash; the land behind the shore is simply left blank,
+    because no keel ever went there. This piece takes that honesty and
+    makes it the rule: the coast is only ever where you have sailed.
+    Nothing beyond your wake is known, because on a real chart nothing
+    beyond someone's wake ever was.</p>
+    <p>The web of straight lines is the chart's engine, and it is not a
+    grid. There is no latitude, no longitude, no projection at all on the
+    early charts &mdash; the lines are <em>rhumbs</em>, the fixed
+    directions of the wind-rose, and they are there to lay off a course,
+    not to measure a position. They spring from a hidden ring of sixteen
+    rose-nodes and run clear across the sheet, and their colours are a
+    working code: the eight principal winds drawn dark, the eight
+    half-winds green, the sixteen quarter-winds red, so a pilot's eye
+    could seize the right bearing at a glance. Here that code is live: the
+    wind you steer lights along its own rhumb in its own rank's colour, and
+    the helm tells you its name &mdash; the <em>Tramontana</em> out of the
+    north, <em>Greco</em> from the north-east, <em>Levante</em>,
+    <em>Scirocco</em>, <em>Ostro</em>, <em>Libeccio</em>, <em>Ponente</em>,
+    <em>Maestro</em>, the old Mediterranean rose. The whole web is turned a
+    few degrees off true north, because the compass that drew it pointed to
+    the magnetic pole, as it did around the year 1300.</p>
+    <p>The names arrive as you round the capes because that is how a coast
+    was truly learned: not read off a finished map but recited, feature by
+    feature, in sailing order. Medieval pilots carried a <em>sante
+    parole</em>, a litany of the coast's saints, spoken as each stretch
+    came abeam &mdash; which is why the shores of a portolan bristle with
+    <em>San</em> this and <em>Santa</em> that, written inland, at right
+    angles to the water, packed like the teeth of a comb so the sea stays
+    clear for plotting. The one home harbour is written in red, the
+    important place; the lesser capes and bays in a plainer ink. A name is
+    almost always a generic and a specific &mdash; a <em>capo</em> or a
+    <em>cala</em> or a <em>golfo</em>, and then a saint, a colour that must
+    agree with it in gender (<em>Cala Rossa</em> but <em>Capo Rosso</em>),
+    an animal, an owner, or just a worn word whose meaning has rubbed away.</p>
+    <p>The makers are worth their names. The oldest chart that survives is
+    the Carta Pisana, drawn around 1290, probably in Genoa, and already
+    carrying every convention the next three centuries would keep. Pietro
+    Vesconte was the first to sign and date his work, from 1311. And the
+    glory of the tradition is the Catalan Atlas of 1375, by Abraham
+    Cresques of Majorca and his son Jehuda &mdash; though that Majorcan
+    school filled its lands with kings and cities, where the plainer
+    Italian charts, the kind this one imitates, left the interior honestly
+    empty. It was the Italian charts, too, that carried the phrase
+    <em>terra incognita</em> into the blank. &ldquo;Here be dragons&rdquo;
+    they did not carry; that line survives on essentially one small globe
+    and nowhere on a sea-chart, a piece of folklore the maps themselves
+    would not recognise.</p>
+    <p class="quiet">What I have invented, so you can trust the rest: the
+    land. Every coast here is generated fresh from the day's date &mdash;
+    the same unknown shore for everyone who sails on the same calendar day
+    &mdash; and every place-name is minted by a small grammar of
+    Mediterranean sounds, worn a little on purpose, because real names are
+    opaque and half-eroded and clean invented ones betray the machine. The
+    grammar keeps to one register and obeys its gender, but a short litany
+    of common saints and colours is real, so now and then the sea may hand
+    you the true name of some small real cape by coincidence; take it as
+    the chart-makers took the coasts they had never seen &mdash; on faith,
+    and subject to correction. I have drawn the vellum as night rather than
+    tan, an honest inversion: pale ink on dark water instead of dark ink on
+    pale skin. The distances are in <em>miglia</em>, the portolan mile of
+    about a mile and a quarter, and they are, like everything on such a
+    chart, estimated &mdash; reckoned from time and speed and the set of a
+    remembered wind, never once measured from the sky.</p>
+    <p class="quiet">Nothing here is kept but by you. Your voyage lives only
+    on your own screen and is never recorded; the typefaces arrive from
+    Google's servers, and the rest is files.</p>
+  </section>
+</main>
+<footer>kept &middot; glim &middot; the nineteenth night</footer>
+
+<script>
+(function () {
+'use strict';
+var canvas = document.getElementById('chart');
+var ctx = canvas ? canvas.getContext('2d') : null;
+var ledger = document.getElementById('ledger');
+var srStatus = document.getElementById('chartStatus');
+var anchorBtn = document.getElementById('anchor');
+var newBtn = document.getElementById('newcoast');
+var compass = document.getElementById('compass');
+if (!ctx) return;
+
+var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+// ---------- the chart world ----------
+var W = 1200, H = 900;
+
+// ---------- seeded generation ----------
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    var t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+var now = new Date();
+var daySeed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+var seed = daySeed;
+var rand;
+
+// the coast is a long wandering polyline. It is generated whole and
+// hidden; sailing reveals the stretch you pass. Built as a fractal-ish
+// path with headlands (capes), embayments, and river mouths.
+var coast = [];       // {x, y} points along the shore, dense
+var features = [];    // {i (index into coast), kind, name, named:false}
+var HARBOUR = null;   // {x, y, name}
+
+function buildCoast() {
+  rand = mulberry32(seed);
+  coast = [];
+  features = [];
+  // a coarse control path from left to right across the chart, wandering
+  var N = 9;
+  var ctrl = [];
+  var baseY = H * (0.35 + rand() * 0.2);
+  for (var i = 0; i <= N; i++) {
+    var t = i / N;
+    ctrl.push({
+      x: W * (0.06 + 0.88 * t),
+      y: baseY + (rand() - 0.5) * H * 0.34 + Math.sin(t * Math.PI * (1 + rand())) * H * 0.06,
+    });
+  }
+  // refine by midpoint displacement for a crinkled coast
+  var pts = ctrl.slice();
+  for (var pass = 0; pass < 5; pass++) {
+    var next = [];
+    var amp = (H * 0.11) * Math.pow(0.52, pass);
+    for (var k = 0; k < pts.length - 1; k++) {
+      var a = pts[k], b = pts[k + 1];
+      next.push(a);
+      var mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      var nx = -(b.y - a.y), ny = (b.x - a.x);
+      var nl = Math.hypot(nx, ny) || 1;
+      var disp = (rand() - 0.5) * amp;
+      next.push({ x: mx + nx / nl * disp, y: my + ny / nl * disp });
+    }
+    next.push(pts[pts.length - 1]);
+    pts = next;
+  }
+  coast = pts;
+
+  // detect features by PROMINENCE: for each interior point, how far it
+  // juts against the local mean of a window. Sea is toward the top (small
+  // y), so a strong negative jut is a cape, a strong positive one a bay.
+  var win = 14;
+  var cand = [];
+  for (var m = win; m < coast.length - win; m++) {
+    var mean = 0;
+    for (var w = m - win; w <= m + win; w++) mean += coast[w].y;
+    mean /= (win * 2 + 1);
+    var jut = mean - coast[m].y;                 // + = seaward (cape)
+    // is it a local extremum of jut over a small span?
+    var localMin = coast[m].y <= coast[m - 5].y && coast[m].y <= coast[m + 5].y;
+    var localMax = coast[m].y >= coast[m - 5].y && coast[m].y >= coast[m + 5].y;
+    if (jut > 16 && localMin) cand.push({ i: m, kind: 'cape', p: jut });
+    else if (jut < -16 && localMax) cand.push({ i: m, kind: 'bay', p: -jut });
+  }
+  // strongest first, then keep those spaced out along the coast
+  cand.sort(function (a, b) { return b.p - a.p; });
+  var chosen = [];
+  for (var c = 0; c < cand.length && chosen.length < 8; c++) {
+    var ok = true;
+    for (var d = 0; d < chosen.length; d++) {
+      if (Math.abs(cand[c].i - chosen[d].i) < 18) { ok = false; break; }
+    }
+    if (ok) chosen.push(cand[c]);
+  }
+  chosen.sort(function (a, b) { return a.i - b.i; });
+  for (var g = 0; g < chosen.length; g++) {
+    features.push({ i: chosen[g].i, kind: chosen[g].kind, name: '', named: false });
+  }
+  // the harbour: the starting port, on the coast near the left third,
+  // set at a calm stretch (not on a chosen cape/bay)
+  var hi = Math.floor(coast.length * (0.14 + rand() * 0.08));
+  HARBOUR = { x: coast[hi].x, y: coast[hi].y, i: hi, name: '' };
+}
+
+// ---------- the ship ----------
+var ship = { x: 0, y: 0, heading: 0, speed: 0, sailing: false };
+var SPEED = 62;          // chart-units per second under sail
+var TURN = 1.5;          // radians per second at the helm
+var revealed = [];       // coast indices whose shore is now drawn (bool array)
+var wake = [];           // {x, y} recent ship positions for the wake line
+var anchored = true;
+
+function resetVoyage() {
+  buildCoast();
+  revealed = new Array(coast.length).fill(false);
+  namedCount = 0;
+  // the home harbour: a saint, written in red — the sailors' invocation
+  var hrng = mulberry32((seed ^ 0x1b873593) + 7);
+  var hs = SAINTS[Math.floor(hrng() * SAINTS.length)];
+  HARBOUR.name = 'Porto ' + (SAINTF[hs] ? 'Santa ' : /^[AEIOU]/.test(hs) ? "Sant'" : 'San ') + hs;
+  // begin at the harbour, pointed along the coast (roughly +x)
+  ship.x = HARBOUR.x; ship.y = HARBOUR.y - 30;
+  ship.heading = 0.15;   // east-ish
+  ship.speed = 0;
+  ship.sailing = false;
+  anchored = true;
+  anchorBtn.setAttribute('aria-pressed', 'false');
+  anchorBtn.textContent = 'make sail';
+  wake = [];
+  revealNear(ship.x, ship.y, true);
+  noteEvent('you weigh from ' + HARBOUR.name, true);
+}
+
+// reveal coast points within sight of a position
+var SIGHT = 120;
+function revealNear(x, y, silent) {
+  for (var i = 0; i < coast.length; i++) {
+    if (revealed[i]) continue;
+    var dx = coast[i].x - x, dy = coast[i].y - y;
+    if (dx * dx + dy * dy < SIGHT * SIGHT) {
+      revealed[i] = true;
+    }
+  }
+  if (!silent) namePassedFeatures();
+}
+
+// ---------- naming: one register (Mediterranean-Romance), honestly ----------
+// A name is GENERIC + SPECIFIC. The generic names the feature and fixes the
+// gender; the specific is usually an INVENTED, lightly-worn Romance word, so
+// it will rarely coincide with a real place (the uniqueness lives in the
+// specific, never in a mangled generic). Colours agree in gender; saints
+// take no particle; the one harbour is a red saint, per the scribal
+// hierarchy and the sailors' "sante parole".
+// gender: 'm' ends -o, 'f' ends -a
+var GENERIC = {
+  cape: [['Capo','m'],['Punta','f'],['Monte','m'],['Promontorio','m'],['Corno','m'],['Testa','f']],
+  bay:  [['Golfo','m'],['Cala','f'],['Rada','f'],['Seno','m'],['Ansa','f'],['Baia','f'],['Foce','f']],
+  port: [['Porto','m']],
+};
+var COLOUR = { m: ['Rosso','Bianco','Nero','Verde','Giallo','Grosso','Lungo','Tondo','Storto'],
+               f: ['Rossa','Bianca','Nera','Verde','Gialla','Grossa','Lunga','Tonda','Storta'] };
+var SAINTS = ['Vito','Pietro','Marco','Elmo','Todaro','Leo','Nicola','Angelo','Giorgio',
+              'Maria','Lucia','Chiara','Caterina','Venera','Agata'];
+var SAINTF = { Maria:1, Lucia:1, Chiara:1, Caterina:1, Venera:1, Agata:1 };
+var ANIMALS = ['Corvo','Lupo','Gallo','Passero','Gatto','Aquila','Conigli','Falcone'];
+var NOUNS = ['Torre','Faro','Castello','Fico','Sale','Palma','Vento','Pino'];
+// invented-word building blocks (Italian phonotactics: vowel-final,
+// mostly open CV syllables, a few real onset clusters, the characteristic
+// doubled consonant — kept clean and pronounceable, never a tangle)
+var ONSET1 = ['b','c','d','f','g','l','m','n','p','r','s','t','v','z'];
+var ONSET_CL = ['br','tr','gr','fr','pr','cr','dr','st','sp','sc','ch','gl'];
+var DBL = ['ll','rr','nn','tt','ss','pp','cc','mm','bb','gg','zz'];
+var VOW = ['a','e','i','o','u'];
+// substrings that read crude or un-Italian; regenerate if produced
+var BAD = /caga|cul|cazz|merd|fic[ah]|figa|puta|pisc|scata|coglio|nega|gnud|bava|vv|ii|uu/;
+function oneWord(rng, gender) {
+  var syl = 2 + (rng() < 0.35 ? 1 : 0);
+  var s = '';
+  for (var i = 0; i < syl; i++) {
+    var on;
+    if (i === 0 && rng() < 0.4) on = ONSET_CL[Math.floor(rng() * ONSET_CL.length)];
+    else if (i > 0 && rng() < 0.30) on = DBL[Math.floor(rng() * DBL.length)];  // doubled
+    else on = ONSET1[Math.floor(rng() * ONSET1.length)];
+    var nu;
+    if (i === syl - 1) nu = gender === 'm' ? 'o' : gender === 'f' ? 'a' : (rng() < 0.5 ? 'e' : 'i');
+    else nu = VOW[Math.floor(rng() * VOW.length)];
+    s += on + nu;
+  }
+  return s;
+}
+function pickInvented(rng, gender) {
+  var s;
+  for (var tries = 0; tries < 6; tries++) {
+    s = oneWord(rng, gender);
+    if (!BAD.test(s) && s.length >= 4 && s.length <= 9) break;
+  }
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+function nameFeature(kind, fidx) {
+  var rng = mulberry32((seed ^ 0x9e3779b9) + fidx * 40503);
+  var gs = GENERIC[kind][Math.floor(rng() * GENERIC[kind].length)];
+  var gen = gs[0], gender = gs[1];
+  var r = rng();
+  var spec;
+  if (r < 0.60) {                       // invented, worn — the majority
+    spec = pickInvented(rng, gender);
+  } else if (r < 0.74) {                // a colour, agreeing in gender
+    spec = COLOUR[gender][Math.floor(rng() * COLOUR[gender].length)];
+  } else if (r < 0.84) {                // di/del + invented noun or animal
+    var pool = rng() < 0.5 ? ANIMALS : NOUNS;
+    var w = pool[Math.floor(rng() * pool.length)];
+    spec = (rng() < 0.5 ? 'del ' : 'di ') + w;
+    if (spec.indexOf('del ') === 0 && ['Torre','Palma','Aquila'].indexOf(w) >= 0)
+      spec = 'della ' + w;              // feminine nouns take della
+  } else {                              // a saint, no particle
+    var sn = SAINTS[Math.floor(rng() * SAINTS.length)];
+    spec = (SAINTF[sn] ? 'Santa ' : /^[AEIOU]/.test(sn) ? "Sant'" : 'San ') + sn;
+  }
+  return gen + ' ' + spec;
+}
+var namedCount = 0;
+function namePassedFeatures() {
+  for (var f = 0; f < features.length; f++) {
+    var ft = features[f];
+    if (ft.named) continue;
+    if (revealed[ft.i]) {
+      ft.name = nameFeature(ft.kind, f + 1);
+      ft.named = true;
+      namedCount++;
+      noteEvent('you round ' + ft.name, true);
+    }
+  }
+}
+
+// ---------- ledger / status ----------
+var lastLedger = '', lastSpoken = '', lastSpokeAt = -1e9, eventNote = '', eventNoteT = -1e9;
+function setLedger(msg) { if (msg !== lastLedger) { lastLedger = msg; ledger.innerHTML = msg; } }
+function speak(text) {
+  var t = performance.now();
+  if (t - lastSpokeAt > 6000 && (text !== lastSpoken || t - lastSpokeAt > 40000)) {
+    lastSpoken = text; lastSpokeAt = t;
+    if (srStatus) srStatus.textContent = text;
+  }
+}
+function noteEvent(text, speakIt) { eventNote = text; eventNoteT = performance.now(); if (speakIt) speak(text); }
+
+// the classic eight-wind Italian rose (principal winds, drawn black on a
+// portolan); the half-winds between them were drawn green, the quarter-
+// winds red. The rose is magnetic, tilted ~8 degrees from true north.
+var MAG = 8;
+var WINDS8 = ['Tramontana','Greco','Levante','Scirocco','Ostro','Libeccio','Ponente','Maestro'];
+function windOf(h) {
+  var deg = (Math.atan2(Math.sin(h), Math.cos(h)) * 180 / Math.PI + 90 + MAG + 360) % 360;
+  var idx = Math.round(deg / 22.5) % 16;     // 16-point: even = principal
+  if (idx % 2 === 0) return { name: WINDS8[idx / 2], rank: 'principal', idx: idx };
+  var a = WINDS8[((idx - 1) / 2) % 8], b = WINDS8[((idx + 1) / 2) % 8];
+  return { name: a + '-' + b, rank: 'half', idx: idx };
+}
+var RANK_INK = { principal: '#2a2016', half: '#3c5a3a', quarter: '#7a3020' };
+var RANK_GLOW = { principal: 'rgba(233,228,214,0.85)', half: 'rgba(160,210,160,0.8)',
+                  quarter: 'rgba(224,120,90,0.8)' };
+function headingWord(h) { return windOf(h).name; }
+function updateLedger() {
+  if (compass) {
+    if (anchored) { compass.textContent = 'at anchor'; compass.style.color = ''; }
+    else {
+      var w = windOf(ship.heading);
+      compass.textContent = 'steering the ' + w.name;
+      compass.style.color = w.rank === 'principal' ? 'var(--mist)'
+                          : w.rank === 'half' ? '#8fbf8a' : '#e0785a';
+    }
+  }
+  var fresh = performance.now() - eventNoteT < 6000;
+  var base = (anchored ? 'at anchor' : 'under sail') + ' &middot; ' +
+    namedCount + (namedCount === 1 ? ' place charted' : ' places charted');
+  setLedger(fresh ? base + ' &middot; <span class="name">' + eventNote + '</span>' : base);
+}
+
+// ---------- input ----------
+var keys = {};
+canvas.addEventListener('keydown', function (e) {
+  if (['ArrowLeft', 'ArrowRight'].indexOf(e.key) < 0) return;
+  e.preventDefault();
+  keys[e.key] = true;
+  if (anchored) makeSail();
+});
+canvas.addEventListener('keyup', function (e) { keys[e.key] = false; });
+canvas.addEventListener('blur', function () { keys = {}; });
+var pointerTurn = 0, heldId = null;
+canvas.addEventListener('pointerdown', function (e) {
+  if (e.button !== 0 && e.pointerType === 'mouse') return;
+  if (heldId !== null) return;
+  heldId = e.pointerId;
+  var r = canvas.getBoundingClientRect();
+  pointerTurn = (e.clientX - r.left) > r.width / 2 ? 1 : -1;
+  canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
+  if (anchored) makeSail();
+});
+function endPointer(e) {
+  if (e && e.pointerId !== undefined && heldId !== null && e.pointerId !== heldId) return;
+  heldId = null; pointerTurn = 0;
+}
+canvas.addEventListener('pointerup', endPointer);
+canvas.addEventListener('pointercancel', endPointer);
+window.addEventListener('pointerup', endPointer);
+window.addEventListener('blur', function () { pointerTurn = 0; heldId = null; keys = {}; });
+
+function makeSail() {
+  anchored = false;
+  ship.sailing = true;
+  anchorBtn.setAttribute('aria-pressed', 'false');
+  anchorBtn.textContent = 'drop anchor';
+}
+function dropAnchor() {
+  anchored = true;
+  ship.sailing = false;
+  ship.speed = 0;
+  anchorBtn.setAttribute('aria-pressed', 'true');
+  anchorBtn.textContent = 'make sail';
+  noteEvent('you drop anchor', true);
+}
+anchorBtn.addEventListener('click', function () {
+  if (anchored) makeSail(); else dropAnchor();
+});
+newBtn.addEventListener('click', function () { seed = daySeed; resetVoyage(); noteEvent('a fresh chart', true); });
+
+// ---------- drawing ----------
+function fitCanvas() {
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var w = canvas.clientWidth || 800;
+  var h = Math.round(w * 3 / 4);
+  if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+  }
+}
+
+// the rhumb-line network: a hidden circle of sixteen wind-rose nodes, each
+// throwing straight lines along the sixteen fixed winds across the whole
+// chart. Coloured by rank — principal winds dark, half-winds green,
+// quarter-winds red — the functional palette of a real portolan. The whole
+// web is turned MAG degrees, aligned to the magnetic north of about 1300.
+var NET_C = { x: W * 0.5, y: H * 0.52, r: Math.min(W, H) * 0.42 };
+var netNodes = [];
+(function () {
+  for (var n = 0; n < 16; n++) {
+    var a = n * Math.PI / 8 - Math.PI / 2 + MAG * Math.PI / 180;
+    netNodes.push({ x: NET_C.x + Math.cos(a) * NET_C.r, y: NET_C.y + Math.sin(a) * NET_C.r });
+  }
+})();
+function drawNetwork() {
+  var diag = Math.hypot(W, H);
+  // 16 winds, angle rank: multiples of 90deg are principal, 45 half, else quarter
+  for (var n = 0; n < netNodes.length; n++) {
+    var nd = netNodes[n];
+    for (var w = 0; w < 16; w++) {
+      var deg = w * 22.5;
+      var rank = (deg % 90 === 0) ? 'principal' : (deg % 45 === 0) ? 'half' : 'quarter';
+      // draw only a subset of quarter-winds so the web does not choke
+      if (rank === 'quarter' && (n % 2 === 1)) continue;
+      var a = (deg - 90 + MAG) * Math.PI / 180;
+      ctx.strokeStyle = rank === 'principal' ? 'rgba(120,104,78,0.30)'
+                      : rank === 'half' ? 'rgba(90,120,92,0.22)' : 'rgba(150,86,66,0.16)';
+      ctx.lineWidth = rank === 'principal' ? 0.7 : 0.5;
+      ctx.beginPath();
+      ctx.moveTo(nd.x - Math.cos(a) * diag, nd.y - Math.sin(a) * diag);
+      ctx.lineTo(nd.x + Math.cos(a) * diag, nd.y + Math.sin(a) * diag);
+      ctx.stroke();
+    }
+  }
+  // the node ring, faint
+  ctx.strokeStyle = 'rgba(120,104,78,0.16)';
+  ctx.lineWidth = 0.6;
+  ctx.beginPath();
+  ctx.arc(NET_C.x, NET_C.y, NET_C.r, 0, Math.PI * 2);
+  ctx.stroke();
+}
+
+function draw() {
+  fitCanvas();
+  var scale = canvas.width / W;
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  // the sea — a portolan drawn in pale ink on a night ground
+  ctx.fillStyle = '#0b1420';
+  ctx.fillRect(0, 0, W, H);
+
+  drawNetwork();
+
+  // terra incognita: a faint hand in the unknown interior
+  ctx.save();
+  ctx.font = "italic 20px Fraunces, serif";
+  ctx.fillStyle = 'rgba(150,132,100,0.14)';
+  ctx.translate(W * 0.5, H * 0.86);
+  ctx.rotate(-MAG * Math.PI / 180);
+  ctx.textAlign = 'center';
+  ctx.fillText('terra incognita', 0, 0);
+  ctx.restore();
+  ctx.textAlign = 'left';
+
+  // the steering line: the wind you hold, drawn in its own rank-colour from
+  // the ship, so the bearing you sail is the historical UI
+  if (!anchored) {
+    var wnd = windOf(ship.heading);
+    var wa = (Math.round(((Math.atan2(Math.sin(ship.heading), Math.cos(ship.heading)) * 180 / Math.PI + 90 + MAG + 360) % 360) / 22.5) * 22.5 - 90 + MAG) * Math.PI / 180;
+    ctx.strokeStyle = RANK_GLOW[wnd.rank];
+    ctx.globalAlpha = 0.35;
+    ctx.lineWidth = 0.8;
+    ctx.setLineDash([2, 6]);
+    ctx.beginPath();
+    ctx.moveTo(ship.x, ship.y);
+    ctx.lineTo(ship.x + Math.cos(wa) * 1600, ship.y + Math.sin(wa) * 1600);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
+  }
+
+  // land-fill: a faint wash just inland of the revealed shore, so the coast
+  // reads as the edge of land, not a free line. Sea is toward the top.
+  ctx.strokeStyle = 'rgba(180,158,116,0.10)';
+  ctx.lineWidth = 0.8;
+  for (var h2 = 0; h2 < coast.length; h2 += 2) {
+    if (!revealed[h2]) continue;
+    ctx.beginPath();
+    ctx.moveTo(coast[h2].x, coast[h2].y);
+    ctx.lineTo(coast[h2].x, coast[h2].y + 16);
+    ctx.stroke();
+  }
+
+  // the revealed coast: runs of consecutive revealed points
+  ctx.strokeStyle = 'rgba(222,204,164,0.95)';
+  ctx.lineWidth = 1.6;
+  ctx.lineJoin = 'round';
+  var drawing = false;
+  ctx.beginPath();
+  for (var i = 0; i < coast.length; i++) {
+    if (revealed[i]) {
+      if (!drawing) { ctx.moveTo(coast[i].x, coast[i].y); drawing = true; }
+      else ctx.lineTo(coast[i].x, coast[i].y);
+    } else if (drawing) { drawing = false; }
+  }
+  ctx.stroke();
+
+  // feature names, written PERPENDICULAR to the coast, on the land side,
+  // the signature comb of a portolan
+  ctx.font = "italic 12.5px Fraunces, serif";
+  for (var f = 0; f < features.length; f++) {
+    var ft = features[f];
+    if (!ft.named) continue;
+    var p = coast[ft.i];
+    var pa = coast[Math.max(0, ft.i - 4)], pb = coast[Math.min(coast.length - 1, ft.i + 4)];
+    var tang = Math.atan2(pb.y - pa.y, pb.x - pa.x);
+    var norm = tang + Math.PI / 2;                 // toward the land (downward)
+    if (Math.sin(norm) < 0) norm += Math.PI;       // keep it pointing into land
+    ctx.save();
+    ctx.translate(p.x + Math.cos(norm) * 8, p.y + Math.sin(norm) * 8);
+    ctx.rotate(norm - Math.PI / 2 > Math.PI / 2 ? norm + Math.PI / 2 : norm - Math.PI / 2);
+    ctx.fillStyle = 'rgba(226,206,166,0.9)';
+    ctx.fillText(ft.name, 4, 4);
+    ctx.restore();
+  }
+
+  // the harbour: a red ring and its name in red, upright — the one
+  // important place, per the scribe's hierarchy
+  if (HARBOUR) {
+    ctx.strokeStyle = 'rgba(182,71,46,0.95)';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.arc(HARBOUR.x, HARBOUR.y, 5, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(200,86,58,0.95)';
+    ctx.font = "italic 13px Fraunces, serif";
+    ctx.fillText(HARBOUR.name, HARBOUR.x + 9, HARBOUR.y + 16);
+  }
+
+  // the scale bar, in miglia (a portolan mile is about 1.25 km)
+  ctx.strokeStyle = 'rgba(180,158,116,0.5)';
+  ctx.fillStyle = 'rgba(180,158,116,0.6)';
+  ctx.lineWidth = 1;
+  var sbx = W * 0.06, sby = H * 0.94, seg = 26;
+  ctx.beginPath();
+  ctx.moveTo(sbx, sby); ctx.lineTo(sbx + seg * 5, sby); ctx.stroke();
+  for (var t = 0; t <= 5; t++) {
+    ctx.beginPath(); ctx.moveTo(sbx + seg * t, sby - 3); ctx.lineTo(sbx + seg * t, sby + 3); ctx.stroke();
+  }
+  ctx.font = "10px 'Spline Sans Mono', monospace";
+  ctx.fillText('50 miglia', sbx, sby - 8);
+
+  // the wake
+  if (wake.length > 1) {
+    ctx.strokeStyle = 'rgba(159,220,255,0.24)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(wake[0].x, wake[0].y);
+    for (var wv = 1; wv < wake.length; wv++) ctx.lineTo(wake[wv].x, wake[wv].y);
+    ctx.stroke();
+  }
+
+  // the ship
+  ctx.save();
+  ctx.translate(ship.x, ship.y);
+  ctx.rotate(ship.heading);
+  ctx.fillStyle = 'rgba(233,228,214,0.95)';
+  ctx.beginPath();
+  ctx.moveTo(11, 0); ctx.lineTo(-6, 5); ctx.lineTo(-3, 0); ctx.lineTo(-6, -5);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+}
+
+// ---------- loop ----------
+var lastT = 0;
+function frame(nowMs) {
+  var dt = lastT ? Math.min(0.05, (nowMs - lastT) / 1000) : 0;
+  lastT = nowMs;
+
+  if (ship.sailing && !anchored) {
+    var turn = (keys.ArrowRight ? 1 : 0) - (keys.ArrowLeft ? 1 : 0) + pointerTurn;
+    ship.heading += turn * TURN * dt;
+    ship.speed += (SPEED - ship.speed) * Math.min(1, dt * 2);
+    ship.x += Math.cos(ship.heading) * ship.speed * dt;
+    ship.y += Math.sin(ship.heading) * ship.speed * dt;
+    // bounds: wrap the ship back gently if it sails off the chart
+    ship.x = Math.max(8, Math.min(W - 8, ship.x));
+    ship.y = Math.max(8, Math.min(H - 8, ship.y));
+    revealNear(ship.x, ship.y);
+    wake.push({ x: ship.x, y: ship.y });
+    if (wake.length > 120) wake.shift();
+  }
+
+  draw();
+  updateLedger();
+  if (!document.hidden) requestAnimationFrame(frame);
+}
+resetVoyage();
+requestAnimationFrame(frame);
+
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden) { lastT = 0; requestAnimationFrame(frame); }
+});
+
+window.__landfall = {
+  get state() {
+    return { x: ship.x, y: ship.y, heading: ship.heading, anchored: anchored,
+             sailing: ship.sailing, named: namedCount,
+             revealed: revealed.filter(Boolean).length, coastLen: coast.length,
+             features: features.length, harbour: HARBOUR ? { x: HARBOUR.x, y: HARBOUR.y } : null,
+             seed: seed };
+  },
+  set headingTo(h) { ship.heading = h; },
+  names: function () {
+    var out = [HARBOUR.name];
+    for (var f = 0; f < features.length; f++) out.push(nameFeature(features[f].kind, f + 1));
+    return out;
+  },
+  windAt: function (h) { return windOf(h); },
+  makeSail: makeSail,
+  moveTo: function (x, y) { ship.x = x; ship.y = y; revealNear(x, y); },
+  rebuild: function (s) { seed = s; resetVoyage(); },
+};
+})();
+</script>
+</body>
+</html>
