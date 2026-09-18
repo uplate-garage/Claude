@@ -124,8 +124,8 @@
       aria-label="The chart. Steer the ship with the left and right arrow keys to change your heading, or press and hold either side of the chart to turn. The coast draws itself and names itself as you sail past it."></canvas>
   </div>
   <div class="helm">
-    <button id="anchor" type="button" aria-pressed="false">drop anchor</button>
-    <span class="hint" id="compass" aria-hidden="true">heading —</span>
+    <button id="anchor" type="button">make sail</button>
+    <span class="hint" id="compass" aria-hidden="true">at anchor</span>
     <button id="newcoast" type="button">a new coast (today's)</button>
   </div>
   <p class="hint">steer with &larr; &rarr; &middot; or press and hold the left or right of the chart &middot; the coast is only where you have been</p>
@@ -155,9 +155,12 @@
     directions of the wind-rose, and they are there to lay off a course,
     not to measure a position. They spring from a hidden ring of sixteen
     rose-nodes and run clear across the sheet, and their colours are a
-    working code: the eight principal winds drawn dark, the eight
-    half-winds green, the sixteen quarter-winds red, so a pilot's eye
-    could seize the right bearing at a glance. Here that code is live: the
+    working code: on this early chart the eight principal winds are drawn
+    dark and the eight half-winds green, so a pilot's eye could seize the
+    right bearing at a glance. (The sixteen quarter-winds in red, which
+    fill out the famous thirty-two-point rose, came later, from about
+    1450; a chart of around 1300 like this one keeps the plainer sixteen.)
+    Here that code is live: the
     wind you steer lights along its own rhumb in its own rank's colour, and
     the helm tells you its name &mdash; the <em>Tramontana</em> out of the
     north, <em>Greco</em> from the north-east, <em>Levante</em>,
@@ -186,11 +189,12 @@
     Cresques of Majorca and his son Jehuda &mdash; though that Majorcan
     school filled its lands with kings and cities, where the plainer
     Italian charts, the kind this one imitates, left the interior honestly
-    empty. It was the Italian charts, too, that carried the phrase
-    <em>terra incognita</em> into the blank. &ldquo;Here be dragons&rdquo;
-    they did not carry; that line survives on essentially one small globe
-    and nowhere on a sea-chart, a piece of folklore the maps themselves
-    would not recognise.</p>
+    empty &mdash; and where a mapmaker did write into the blank, the phrase
+    was <em>terra incognita</em>, unknown land, which is the one I have
+    borrowed for mine. &ldquo;Here be dragons&rdquo; the charts did not
+    carry; that line survives on essentially one small globe and nowhere on
+    a sea-chart, a piece of folklore the maps themselves would not
+    recognise.</p>
     <p class="quiet">What I have invented, so you can trust the rest: the
     land. Every coast here is generated fresh from the day's date &mdash;
     the same unknown shore for everyone who sails on the same calendar day
@@ -204,9 +208,10 @@
     and subject to correction. I have drawn the vellum as night rather than
     tan, an honest inversion: pale ink on dark water instead of dark ink on
     pale skin. The distances are in <em>miglia</em>, the portolan mile of
-    about a mile and a quarter, and they are, like everything on such a
-    chart, estimated &mdash; reckoned from time and speed and the set of a
-    remembered wind, never once measured from the sky.</p>
+    about a kilometre and a quarter &mdash; three-quarters of an ordinary
+    mile &mdash; and they are, like everything on such a chart, estimated:
+    reckoned from time and speed and the set of a remembered wind, never
+    once measured from the sky.</p>
     <p class="quiet">Nothing here is kept but by you. Your voyage lives only
     on your own screen and is never recorded; the typefaces arrive from
     Google's servers, and the rest is files.</p>
@@ -317,8 +322,17 @@ function buildCoast() {
     features.push({ i: chosen[g].i, kind: chosen[g].kind, name: '', named: false });
   }
   // the harbour: the starting port, on the coast near the left third,
-  // set at a calm stretch (not on a chosen cape/bay)
+  // set at a calm stretch — nudged clear of any chosen cape or bay so
+  // its red name never collides with a feature's
   var hi = Math.floor(coast.length * (0.14 + rand() * 0.08));
+  for (var guard = 0; guard < coast.length; guard++) {
+    var clash = false;
+    for (var fi = 0; fi < features.length; fi++) {
+      if (Math.abs(features[fi].i - hi) < 10) { clash = true; break; }
+    }
+    if (!clash) break;
+    hi = (hi + 7) % coast.length;
+  }
   HARBOUR = { x: coast[hi].x, y: coast[hi].y, i: hi, name: '' };
 }
 
@@ -337,14 +351,13 @@ function resetVoyage() {
   // the home harbour: a saint, written in red — the sailors' invocation
   var hrng = mulberry32((seed ^ 0x1b873593) + 7);
   var hs = SAINTS[Math.floor(hrng() * SAINTS.length)];
-  HARBOUR.name = 'Porto ' + (SAINTF[hs] ? 'Santa ' : /^[AEIOU]/.test(hs) ? "Sant'" : 'San ') + hs;
+  HARBOUR.name = 'Porto ' + saintPrefix(hs) + hs;
   // begin at the harbour, pointed along the coast (roughly +x)
   ship.x = HARBOUR.x; ship.y = HARBOUR.y - 30;
   ship.heading = 0.15;   // east-ish
   ship.speed = 0;
   ship.sailing = false;
   anchored = true;
-  anchorBtn.setAttribute('aria-pressed', 'false');
   anchorBtn.textContent = 'make sail';
   wake = [];
   revealNear(ship.x, ship.y, true);
@@ -384,8 +397,13 @@ var COLOUR = { m: ['Rosso','Bianco','Nero','Verde','Giallo','Grosso','Lungo','To
 var SAINTS = ['Vito','Pietro','Marco','Elmo','Todaro','Leo','Nicola','Angelo','Giorgio',
               'Maria','Lucia','Chiara','Caterina','Venera','Agata'];
 var SAINTF = { Maria:1, Lucia:1, Chiara:1, Caterina:1, Venera:1, Agata:1 };
-var ANIMALS = ['Corvo','Lupo','Gallo','Passero','Gatto','Aquila','Conigli','Falcone'];
+var ANIMALS = ['Corvo','Lupo','Gallo','Passero','Gatto','Aquila','Falcone'];
 var NOUNS = ['Torre','Faro','Castello','Fico','Sale','Palma','Vento','Pino'];
+var FEM_NOUN = { Torre:1, Palma:1, Aquila:1 };   // take della / dell'
+function saintPrefix(sn) {
+  if (SAINTF[sn]) return /^[AEIOU]/.test(sn) ? "Sant'" : 'Santa ';
+  return /^[AEIOU]/.test(sn) ? "Sant'" : 'San ';
+}
 // invented-word building blocks (Italian phonotactics: vowel-final,
 // mostly open CV syllables, a few real onset clusters, the characteristic
 // doubled consonant — kept clean and pronounceable, never a tangle)
@@ -393,8 +411,8 @@ var ONSET1 = ['b','c','d','f','g','l','m','n','p','r','s','t','v','z'];
 var ONSET_CL = ['br','tr','gr','fr','pr','cr','dr','st','sp','sc','ch','gl'];
 var DBL = ['ll','rr','nn','tt','ss','pp','cc','mm','bb','gg','zz'];
 var VOW = ['a','e','i','o','u'];
-// substrings that read crude or un-Italian; regenerate if produced
-var BAD = /caga|cul|cazz|merd|fic[ah]|figa|puta|pisc|scata|coglio|nega|gnud|bava|vv|ii|uu/;
+// substrings that read crude, slang, or un-Italian; regenerate if produced
+var BAD = /cag|cacc|cul|cazz|merd|fic|fig|put|pisc|piss|scat|scort|cogli|zocc|sega|vacc|troia|mign|stron|minch|bagas|nega|gnud|bava|sborr|vv|ii|uu|jj|kk|qq|ww|yy/;
 function oneWord(rng, gender) {
   var syl = 2 + (rng() < 0.35 ? 1 : 0);
   var s = '';
@@ -428,19 +446,21 @@ function nameFeature(kind, fidx) {
     spec = pickInvented(rng, gender);
   } else if (r < 0.74) {                // a colour, agreeing in gender
     spec = COLOUR[gender][Math.floor(rng() * COLOUR[gender].length)];
-  } else if (r < 0.84) {                // di/del + invented noun or animal
+  } else if (r < 0.84) {                // del/della/dell' + noun or animal
     var pool = rng() < 0.5 ? ANIMALS : NOUNS;
     var w = pool[Math.floor(rng() * pool.length)];
-    spec = (rng() < 0.5 ? 'del ' : 'di ') + w;
-    if (spec.indexOf('del ') === 0 && ['Torre','Palma','Aquila'].indexOf(w) >= 0)
-      spec = 'della ' + w;              // feminine nouns take della
+    var vowel = /^[AEIOU]/.test(w);
+    if (FEM_NOUN[w]) spec = (vowel ? "dell'" : 'della ') + w;
+    else spec = (vowel ? "dell'" : 'del ') + w;
   } else {                              // a saint, no particle
     var sn = SAINTS[Math.floor(rng() * SAINTS.length)];
-    spec = (SAINTF[sn] ? 'Santa ' : /^[AEIOU]/.test(sn) ? "Sant'" : 'San ') + sn;
+    spec = saintPrefix(sn) + sn;
   }
   return gen + ' ' + spec;
 }
 var namedCount = 0;
+// name at most one newly-revealed feature per call, so each earns its own
+// announcement instead of several being coalesced into one throttled note
 function namePassedFeatures() {
   for (var f = 0; f < features.length; f++) {
     var ft = features[f];
@@ -450,6 +470,7 @@ function namePassedFeatures() {
       ft.named = true;
       namedCount++;
       noteEvent('you round ' + ft.name, true);
+      return;
     }
   }
 }
@@ -471,16 +492,23 @@ function noteEvent(text, speakIt) { eventNote = text; eventNoteT = performance.n
 // winds red. The rose is magnetic, tilted ~8 degrees from true north.
 var MAG = 8;
 var WINDS8 = ['Tramontana','Greco','Levante','Scirocco','Ostro','Libeccio','Ponente','Maestro'];
+// screen angle (radians, 0 = east/+x) at which wind index idx is drawn on
+// the tilted chart — the SINGLE source of truth for the rose, the network,
+// and the steering line, so they can never disagree. idx 0 = Tramontana
+// (north), pointing up and rotated by the magnetic offset.
+function windScreenAngle(idx) { return idx * Math.PI / 8 - Math.PI / 2 + MAG * Math.PI / 180; }
 function windOf(h) {
-  var deg = (Math.atan2(Math.sin(h), Math.cos(h)) * 180 / Math.PI + 90 + MAG + 360) % 360;
-  var idx = Math.round(deg / 22.5) % 16;     // 16-point: even = principal
+  // invert windScreenAngle: which of the 16 winds is the heading nearest?
+  var rel = h + Math.PI / 2 - MAG * Math.PI / 180;
+  var idx = ((Math.round(rel / (Math.PI / 8)) % 16) + 16) % 16;
   if (idx % 2 === 0) return { name: WINDS8[idx / 2], rank: 'principal', idx: idx };
   var a = WINDS8[((idx - 1) / 2) % 8], b = WINDS8[((idx + 1) / 2) % 8];
   return { name: a + '-' + b, rank: 'half', idx: idx };
 }
-var RANK_INK = { principal: '#2a2016', half: '#3c5a3a', quarter: '#7a3020' };
-var RANK_GLOW = { principal: 'rgba(233,228,214,0.85)', half: 'rgba(160,210,160,0.8)',
-                  quarter: 'rgba(224,120,90,0.8)' };
+// a c.1300 chart carries sixteen winds only: eight principal (dark) and
+// eight half-winds (green). The sixteen red quarter-winds are a later,
+// thirty-two-wind refinement, so there is no red on this rose.
+var RANK_GLOW = { principal: 'rgba(233,228,214,0.85)', half: 'rgba(160,210,160,0.8)' };
 function headingWord(h) { return windOf(h).name; }
 function updateLedger() {
   if (compass) {
@@ -508,43 +536,53 @@ canvas.addEventListener('keydown', function (e) {
 });
 canvas.addEventListener('keyup', function (e) { keys[e.key] = false; });
 canvas.addEventListener('blur', function () { keys = {}; });
-var pointerTurn = 0, heldId = null;
+var pointerTurn = 0, heldId = null, heldSince = 0;
 canvas.addEventListener('pointerdown', function (e) {
   if (e.button !== 0 && e.pointerType === 'mouse') return;
   if (heldId !== null) return;
   heldId = e.pointerId;
+  heldSince = performance.now();
   var r = canvas.getBoundingClientRect();
   pointerTurn = (e.clientX - r.left) > r.width / 2 ? 1 : -1;
   canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
-  if (anchored) makeSail();
+  // deliberately NOT sailing yet: a scroll-swipe that begins on the chart
+  // fires pointercancel within a moment and must not weigh anchor. The
+  // loop makes sail once the press is genuinely held.
 });
 function endPointer(e) {
   if (e && e.pointerId !== undefined && heldId !== null && e.pointerId !== heldId) return;
-  heldId = null; pointerTurn = 0;
+  heldId = null; pointerTurn = 0; heldSince = 0;
 }
 canvas.addEventListener('pointerup', endPointer);
 canvas.addEventListener('pointercancel', endPointer);
 window.addEventListener('pointerup', endPointer);
 window.addEventListener('blur', function () { pointerTurn = 0; heldId = null; keys = {}; });
 
+// an action button whose label states the next action; no aria-pressed,
+// which would contradict the changing name
 function makeSail() {
+  if (!anchored) return;
   anchored = false;
   ship.sailing = true;
-  anchorBtn.setAttribute('aria-pressed', 'false');
   anchorBtn.textContent = 'drop anchor';
+  noteEvent('you make sail', true);
 }
 function dropAnchor() {
   anchored = true;
   ship.sailing = false;
   ship.speed = 0;
-  anchorBtn.setAttribute('aria-pressed', 'true');
   anchorBtn.textContent = 'make sail';
   noteEvent('you drop anchor', true);
 }
 anchorBtn.addEventListener('click', function () {
   if (anchored) makeSail(); else dropAnchor();
 });
-newBtn.addEventListener('click', function () { seed = daySeed; resetVoyage(); noteEvent('a fresh chart', true); });
+newBtn.addEventListener('click', function () {
+  // recompute today's seed in case the tab has crossed midnight
+  var d = new Date();
+  daySeed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+  seed = daySeed; resetVoyage();
+});
 
 // ---------- drawing ----------
 function fitCanvas() {
@@ -566,36 +604,55 @@ var NET_C = { x: W * 0.5, y: H * 0.52, r: Math.min(W, H) * 0.42 };
 var netNodes = [];
 (function () {
   for (var n = 0; n < 16; n++) {
-    var a = n * Math.PI / 8 - Math.PI / 2 + MAG * Math.PI / 180;
+    var a = windScreenAngle(n);
     netNodes.push({ x: NET_C.x + Math.cos(a) * NET_C.r, y: NET_C.y + Math.sin(a) * NET_C.r });
   }
 })();
-function drawNetwork() {
+// the static network is rendered once to an offscreen layer and blitted —
+// it never changes, so it need not be re-stroked every frame
+var netLayer = null, netLayerScale = 0;
+function buildNetLayer(scale) {
+  netLayer = document.createElement('canvas');
+  netLayer.width = Math.round(W * scale);
+  netLayer.height = Math.round(H * scale);
+  var g = netLayer.getContext('2d');
+  g.setTransform(scale, 0, 0, scale, 0, 0);
   var diag = Math.hypot(W, H);
-  // 16 winds, angle rank: multiples of 90deg are principal, 45 half, else quarter
   for (var n = 0; n < netNodes.length; n++) {
     var nd = netNodes[n];
     for (var w = 0; w < 16; w++) {
-      var deg = w * 22.5;
-      var rank = (deg % 90 === 0) ? 'principal' : (deg % 45 === 0) ? 'half' : 'quarter';
-      // draw only a subset of quarter-winds so the web does not choke
-      if (rank === 'quarter' && (n % 2 === 1)) continue;
-      var a = (deg - 90 + MAG) * Math.PI / 180;
-      ctx.strokeStyle = rank === 'principal' ? 'rgba(120,104,78,0.30)'
-                      : rank === 'half' ? 'rgba(90,120,92,0.22)' : 'rgba(150,86,66,0.16)';
-      ctx.lineWidth = rank === 'principal' ? 0.7 : 0.5;
-      ctx.beginPath();
-      ctx.moveTo(nd.x - Math.cos(a) * diag, nd.y - Math.sin(a) * diag);
-      ctx.lineTo(nd.x + Math.cos(a) * diag, nd.y + Math.sin(a) * diag);
-      ctx.stroke();
+      var principal = (w % 2 === 0);       // eight principal, eight half-winds
+      var a = windScreenAngle(w);
+      g.strokeStyle = principal ? 'rgba(120,104,78,0.30)' : 'rgba(90,120,92,0.20)';
+      g.lineWidth = principal ? 0.7 : 0.5;
+      g.beginPath();
+      g.moveTo(nd.x - Math.cos(a) * diag, nd.y - Math.sin(a) * diag);
+      g.lineTo(nd.x + Math.cos(a) * diag, nd.y + Math.sin(a) * diag);
+      g.stroke();
     }
   }
-  // the node ring, faint
-  ctx.strokeStyle = 'rgba(120,104,78,0.16)';
-  ctx.lineWidth = 0.6;
-  ctx.beginPath();
-  ctx.arc(NET_C.x, NET_C.y, NET_C.r, 0, Math.PI * 2);
-  ctx.stroke();
+  g.strokeStyle = 'rgba(120,104,78,0.16)';
+  g.lineWidth = 0.6;
+  g.beginPath();
+  g.arc(NET_C.x, NET_C.y, NET_C.r, 0, Math.PI * 2);
+  g.stroke();
+  // terra incognita, baked into the static layer, leaning WITH the grid
+  g.font = "italic 20px Fraunces, serif";
+  g.fillStyle = 'rgba(150,132,100,0.14)';
+  g.save();
+  g.translate(W * 0.5, H * 0.86);
+  g.rotate(MAG * Math.PI / 180);
+  g.textAlign = 'center';
+  g.fillText('terra incognita', 0, 0);
+  g.restore();
+  netLayerScale = scale;
+}
+function drawNetwork() {
+  var scale = canvas.width / W;
+  if (!netLayer || netLayerScale !== scale) buildNetLayer(scale);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.drawImage(netLayer, 0, 0);
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
 }
 
 function draw() {
@@ -608,28 +665,19 @@ function draw() {
 
   drawNetwork();
 
-  // terra incognita: a faint hand in the unknown interior
-  ctx.save();
-  ctx.font = "italic 20px Fraunces, serif";
-  ctx.fillStyle = 'rgba(150,132,100,0.14)';
-  ctx.translate(W * 0.5, H * 0.86);
-  ctx.rotate(-MAG * Math.PI / 180);
-  ctx.textAlign = 'center';
-  ctx.fillText('terra incognita', 0, 0);
-  ctx.restore();
-  ctx.textAlign = 'left';
-
-  // the steering line: the wind you hold, drawn in its own rank-colour from
-  // the ship, so the bearing you sail is the historical UI
+  // the steering line: the wind you hold, drawn along its OWN rhumb from
+  // the ship in that wind's rank-colour, so the bearing you sail is the
+  // historical UI. It uses windScreenAngle, the same source as the network,
+  // so the lit rhumb always lies exactly on a network line.
   if (!anchored) {
     var wnd = windOf(ship.heading);
-    var wa = (Math.round(((Math.atan2(Math.sin(ship.heading), Math.cos(ship.heading)) * 180 / Math.PI + 90 + MAG + 360) % 360) / 22.5) * 22.5 - 90 + MAG) * Math.PI / 180;
+    var wa = windScreenAngle(wnd.idx);
     ctx.strokeStyle = RANK_GLOW[wnd.rank];
-    ctx.globalAlpha = 0.35;
-    ctx.lineWidth = 0.8;
+    ctx.globalAlpha = 0.4;
+    ctx.lineWidth = 0.9;
     ctx.setLineDash([2, 6]);
     ctx.beginPath();
-    ctx.moveTo(ship.x, ship.y);
+    ctx.moveTo(ship.x - Math.cos(wa) * 1600, ship.y - Math.sin(wa) * 1600);
     ctx.lineTo(ship.x + Math.cos(wa) * 1600, ship.y + Math.sin(wa) * 1600);
     ctx.stroke();
     ctx.setLineDash([]);
@@ -730,11 +778,26 @@ function draw() {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
 }
 
+// nearest coast distance, for the "land is near / open water" cue
+function coastDist(x, y) {
+  var best = 1e9;
+  for (var i = 0; i < coast.length; i += 2) {
+    var dx = coast[i].x - x, dy = coast[i].y - y;
+    var d = dx * dx + dy * dy;
+    if (d < best) best = d;
+  }
+  return Math.sqrt(best);
+}
+
 // ---------- loop ----------
-var lastT = 0;
+var lastT = 0, rafOn = false, lastWindIdx = -1, wasNear = null;
 function frame(nowMs) {
+  rafOn = true;
   var dt = lastT ? Math.min(0.05, (nowMs - lastT) / 1000) : 0;
   lastT = nowMs;
+
+  // a genuinely held press (not a scroll-swipe that cancels at once) makes sail
+  if (heldId !== null && anchored && nowMs - heldSince > 140) makeSail();
 
   if (ship.sailing && !anchored) {
     var turn = (keys.ArrowRight ? 1 : 0) - (keys.ArrowLeft ? 1 : 0) + pointerTurn;
@@ -742,23 +805,34 @@ function frame(nowMs) {
     ship.speed += (SPEED - ship.speed) * Math.min(1, dt * 2);
     ship.x += Math.cos(ship.heading) * ship.speed * dt;
     ship.y += Math.sin(ship.heading) * ship.speed * dt;
-    // bounds: wrap the ship back gently if it sails off the chart
     ship.x = Math.max(8, Math.min(W - 8, ship.x));
     ship.y = Math.max(8, Math.min(H - 8, ship.y));
     revealNear(ship.x, ship.y);
     wake.push({ x: ship.x, y: ship.y });
     if (wake.length > 120) wake.shift();
+
+    // spoken cues so the voyage can be followed without the screen: the
+    // wind as it changes, and whether there is coast within sight to chart
+    var wi = windOf(ship.heading);
+    if (wi.idx !== lastWindIdx) { lastWindIdx = wi.idx; speak('you come round to the ' + wi.name); }
+    var near = coastDist(ship.x, ship.y) < SIGHT * 1.3;
+    if (wasNear === null) wasNear = near;
+    else if (near !== wasNear) {
+      wasNear = near;
+      speak(near ? 'land is off your bow' : 'you have stood out into open water, nothing here to chart');
+    }
   }
 
   draw();
   updateLedger();
-  if (!document.hidden) requestAnimationFrame(frame);
+  if (!document.hidden) requestAnimationFrame(frame); else rafOn = false;
 }
 resetVoyage();
 requestAnimationFrame(frame);
 
 document.addEventListener('visibilitychange', function () {
-  if (!document.hidden) { lastT = 0; requestAnimationFrame(frame); }
+  // resume only if the loop actually stopped, so hide/show cannot stack loops
+  if (!document.hidden && !rafOn) { lastT = 0; rafOn = true; requestAnimationFrame(frame); }
 });
 
 window.__landfall = {
@@ -776,6 +850,7 @@ window.__landfall = {
     return out;
   },
   windAt: function (h) { return windOf(h); },
+  windScreenAngle: windScreenAngle,
   makeSail: makeSail,
   moveTo: function (x, y) { ship.x = x; ship.y = y; revealNear(x, y); },
   rebuild: function (s) { seed = s; resetVoyage(); },
