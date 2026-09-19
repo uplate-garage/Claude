@@ -115,7 +115,7 @@
     coloured paths ringers call the blue line. The treble is drawn apart, in
     red. Each row is sounded as a peal of bells struck one after another.</p>
     <canvas id="line" tabindex="0" role="application" aria-describedby="lineDesc"
-      aria-label="The ringing chamber. Press play to ring a method; the bells permute their order by a fixed rule and sound each row. You can call a bob or a single to change the course, or take a bell and strike it in its turn with the space bar."></canvas>
+      aria-label="The ringing chamber. Press the space bar, or the ring button, to start and stop the bells; they permute their order by a fixed rule and sound each row. Choose the method and the number of bells below, and call a bob or a single to alter the course."></canvas>
     <div id="startcover">
       <button id="start" type="button">enter the tower</button>
     </div>
@@ -143,7 +143,94 @@
 
   <section class="about">
     <h2>About the changes</h2>
-    <p id="aboutPlaceholder">(notes arrive with the morning)</p>
+    <p>English bells do not play tunes. In the towers of some five thousand
+    English churches, a band of ringers &mdash; one person to each bell,
+    five or six or eight or twelve of them &mdash; rings the bells not in a
+    melody but in <em>changes</em>: the bells sound one after another, a
+    falling scale, and then that order is permuted, and permuted again, and
+    again, by a strict rule &mdash; from any row to the next, each bell may
+    move at most one place. That single constraint is the whole art, and it
+    comes from the iron: a full-circle ringing bell hangs on a great wheel
+    and swings a full turn on each pull, sounding once at the top of each
+    swing, and its enormous inertia means you cannot re-strike it or hurry
+    it &mdash; you can only nudge <em>when</em>, in its two-second cycle, it
+    speaks. So a bell can trade places with its neighbour, and no more.
+    The ringers weave those swaps into <em>methods</em>, and the whole
+    performance opens in <em>rounds</em> (the bells in order) and must, to
+    end, come back to rounds.</p>
+    <p>What you see drawn is the <em>blue line</em> &mdash; the way ringers
+    learn a method. Follow one bell down the page, row by row, and its
+    changing place traces a wavering line; every working bell rides the same
+    line, each starting at a different point on it. The treble, bell one,
+    is drawn apart in red, because in these plain methods it never deviates:
+    it simply <em>hunts</em>, up to the back and down to the front, a clean
+    sawtooth, while the working bells do the method's real work around it.
+    Plain Hunt is the barest of all &mdash; everyone hunts, and after twice
+    as many changes as there are bells it dead-ends back in rounds. Plain
+    Bob is Plain Hunt with one change altered at the end of each
+    <em>lead</em>: a bell makes second's place instead of crossing, one
+    small catch that keeps the rows from repeating and carries the band
+    through a sixty-change <em>plain course</em> before it comes round. To
+    ring further &mdash; to reach the <em>extent</em>, every possible order
+    exactly once &mdash; a conductor <em>calls</em>: a <em>bob</em>, a
+    <em>single</em>, a shouted word that substitutes one change and splices
+    a new course onto the old without ever repeating a row.</p>
+    <p>The numbers climb terribly fast. Six bells have 720 orderings (that is
+    six factorial); seven have 5,040; eight have 40,320; twelve have more
+    than four hundred and seventy-nine million. A <em>peal</em> is at least
+    five thousand changes rung continuously, from memory, without a mistake,
+    for about three hours; a <em>quarter-peal</em> is a mere twelve hundred
+    and fifty, some forty-five minutes. The full extent on twelve bells,
+    rung once through, would take upward of thirty years without a pause. It
+    is a mathematics you can stand inside, and it was being rung in English
+    towers before Newton was born: the idiom <em>to ring the changes</em>
+    dates from the early 1600s, and means exactly this &mdash; to say the
+    same thing in every possible order.</p>
+    <p>The sound is mathematics too. A bell is not a harmonic instrument; if
+    it were, it would sound like an organ. A well-tuned English bell rings
+    five principal partials at fixed ratios to its prime &mdash; the
+    <em>hum</em> an octave below (and the last to fade), the prime itself,
+    then a <em>tierce</em>, a <em>quint</em>, and the <em>nominal</em> an
+    octave above &mdash; and the tierce sits a <em>minor</em> third above
+    the prime, a ratio of six to five. That one inharmonic interval is why
+    every English bell sounds plaintive: the melancholy is not a mood but a
+    property of the casting, tuned into the bronze on a lathe. Stranger
+    still, the note you would name the bell by is not really there. The
+    <em>strike note</em> is a virtual pitch, a ghost the ear assembles from
+    the upper partials, near a frequency that carries almost no sound of its
+    own. The bells here are synthesized from those partials, each nominal
+    doubled a few hertz apart so it warbles the way a real, slightly
+    out-of-round bell does; nothing is sampled.</p>
+    <p>The founders and their tuning are worth a line. The five-partial
+    true-harmonic scheme is called Simpson tuning, after Canon Arthur
+    Simpson, a Sussex rector who published in 1895 the plain diagnosis of
+    <em>why bells sound out of tune and how to cure them</em>. The
+    Whitechapel Bell Foundry, Britain's oldest manufacturing company, which
+    cast Big Ben and a Liberty Bell, closed in 2017 after nearly four and a
+    half centuries; John Taylor &amp; Co of Loughborough rings on, the last
+    great foundry. Bell metal is bronze &mdash; roughly four parts copper to
+    one of tin, near double the tin of ordinary bronze, which is what gives
+    it its long resonance. And the exemplary novel is Dorothy L. Sayers'
+    <em>The Nine Tailors</em>, whose band rings a nine-hour feat of Kent
+    Treble Bob Major, and whose title is the death-knell: nine tellers, or
+    tailors, make a man &mdash; the tenor tolled three times three for a man
+    lost, then once for each year of his age.</p>
+    <p class="quiet">What I must confess: change-ringing is a communal,
+    physical, weighty thing &mdash; ropes and muscle and a belfry, one
+    living person to each bell, a band breathing together &mdash; and this
+    is a solo, silent, weightless abstraction of it, rung by arithmetic on a
+    screen. The permutations are exact (Plain Bob Minor's plain course is
+    its true sixty changes, and it comes round); the bells' partials are the
+    real ratios; but the register is chosen for a small speaker, not a
+    tower, and the timing is compressed. I have kept the open handstroke
+    lead &mdash; the little silence every other row that keeps real ringing
+    from sounding like a machine &mdash; because without it, it is not
+    ringing. It is the one art on this shelf that cannot really be made
+    alone, and I have made it alone, as an echo of a thing that only works
+    with people.</p>
+    <p class="quiet">Nothing here is kept but the sound, and that only while
+    it rings; nothing is recorded. The typefaces arrive from Google's
+    servers, and the rest is files.</p>
   </section>
 </main>
 <footer>kept &middot; glim &middot; the twentieth night</footer>
@@ -272,12 +359,14 @@ var bellPrime = [];      // prime frequency per bell (index 0 = treble)
 // partial ratios to the prime, with per-partial gain and decay (seconds).
 // The tierce is a MINOR third (~1.2) — the reason bells sound melancholy.
 var PARTIALS = [
-  { r: 0.5,  g: 0.5,  d: 3.2, type: 'sine' },   // hum, rings longest
-  { r: 1.0,  g: 1.0,  d: 2.0, type: 'sine' },   // prime
-  { r: 1.2,  g: 0.7,  d: 1.4, type: 'sine' },   // tierce (minor third)
-  { r: 1.5,  g: 0.45, d: 1.1, type: 'sine' },   // quint
-  { r: 2.0,  g: 0.85, d: 0.9, type: 'sine' },   // nominal (naming note)
-  { r: 2.5,  g: 0.2,  d: 0.5, type: 'sine' },   // superquint, faint
+  { r: 0.5,   g: 0.5,  d: 3.8, type: 'sine' },   // hum, rings longest
+  { r: 1.0,   g: 1.0,  d: 2.1, type: 'sine' },   // prime
+  { r: 1.2,   g: 0.7,  d: 1.5, type: 'sine' },   // tierce (a MINOR third — the melancholy)
+  { r: 1.5,   g: 0.45, d: 1.1, type: 'sine' },   // quint (a fifth, glassy)
+  { r: 2.0,   g: 0.8,  d: 0.9, type: 'sine' },   // nominal (the naming note)
+  { r: 2.008, g: 0.5,  d: 0.9, type: 'sine' },   // a second nominal, a few Hz off —
+                                                 // the beat that makes a real bell warble
+  { r: 3.0,   g: 0.18, d: 0.5, type: 'sine' },   // twelfth/superquint, faint and quick
 ];
 function buildBells(k) {
   // a descending major scale from the treble (bell 1, highest) to tenor
@@ -327,16 +416,15 @@ var BLOW = 0.19;         // seconds between successive bells in a row
 var timers = [];
 var strokeHand = true;   // alternate handstroke / backstroke
 var pendingRows = [];    // rows queued for drawing as they sound
-var takenBell = 0;       // 0 = ring all; else the bell the visitor holds
-var awaitStrike = false; // when holding a bell, wait for the space press
 
 function scheduleRow(row, t0) {
-  // one whole-pull row: n blows spaced by BLOW; handstroke rows get an extra
-  // blow of silence at the lead (the "open handstroke lead")
+  // one row: n blows spaced by BLOW. The "open handstroke lead" is one blow
+  // of silence BEFORE each handstroke row, so the bells group into whole
+  // pulls (handstroke + backstroke) with a breath between pulls
+  var lead = strokeHand ? BLOW : 0;
   for (var pos = 0; pos < row.length; pos++) {
     var b = row[pos] - 1;
-    var when = t0 + pos * BLOW;
-    if (takenBell && row[pos] === takenBell) continue;  // the visitor rings this one
+    var when = t0 + lead + pos * BLOW;
     strike(b, when, b === 0 ? 0.8 : 0.7 + (b / n) * 0.5);
   }
 }
