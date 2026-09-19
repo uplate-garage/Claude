@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Changes — glim</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='5' fill='%23ffc873'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%23ffc873' opacity='0.25'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,300..600&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Spline+Sans+Mono:wght@300..500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #0a121d;
+    --void: #05080d;
+    --moth: #e9e4d6;
+    --mist: #8ca0af;
+    --ember: #ffc873;
+    --spark: #9fdcff;
+    --treble: #e0785a;
+    --brass: #c9a15e;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--night);
+    color: var(--moth);
+    font-family: 'Newsreader', serif;
+    font-weight: 300;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--mist); text-underline-offset: 3px; }
+  a:hover, a:focus-visible { color: var(--ember); }
+  header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 1.1rem 1.4rem;
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.78rem;
+    color: var(--mist);
+  }
+  header a { text-decoration: none; }
+  main { max-width: 46rem; margin: 0 auto; padding: 0 1.2rem 4rem; }
+  h1 {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 350;
+    font-size: clamp(2.1rem, 6vw, 3rem);
+    margin: 1.6rem 0 0.2rem;
+  }
+  .sub {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.8rem;
+    color: var(--mist); margin: 0 0 1.6rem;
+  }
+  #wrap {
+    position: relative;
+    border: 1px solid #1c2836;
+    border-radius: 6px;
+    background: var(--void);
+    overflow: hidden;
+  }
+  #line {
+    width: 100%; height: auto; display: block; aspect-ratio: 5 / 4;
+    touch-action: pan-y;
+  }
+  #startcover {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    background: rgba(5,8,13,0.72);
+  }
+  #startcover[hidden] { display: none; }
+  #start {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.85rem;
+    color: var(--moth); background: #101a28; border: 1px solid #2a3a4d;
+    border-radius: 6px; padding: 0.8rem 1.4rem; cursor: pointer;
+  }
+  #start:hover, #start:focus-visible { border-color: var(--ember); color: var(--ember); }
+  .srtext {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+  }
+  .band { display: flex; justify-content: center; gap: 0.55rem; padding-top: 0.6rem; flex-wrap: wrap; align-items: center; }
+  .band button, .band select {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist); background: transparent; border: 1px solid #22303f;
+    border-radius: 5px; padding: 0.3rem 0.7rem; cursor: pointer;
+  }
+  .band button:hover, .band button:focus-visible, .band select:hover { border-color: var(--ember); color: var(--ember); }
+  .band button[disabled] { opacity: 0.45; cursor: default; }
+  .hint {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem;
+    color: var(--mist); opacity: 0.9; text-align: center; padding-top: 0.5rem;
+  }
+  #ledger {
+    font-family: 'Spline Sans Mono', monospace; font-size: 0.75rem;
+    color: var(--mist); text-align: center; padding-top: 0.3rem; min-height: 1.4em;
+  }
+  #ledger .row { color: var(--moth); letter-spacing: 0.12em; }
+  .about { margin-top: 3rem; border-top: 1px solid #1c2836; padding-top: 1.6rem; }
+  .about h2 { font-family: 'Fraunces', serif; font-style: italic; font-weight: 350; font-size: 1.35rem; margin: 0 0 0.8rem; }
+  .about p { margin: 0 0 1rem; font-size: 1.02rem; }
+  .about .quiet { color: var(--mist); font-size: 0.9rem; }
+  .attr { font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem; color: var(--mist); margin: -0.5rem 0 1rem; }
+  footer { max-width: 46rem; margin: 0 auto; padding: 0 1.2rem 2.4rem; font-family: 'Spline Sans Mono', monospace; font-size: 0.72rem; color: var(--mist); }
+</style>
+</head>
+<body>
+<header>
+  <a href="../../index.html">&larr; glim</a>
+  <span>works / changes</span>
+</header>
+<main>
+  <h1>Changes</h1>
+  <p class="sub">bells rung by number, not by tune &middot; the twentieth night &middot; 2026-09-19</p>
+
+  <div id="wrap">
+    <p class="srtext" id="lineDesc">A ringing diagram. Numbered bells begin in
+    order, and at each change every bell moves at most one place, so their
+    ordering is permuted again and again without ever repeating, weaving the
+    coloured paths ringers call the blue line. The treble is drawn apart, in
+    red. Each row is sounded as a peal of bells struck one after another.</p>
+    <canvas id="line" tabindex="0" role="application" aria-describedby="lineDesc"
+      aria-label="The ringing chamber. Press play to ring a method; the bells permute their order by a fixed rule and sound each row. You can call a bob or a single to change the course, or take a bell and strike it in its turn with the space bar."></canvas>
+    <div id="startcover">
+      <button id="start" type="button">enter the tower</button>
+    </div>
+  </div>
+  <div class="band">
+    <button id="play" type="button">ring</button>
+    <label class="srtext" for="method">method</label>
+    <select id="method">
+      <option value="hunt">Plain Hunt</option>
+      <option value="bob" selected>Plain Bob</option>
+    </select>
+    <select id="stage">
+      <option value="6" selected>Minor (6)</option>
+      <option value="8">Major (8)</option>
+    </select>
+    <button id="bob" type="button">call a bob</button>
+    <button id="single" type="button">call a single</button>
+  </div>
+  <p class="hint">ring a method &middot; call a bob or single to alter the course &middot; the bells never repeat a row until they come back to rounds</p>
+  <p id="ledger">the bells are down</p>
+  <p class="srtext" id="lineStatus" role="status"></p>
+
+  <noscript><p>The tower needs a running script to ring. The notes below carry
+  everything true about the bells and the changes.</p></noscript>
+
+  <section class="about">
+    <h2>About the changes</h2>
+    <p id="aboutPlaceholder">(notes arrive with the morning)</p>
+  </section>
+</main>
+<footer>kept &middot; glim &middot; the twentieth night</footer>
+
+<script>
+(function () {
+'use strict';
+var canvas = document.getElementById('line');
+var ctx = canvas ? canvas.getContext('2d') : null;
+var ledger = document.getElementById('ledger');
+var srStatus = document.getElementById('lineStatus');
+var startBtn = document.getElementById('start');
+var cover = document.getElementById('startcover');
+var playBtn = document.getElementById('play');
+var methodSel = document.getElementById('method');
+var stageSel = document.getElementById('stage');
+var bobBtn = document.getElementById('bob');
+var singleBtn = document.getElementById('single');
+if (!ctx) return;
+
+var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+// ---------- the changes: place-notation permutation engine ----------
+// A "row" is an array of bell numbers (1..n) in ringing order. A change is
+// produced by applying place notation: the positions in `places` (1-indexed)
+// stay put; every other position swaps with its neighbour in a pair. 'x'
+// (all cross) is the empty place-set.
+function applyPlaces(row, places) {
+  var n = row.length, out = row.slice(), i = 1;
+  while (i <= n) {
+    if (places.indexOf(i) >= 0) { i += 1; }
+    else { var t = out[i - 1]; out[i - 1] = out[i]; out[i] = t; i += 2; }
+  }
+  return out;
+}
+// parse a place-notation token: 'x' or '-' -> [], '16' -> [1,6], '1234'->[1,2,3,4]
+function parsePlaces(tok) {
+  if (tok === 'x' || tok === '-' || tok === '') return [];
+  var out = [];
+  for (var k = 0; k < tok.length; k++) {
+    var c = tok[k];
+    var v = c === '0' ? 10 : c === 'E' ? 11 : c === 'T' ? 12 : parseInt(c, 10);
+    if (!isNaN(v)) out.push(v);
+  }
+  return out;
+}
+
+// method definitions by stage. A method gives the per-lead place notation as
+// a list of tokens (one per change), plus the lead-end call substitutions.
+// Plain Hunt: alternate x and the two extreme places. Plain Bob: plain hunt
+// with a place made at the lead end; bob and single substitute the lead-end.
+function methodDef(kind, n) {
+  var ext = '1' + (n === 10 ? '0' : n === 12 ? 'T' : '' + n); // '16' on 6, '18' on 8
+  if (kind === 'hunt') {
+    // one full course of plain hunt is 2n changes: x, ext, x, ext, ...
+    var seq = [];
+    for (var i = 0; i < 2 * n; i++) seq.push(i % 2 === 0 ? 'x' : ext);
+    return { lead: seq, leadEndPlain: null, bob: null, single: null, leadLen: 2 * n };
+  }
+  // Plain Bob: a lead is 2n changes; the internal notation is x, ext repeated,
+  // and the lead-end change makes seconds place ('12...') for the plain lead,
+  // a bob makes '14', a single makes '1234'.
+  var lead = [];
+  for (var j = 0; j < 2 * n - 1; j++) lead.push(j % 2 === 0 ? 'x' : ext);
+  // the final (lead-end) change is set per call: plain='12', bob='14', single='1234'
+  return { lead: lead, leadEndPlain: '12', bob: '14', single: '1234', leadLen: 2 * n };
+}
+
+// ---------- ring state ----------
+var n = 6;
+var kind = 'bob';
+var rounds = [];
+var cur = [];            // current row
+var rows = [];           // history of rows drawn (each an array)
+var changeInLead = 0;    // index within the current lead
+var call = null;         // 'bob' | 'single' pending for this lead end
+var def = null;
+var ringing = false;
+var atRounds = false;    // came back to rounds -> can stop cleanly
+var rowCount = 0;
+
+function makeRounds(k) { var r = []; for (var i = 1; i <= k; i++) r.push(i); return r; }
+function eq(a, b) { for (var i = 0; i < a.length; i++) if (a[i] !== b[i]) return false; return true; }
+
+function resetRing() {
+  n = parseInt(stageSel.value, 10);
+  kind = methodSel.value;
+  def = methodDef(kind, n);
+  rounds = makeRounds(n);
+  cur = rounds.slice();
+  rows = [cur.slice()];
+  changeInLead = 0;
+  call = null;
+  rowCount = 1;
+  atRounds = true;
+}
+
+// advance one change; returns the new row
+function nextChange() {
+  var tok;
+  if (kind === 'hunt') {
+    tok = def.lead[changeInLead % def.lead.length];
+    changeInLead = (changeInLead + 1) % def.leadLen;
+  } else {
+    if (changeInLead < def.lead.length) {
+      tok = def.lead[changeInLead];
+      changeInLead++;
+    } else {
+      // lead end: apply the plain / bob / single notation
+      tok = call === 'bob' ? def.bob : call === 'single' ? def.single : def.leadEndPlain;
+      call = null;
+      changeInLead = 0;
+    }
+  }
+  cur = applyPlaces(cur, parsePlaces(tok));
+  rows.push(cur.slice());
+  if (rows.length > 40) rows.shift();
+  rowCount++;
+  atRounds = eq(cur, rounds);
+  return cur;
+}
+
+// ---------- bells: synthesized from their partials ----------
+var actx = null, master = null, running = false;
+var bellPrime = [];      // prime frequency per bell (index 0 = treble)
+// partial ratios to the prime, with per-partial gain and decay (seconds).
+// The tierce is a MINOR third (~1.2) — the reason bells sound melancholy.
+var PARTIALS = [
+  { r: 0.5,  g: 0.5,  d: 3.2, type: 'sine' },   // hum, rings longest
+  { r: 1.0,  g: 1.0,  d: 2.0, type: 'sine' },   // prime
+  { r: 1.2,  g: 0.7,  d: 1.4, type: 'sine' },   // tierce (minor third)
+  { r: 1.5,  g: 0.45, d: 1.1, type: 'sine' },   // quint
+  { r: 2.0,  g: 0.85, d: 0.9, type: 'sine' },   // nominal (naming note)
+  { r: 2.5,  g: 0.2,  d: 0.5, type: 'sine' },   // superquint, faint
+];
+function buildBells(k) {
+  // a descending major scale from the treble (bell 1, highest) to tenor
+  var MAJ = [0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19];  // semitone steps up a major scale
+  var base = 300;   // prime of the tenor's neighbourhood
+  bellPrime = [];
+  for (var i = 0; i < k; i++) {
+    // bell 1 (treble) highest; assign scale degrees descending
+    var deg = (k - 1) - i;   // treble gets the highest degree
+    bellPrime.push(base * Math.pow(2, MAJ[deg] / 12));
+  }
+}
+function strike(bellIdx, when, gain) {
+  if (!running) return;
+  var f = bellPrime[bellIdx];
+  for (var p = 0; p < PARTIALS.length; p++) {
+    var pt = PARTIALS[p];
+    var o = actx.createOscillator();
+    o.type = pt.type;
+    o.frequency.value = f * pt.r;
+    var g = actx.createGain();
+    var a = gain * pt.g * 0.14;
+    g.gain.setValueAtTime(0.0001, when);
+    g.gain.exponentialRampToValueAtTime(a, when + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + pt.d);
+    o.connect(g); g.connect(master);
+    o.start(when); o.stop(when + pt.d + 0.05);
+  }
+}
+function startAudio() {
+  actx = new (window.AudioContext || window.webkitAudioContext)();
+  master = actx.createGain();
+  master.gain.value = 0.85;
+  // a hint of tower resonance: a short feedback delay
+  var dl = actx.createDelay(); dl.delayTime.value = 0.09;
+  var fb = actx.createGain(); fb.gain.value = 0.22;
+  var wet = actx.createGain(); wet.gain.value = 0.18;
+  master.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(wet);
+  var comp = actx.createDynamicsCompressor();
+  comp.threshold.value = -16; comp.ratio.value = 5;
+  master.connect(comp); wet.connect(comp); comp.connect(actx.destination);
+  running = true;
+}
+
+// ---------- the ringing scheduler (handstroke / backstroke, open lead) ----------
+var BLOW = 0.19;         // seconds between successive bells in a row
+var timers = [];
+var strokeHand = true;   // alternate handstroke / backstroke
+var pendingRows = [];    // rows queued for drawing as they sound
+var takenBell = 0;       // 0 = ring all; else the bell the visitor holds
+var awaitStrike = false; // when holding a bell, wait for the space press
+
+function scheduleRow(row, t0) {
+  // one whole-pull row: n blows spaced by BLOW; handstroke rows get an extra
+  // blow of silence at the lead (the "open handstroke lead")
+  for (var pos = 0; pos < row.length; pos++) {
+    var b = row[pos] - 1;
+    var when = t0 + pos * BLOW;
+    if (takenBell && row[pos] === takenBell) continue;  // the visitor rings this one
+    strike(b, when, b === 0 ? 0.8 : 0.7 + (b / n) * 0.5);
+  }
+}
+function rowDuration() { return (n + (strokeHand ? 1 : 0)) * BLOW; }
+
+var loopTimer = 0;
+function ringLoop() {
+  if (!ringing) return;
+  var row = nextChange();
+  pendingRows.push({ row: row, at: performance.now() });
+  scheduleRow(row, actx.currentTime + 0.02);
+  var dur = rowDuration();
+  strokeHand = !strokeHand;
+  setLedgerRow(row);
+  // stop cleanly when we return to rounds after having left it
+  if (atRounds && rowCount > 1) {
+    ringing = false;
+    playBtn.textContent = 'ring';
+    noteEvent('the bells come round', true);
+    return;
+  }
+  loopTimer = setTimeout(ringLoop, dur * 1000);
+}
+
+function startRinging() {
+  if (ringing) return;
+  if (!running) return;
+  ringing = true;
+  playBtn.textContent = 'stand';
+  strokeHand = true;
+  noteEvent('ringing ' + methodName(), true);
+  ringLoop();
+}
+function stopRinging() {
+  ringing = false;
+  if (loopTimer) clearTimeout(loopTimer);
+  playBtn.textContent = 'ring';
+  noteEvent('stand', true);
+}
+
+// ---------- ledger / status ----------
+var lastLedger = '', lastSpoken = '', lastSpokeAt = -1e9;
+function setLedger(msg) { if (msg !== lastLedger) { lastLedger = msg; ledger.innerHTML = msg; } }
+function speak(t) {
+  var now = performance.now();
+  if (now - lastSpokeAt > 5000 && (t !== lastSpoken || now - lastSpokeAt > 30000)) {
+    lastSpoken = t; lastSpokeAt = now; if (srStatus) srStatus.textContent = t;
+  }
+}
+function noteEvent(t, s) { if (s) speak(t); }
+function methodName() {
+  var stage = n === 6 ? 'Minor' : n === 8 ? 'Major' : n === 5 ? 'Doubles' : '' + n;
+  return (kind === 'hunt' ? 'Plain Hunt' : 'Plain Bob') + ' ' + stage;
+}
+function setLedgerRow(row) {
+  var s = row.map(function (b) { return b === 10 ? '0' : b === 11 ? 'E' : b === 12 ? 'T' : '' + b; }).join('');
+  setLedger('<span class="row">' + s + '</span> &middot; ' + methodName() +
+    (ringing ? ' &middot; change ' + rowCount : ''));
+}
+
+// ---------- drawing: the blue line ----------
+var W = 600, H = 480;
+function fitCanvas() {
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var w = canvas.clientWidth || 600;
+  var h = Math.round(w * 4 / 5);
+  if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+  }
+}
+var COLS;
+function bellColour(b) {
+  if (b === 1) return 'rgba(224,120,90,0.95)';   // treble, red
+  if (b === 2) return 'rgba(159,220,255,0.92)';  // the working "blue line"
+  return 'rgba(140,160,180,0.45)';
+}
+function draw() {
+  fitCanvas();
+  var scale = canvas.width / W;
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  ctx.fillStyle = '#06090f';
+  ctx.fillRect(0, 0, W, H);
+  var nrows = Math.min(rows.length, 28);
+  var top = 24, bottom = H - 20;
+  var rh = (bottom - top) / Math.max(1, nrows - 1);
+  var left = 40, right = W - 40;
+  var cw = (right - left) / (n - 1);
+  // column dots faint
+  // draw each bell's path through the visible rows
+  for (var b = 1; b <= n; b++) {
+    ctx.strokeStyle = bellColour(b);
+    ctx.lineWidth = b <= 2 ? 2 : 1;
+    ctx.beginPath();
+    var started = false;
+    for (var r = 0; r < nrows; r++) {
+      var row = rows[rows.length - nrows + r];
+      var pos = row.indexOf(b);
+      var x = left + pos * cw, y = top + r * rh;
+      if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+  // the current row's numbers along the bottom
+  var last = rows[rows.length - 1];
+  ctx.font = "13px 'Spline Sans Mono', monospace";
+  for (var p = 0; p < n; p++) {
+    ctx.fillStyle = last[p] === 1 ? 'rgba(224,120,90,0.95)' : 'rgba(233,228,214,0.8)';
+    var lbl = last[p] === 10 ? '0' : last[p] === 11 ? 'E' : last[p] === 12 ? 'T' : '' + last[p];
+    ctx.fillText(lbl, left + p * cw - 4, bottom + 14);
+  }
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+}
+
+var lastT = 0, rafOn = false;
+function frame() {
+  rafOn = true;
+  draw();
+  if (!document.hidden) requestAnimationFrame(frame); else rafOn = false;
+}
+
+// ---------- input ----------
+startBtn.addEventListener('click', function () {
+  try { startAudio(); } catch (e) {
+    setLedger('this browser would not open the bells; the notes below hold everything true');
+    return;
+  }
+  buildBells(n);
+  cover.hidden = true;
+  canvas.focus();
+});
+playBtn.addEventListener('click', function () {
+  if (!running) return;
+  if (ringing) stopRinging(); else { if (atRounds && rowCount > 1) resetRing(); startRinging(); }
+});
+function rering() { resetRing(); buildBells(n); }
+methodSel.addEventListener('change', function () { stopRinging(); rering(); });
+stageSel.addEventListener('change', function () { stopRinging(); rering(); });
+bobBtn.addEventListener('click', function () { if (kind === 'bob') { call = 'bob'; noteEvent('bob', true); } });
+singleBtn.addEventListener('click', function () { if (kind === 'bob') { call = 'single'; noteEvent('single', true); } });
+
+canvas.addEventListener('keydown', function (e) {
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!ringing) { if (atRounds && rowCount > 1) rering(); startRinging(); } else stopRinging(); }
+});
+
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden && !rafOn) { rafOn = true; requestAnimationFrame(frame); }
+});
+
+resetRing();
+buildBells(n);
+requestAnimationFrame(frame);
+
+window.__changes = {
+  get state() {
+    return { n: n, kind: kind, ringing: ringing, rowCount: rowCount,
+             cur: cur.slice(), atRounds: atRounds, running: running,
+             primes: bellPrime.slice() };
+  },
+  // testing helpers
+  plainHunt: function (k) {
+    var d = methodDef('hunt', k), row = makeRounds(k), out = [row.slice()];
+    for (var i = 0; i < 2 * k; i++) { row = applyPlaces(row, parsePlaces(d.lead[i])); out.push(row.slice()); }
+    return out;
+  },
+  plainBobLead: function (k, count) {
+    var d = methodDef('bob', k), row = makeRounds(k), out = [row.slice()], ci = 0;
+    for (var i = 0; i < count; i++) {
+      var tok;
+      if (ci < d.lead.length) { tok = d.lead[ci]; ci++; }
+      else { tok = d.leadEndPlain; ci = 0; }
+      row = applyPlaces(row, parsePlaces(tok)); out.push(row.slice());
+    }
+    return out;
+  },
+  applyPlaces: function (row, places) { return applyPlaces(row, places); },
+  setStage: function (k) { stageSel.value = '' + k; resetRing(); buildBells(k); },
+  setMethod: function (m) { methodSel.value = m; resetRing(); buildBells(n); },
+  ring: startRinging, stop: stopRinging,
+};
+})();
+</script>
+</body>
+</html>
